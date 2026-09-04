@@ -1,3 +1,3 @@
-# Python sidecar untuk TelecomAgent
-
-__version__ = '0.1.0'
+"""TelecomAgent Python sidecar — package init."""
+__version__ = "0.1.0"
+__all__ = ["parsers", "kpi", "database"]

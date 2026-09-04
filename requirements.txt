@@ -1,0 +1,10 @@
+# rf-copilot Python Sidecar Dependencies
+# Pinned for stability and reproducibility
+
+polars==1.44.1
+duckdb==1.1.3
+qdrant-client==1.12.2
+pydantic==2.10.3
+pytest==8.3.3
+argparse  # Built-in, listed for clarity
+pathlib   # Built-in, listed for clarity
