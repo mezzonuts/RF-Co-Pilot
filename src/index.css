@@ -1,0 +1,4 @@
+@import "tailwindcss";
+:root{color-scheme:dark}
+*{font-family:Inter,system-ui,sans-serif}
+.mono{font-family:JetBrains Mono,monospace}
