@@ -1,5 +1,13 @@
 import React, { useState, useRef } from 'react'
-import { useParserCommand, useHealthCheck } from './hooks/useParserCommand'
+import { useParserCommand, useHealthCheck, type ParseResult, type KPIResult } from './hooks/useParserCommand'
+
+// Type guards for discriminated union ParseResult | KPIResult
+function isParseResult(d: ParseResult | KPIResult): d is ParseResult {
+  return 'rows' in d && 'columns' in d
+}
+function isKPIResult(d: ParseResult | KPIResult): d is KPIResult {
+  return 'result' in d && 'action' in d
+}
 
 type Tab = 'agent' | 'vault' | 'tools' | 'skills'
 
@@ -36,7 +44,7 @@ export default function App() {
     e.preventDefault()
     const files = e.dataTransfer.files
     if (files.length > 0) {
-      const filePath = files[0].path || files[0].name
+      const filePath = files[0].name
       setSelectedFile(filePath)
     }
   }
@@ -44,7 +52,7 @@ export default function App() {
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0].path || e.target.files[0].name)
+      setSelectedFile(e.target.files[0].name)
     }
   }
 
@@ -117,12 +125,12 @@ export default function App() {
               <div style={{ padding: '6px 10px', color: '#a1a1aa', fontSize: 11 }}>No file selected</div>
             )}
           </div>
-          {selectedFile && parseData && (
+          {selectedFile && parseData && isParseResult(parseData) && (
             <div style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
               <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, color: '#71717a', marginBottom: 8 }}>PARSE RESULT</div>
               <div style={{ background: '#1a1a22', border: '1px solid #27272a', borderRadius: 8, padding: 10 }}>
                 <div style={{ fontSize: 12, fontWeight: 500 }}>✓ Parsed {parseData.rows} rows</div>
-                <div style={{ fontSize: 10, color: '#71717a', fontFamily: 'monospace', marginTop: 4 }}>{parseData.columns?.length} columns</div>
+                <div style={{ fontSize: 10, color: '#71717a', fontFamily: 'monospace', marginTop: 4 }}>{parseData.columns.length} columns</div>
               </div>
             </div>
           )}
@@ -153,7 +161,7 @@ export default function App() {
                       <div style={{ fontSize: 11 }}>{parseError}</div>
                     </div>
                   )}
-                  {parseData && 'rows' in parseData && (
+                  {parseData && isParseResult(parseData) && (
                     <div style={{ background: '#14141b', border: '1px solid #27272a', borderRadius: 12, padding: 12 }}>
                       <div style={{ fontSize: 12, fontWeight: 600 }}>✓ Parse Result</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
@@ -163,7 +171,7 @@ export default function App() {
                         </div>
                         <div style={{ background: '#0a0a0f', border: '1px solid #27272a', borderRadius: 8, padding: 8, textAlign: 'center' }}>
                           <div style={{ fontSize: 10, color: '#71717a' }}>Columns</div>
-                          <div style={{ fontWeight: 700, fontFamily: 'monospace' }}>{parseData.columns?.length}</div>
+                          <div style={{ fontWeight: 700, fontFamily: 'monospace' }}>{parseData.columns.length}</div>
                         </div>
                       </div>
                     </div>
@@ -190,7 +198,7 @@ export default function App() {
                   <span style={{ marginLeft: 'auto', fontSize: 11, background: '#18181b', border: '1px solid #27272a', padding: '4px 8px', borderRadius: 8 }}>{kpiAction}</span>
                 </div>
                 <div style={{ padding: 12, overflowY: 'auto' }}>
-                  {parseData && 'result' in parseData ? (
+                  {parseData && isKPIResult(parseData) ? (
                     <div style={{ background: '#14141b', border: '1px solid #27272a', borderRadius: 12, padding: 12 }}>
                       <pre style={{ fontSize: 10, color: '#a1a1aa', overflow: 'auto', maxHeight: 400 }}>
                         {JSON.stringify(parseData.result, null, 2)}

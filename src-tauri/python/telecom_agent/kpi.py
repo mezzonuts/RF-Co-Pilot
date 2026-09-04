@@ -34,13 +34,19 @@ def calc_avg_kpi(df: pl.DataFrame) -> Dict[str, Dict[str, float]]:
             ...
         }
     
-    Example output:
-        {
-            "JKT_1023_2": {"rsrp_avg": -95.2, "sample_count": 5, ...},
-            "JKT_1024_1": {"rsrp_avg": -115.0, "sample_count": 4, ...},
-            "JKT_1025_3": {"rsrp_avg": -105.0, "sample_count": 5, ...}
-        }
+    Raises:
+        ValueError: if required columns are missing or DataFrame is empty
     """
+    # Validate DataFrame is not empty
+    if df.is_empty():
+        raise ValueError("Input DataFrame is empty — no data to aggregate")
+    
+    # Validate required columns exist
+    required_cols = ["cell_id", "rsrp", "rsrq", "sinr", "dl_throughput", "ul_throughput", "band"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
     # Group by cell_id dan aggregate (Polars v1 uses group_by)
     kpi_agg = df.group_by("cell_id").agg([
         pl.col("rsrp").mean().alias("rsrp_avg"),
@@ -95,16 +101,29 @@ def calc_percentile_kpi(
             "rsrq": {5: -19, 25: -15, 50: -9, 75: -6, 95: -3},
             "sinr": {5: 1, 25: 3, 50: 6, 75: 8, 95: 10},
         }
+    
+    Raises:
+        ValueError: if DataFrame is empty or no valid metrics found
     """
+    if df.is_empty():
+        raise ValueError("Input DataFrame is empty — no data to compute percentiles")
+    
     result = {}
     
     for metric in ["rsrp", "rsrq", "sinr"]:
         if metric in df.columns:
+            # Get non-null values
+            non_null = df.select(pl.col(metric).drop_nulls())
+            if non_null.is_empty():
+                continue
             percentile_values = {}
             for p in percentiles:
-                val = df.select(pl.col(metric).quantile(p / 100.0)).item()
+                val = non_null.select(pl.col(metric).quantile(p / 100.0)).item()
                 percentile_values[p] = round(val, 2) if val is not None else None
             result[metric] = percentile_values
+    
+    if not result:
+        raise ValueError("No valid metrics (rsrp/rsrq/sinr) found in DataFrame")
     
     return result
 
@@ -140,9 +159,16 @@ def find_worst_spots(
     
     Used in RCA engine untuk identify problem areas.
     """
+    # Check if RSRP exists
+    if "rsrp" not in df.columns:
+        return []
+
     # Filter spots below threshold
     worst_df = df.filter(pl.col("rsrp") < threshold_rsrp)
     
+    if worst_df.is_empty():
+        return []
+
     # Sort by RSRP (ascending = worst first)
     worst_sorted = worst_df.sort("rsrp").head(n)
     

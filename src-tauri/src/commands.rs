@@ -80,20 +80,23 @@ fn run_python_module(module: &str, args: &[(&str, &str)]) -> Result<Value, Strin
 /// 
 /// # Returns
 /// - JSON object with parsed data and metadata
-/// 
-/// # Example (from React)
-/// ```ts
-/// const result = await invoke('parse_dt_file', { 
-///     filePath: 'path/to/dt_log.csv',
-///     vendor: 'generic'
-/// });
-/// console.log(result.rows, result.columns, result.sample);
-/// ```
 #[tauri::command]
 pub async fn parse_dt_file(
     file_path: String,
     vendor: Option<String>,
 ) -> Result<Value, String> {
+    // Basic path validation: check if file exists and prevent directory traversal
+    let path = std::path::Path::new(&file_path);
+    if !path.exists() {
+        return Err(format!("File not found: {}", file_path));
+    }
+    
+    // Check extension
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+    if ext != "csv" && ext != "txt" {
+        return Err("Invalid file type. Only .csv and .txt are supported.".to_string());
+    }
+
     let vendor_str = vendor.unwrap_or_else(|| "generic".to_string());
     info!("parse_dt_file: file_path={}, vendor={}", file_path, vendor_str);
     
