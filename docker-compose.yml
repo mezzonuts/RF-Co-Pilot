@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PostgreSQL dengan PostGIS
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: rf-copilot-postgres
+    environment:
+      POSTGRES_USER: telecom
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_DB: rf_copilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-postgis.sql:/docker-entrypoint-initdb.d/init-postgis.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telecom -d rf_copilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.7.0
+    container_name: rf-copilot-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT_API_KEY: [REDACTED]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  qdrant_data:
+
+networks:
+  default:
+    name: rf-copilot-net

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { useParserCommand, useHealthCheck, type ParseResult, type KPIResult } from './hooks/useParserCommand'
+import { useReporting, useQgisExport, useQdrantSearch, useDbCommands } from './hooks/useBackendCommands'
 
 // Type guards for discriminated union ParseResult | KPIResult
 function isParseResult(d: ParseResult | KPIResult): d is ParseResult {
@@ -19,6 +20,11 @@ export default function App() {
   
   // Parser & KPI state
   const { isPending: parseLoading, data: parseData, error: parseError, parseFile, computeKPI } = useParserCommand()
+  const { pending: repLoading, exportReport } = useReporting()
+  const { pending: qgisLoading, exportQgis } = useQgisExport()
+  const { pending: qdrantLoading, searchSimilarKpi } = useQdrantSearch()
+  const { pending: dbLoading, queryByBand } = useDbCommands()
+  const [exportMsg, setExportMsg] = useState<string | null>(null)
   const { isOk: sidecaOk, check: checkHealth } = useHealthCheck()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
@@ -127,10 +133,29 @@ export default function App() {
           </div>
           {selectedFile && parseData && isParseResult(parseData) && (
             <div style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, color: '#71717a', marginBottom: 8 }}>PARSE RESULT</div>
-              <div style={{ background: '#1a1a22', border: '1px solid #27272a', borderRadius: 8, padding: 10 }}>
-                <div style={{ fontSize: 12, fontWeight: 500 }}>✓ Parsed {parseData.rows} rows</div>
-                <div style={{ fontSize: 10, color: '#71717a', fontFamily: 'monospace', marginTop: 4 }}>{parseData.columns.length} columns</div>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, color: '#71717a', marginBottom: 8 }}>EXPORT & SEARCH</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button onClick={async () => {
+                  try { const r = await exportReport('report.xlsx', 'excel', (parseData as any).result); setExportMsg('✓ ' + (r as any).path) } catch (e) { setExportMsg('✗ ' + String(e)) }
+                }} disabled={repLoading} style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '7px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                  {repLoading ? '⏳ Excel...' : '📊 Export Excel'}
+                </button>
+                <button onClick={async () => {
+                  try { const r = await exportReport('report.pdf', 'pdf', (parseData as any).result); setExportMsg('✓ ' + (r as any).path) } catch (e) { setExportMsg('✗ ' + String(e)) }
+                }} disabled={repLoading} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '7px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                  {repLoading ? '⏳ PDF...' : '📄 Export PDF'}
+                </button>
+                <button onClick={async () => {
+                  try { const r = await exportQgis('qgis_export.csv', 'project.qgs'); setExportMsg('✓ QGIS ' + JSON.stringify(r)) } catch (e) { setExportMsg('✗ ' + String(e)) }
+                }} disabled={qgisLoading} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '7px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                  {qgisLoading ? '⏳ QGIS...' : '🗺️ Export QGIS'}
+                </button>
+                <button onClick={async () => {
+                  try { const kpi = (parseData as any).result || { rsrp_avg: -100, sinr_avg: 8 }; const r = await searchSimilarKpi(kpi); setExportMsg('Qdrant: ' + JSON.stringify((r as any).results ?? r).slice(0,200)) } catch (e) { setExportMsg('✗ ' + String(e)) }
+                }} disabled={qdrantLoading} style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '7px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                  {qdrantLoading ? '⏳ Searching...' : '🔍 Similar KPI (Qdrant)'}
+                </button>
+                {exportMsg && <div style={{ fontSize: 10, color: '#a1a1aa', background: '#18181b', padding: 6, borderRadius: 6, wordBreak: 'break-all' }}>{exportMsg}</div>}
               </div>
             </div>
           )}

@@ -178,3 +178,222 @@ pub async fn health_check() -> Result<Value, String> {
         }
     }
 }
+
+/// Tauri command: Insert a cell into Cell Master database.
+/// 
+/// # Arguments
+/// - `cell_data`: JSON object with site_id, cell_id, lat, lon, and optional band, pci, azimuth, etc.
+/// 
+/// # Returns
+/// - JSON object with status and inserted cell ID
+#[tauri::command]
+pub async fn db_insert_cell(
+    cell_data: Value,
+) -> Result<Value, String> {
+    let cell_json = serde_json::to_string(&cell_data)
+        .map_err(|e| format!("Failed to serialize cell data: {}", e))?;
+    
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.database import get_db; db = get_db(); db.insert_cell(json.loads('{}'))",
+        cell_json.replace("'", "\\'")
+    ));
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to insert cell: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("DB error: {}", stderr));
+    }
+    
+    info!("Cell inserted: {}", cell_data.get("cell_id").unwrap_or(&json!("unknown")));
+    Ok(json!({ "status": "ok", "cell_id": cell_data.get("cell_id") }))
+}
+
+/// Tauri command: Query cells by band.
+/// 
+/// # Arguments
+/// - `band`: Band name (e.g., "n78", "b3")
+/// 
+/// # Returns
+/// - JSON object with array of cells
+#[tauri::command]
+pub async fn db_query_cells_by_band(
+    band: String,
+) -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.database import get_db; db = get_db(); cells = db.query_cells_by_band('{}'); print(json.dumps({{'cells': [dict(c) for c in cells]}})); db.close()",
+        band
+    ));
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to query cells: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("DB error: {}", stderr));
+    }
+    
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout)
+        .map_err(|e| format!("Failed to parse query result: {}", e))
+}
+
+/// Tauri command: Batch insert DT logs.
+/// 
+/// # Arguments
+/// - `logs`: Array of JSON objects with timestamp, lat, lon, rsrp, sinr, etc.
+/// 
+/// # Returns
+/// - JSON object with count of inserted logs
+#[tauri::command]
+pub async fn db_insert_dt_logs(
+    logs: Vec<Value>,
+) -> Result<Value, String> {
+    let logs_json = serde_json::to_string(&logs)
+        .map_err(|e| format!("Failed to serialize logs: {}", e))?;
+    
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.database import get_db; db = get_db(); count = db.insert_dt_log_batch(json.loads('{}'))",
+        logs_json.replace("'", "\\'")
+    ));
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to insert DT logs: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("DB error: {}", stderr));
+    }
+    
+    info!("DT logs inserted: {}", logs.len());
+    Ok(json!({ "status": "ok", "count": logs.len() }))
+}
+
+/// Tauri command: Search similar KPI metrics via Qdrant.
+/// 
+/// # Arguments
+/// - `kpi_sample`: JSON object with avg_rsrp, avg_sinr, avg_throughput_dl, etc.
+/// - `limit`: Number of results to return (default 5)
+/// 
+/// # Returns
+/// - JSON array of similar KPI records
+#[tauri::command]
+pub async fn qdrant_search_similar_kpi(
+    kpi_sample: Value,
+    limit: Option<usize>,
+) -> Result<Value, String> {
+    let limit_val = limit.unwrap_or(5);
+    let kpi_json = serde_json::to_string(&kpi_sample)
+        .map_err(|e| format!("Failed to serialize KPI: {}", e))?;
+    
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.qdrant_client import get_qdrant_manager; mgr = get_qdrant_manager(); results = mgr.search_similar_kpi(json.loads('{}'), limit={}); print(json.dumps({{'results': results}})); mgr.close()",
+        kpi_json.replace("'", "\\'"), limit_val
+    ));
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to search KPI: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Qdrant error: {}", stderr));
+    }
+    
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout)
+        .map_err(|e| format!("Failed to parse search result: {}", e))
+}
+
+/// Tauri command: Export KPI report to PDF or Excel.
+/// 
+/// # Arguments
+/// - `output_path`: Path where report will be saved (e.g., "/tmp/report.pdf")
+/// - `format`: "pdf" or "excel"
+/// - `kpi_summary`: JSON object with KPI metrics for report header
+/// 
+/// # Returns
+/// - JSON object with status and output_path
+#[tauri::command]
+pub async fn export_report(
+    output_path: String,
+    format: String,
+    kpi_summary: Option<Value>,
+) -> Result<Value, String> {
+    let kpi_json = kpi_summary
+        .map(|v| serde_json::to_string(&v).unwrap_or_default())
+        .unwrap_or_default();
+    
+    let py_exe = get_python_exe()?;
+    let cmd_str = if format == "pdf" {
+        format!(
+            "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.reporting import export_pdf_report; export_pdf_report('{}', kpi_summary=json.loads('{}'))",
+            output_path.replace("'", "\\'"), kpi_json.replace("'", "\\'")
+        )
+    } else {
+        format!(
+            "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.reporting import export_excel_report; import polars as pl; df = pl.DataFrame(); export_excel_report(df, '{}', kpi_summary=json.loads('{}'))",
+            output_path.replace("'", "\\'"), kpi_json.replace("'", "\\'")
+        )
+    };
+    
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(cmd_str);
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to export report: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Export error: {}", stderr));
+    }
+    
+    info!("Report exported to {}", output_path);
+    Ok(json!({ "status": "ok", "path": output_path, "format": format }))
+}
+
+/// Tauri command: Export parsed DT data to QGIS project.
+/// 
+/// # Arguments
+/// - `csv_path`: Path where CSV will be saved
+/// - `qgs_path`: Path where .qgs project will be saved
+/// 
+/// # Returns
+/// - JSON object with status and paths
+#[tauri::command]
+pub async fn export_qgis_project(
+    csv_path: String,
+    qgs_path: String,
+) -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    cmd.arg(format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.qgis_export import export_to_qgis_csv, generate_qgs_project; export_to_qgis_csv({{}}, '{}'); generate_qgs_project('{}'); print(json.dumps({{'status': 'ok'}}))",
+        csv_path.replace("'", "\\'"), qgs_path.replace("'", "\\'")
+    ));
+    
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to export QGIS: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("QGIS export error: {}", stderr));
+    }
+    
+    info!("QGIS project exported: csv={}, qgs={}", csv_path, qgs_path);
+    Ok(json!({ "status": "ok", "csv_path": csv_path, "qgs_path": qgs_path }))
+}
