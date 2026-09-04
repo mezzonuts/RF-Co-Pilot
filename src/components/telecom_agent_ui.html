@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TelecomAgent - UI Concept v3 (Skills)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{font-family:'Inter',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#2a2a33;border-radius:99px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:40}
+.modal-panel{position:fixed;right:0;top:0;bottom:0;width:440px;background:#0f0f14;border-left:1px solid #27272d;z-index:50;box-shadow:0 20px 40px rgba(0,0,0,0.6);overflow-y:auto}
+.modal-center{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center}
+.skill-card{transition:all 0.15s;cursor:pointer}
+.skill-card:hover{border-color:#3f3f46;background:#1e1e26}
+.toggle{width:36px;height:20px;background:#27272a;border-radius:999px;position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:#7c3aed}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.toggle.on::after{left:18px}
+</style>
+</head>
+<body class="bg-[#0a0a0f] text-zinc-200 h-screen flex flex-col overflow-hidden select-none">
+<!-- TOPBAR -->
+<div class="h-[44px] bg-[#111117] border-b border-zinc-800 flex items-center px-3 gap-3 shrink-0">
+  <div class="flex items-center gap-2.5">
+    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center"><i class="ri-signal-cellular-3-line text-white text-[16px]"></i></div>
+    <span class="font-semibold text-[14px] tracking-tight">TelecomAgent</span>
+    <span class="text-[11px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded font-medium mono text-zinc-400">RF COPILOT v0.3</span>
+  </div>
+  <div class="h-5 w-px bg-zinc-800 mx-1"></div>
+  <div class="flex items-center gap-1 bg-[#0a0a0f] border border-zinc-800 rounded-full p-1">
+    <button id="tab-agent" onclick="switchTab('agent')" class="px-3 py-1 rounded-full text-xs font-medium bg-white text-black">Agent</button>
+    <button id="tab-vault" onclick="switchTab('vault')" class="px-3 py-1 rounded-full text-xs font-medium text-zinc-400 hover:text-white">Vault</button>
+    <button id="tab-tools" onclick="switchTab('tools')" class="px-3 py-1 rounded-full text-xs font-medium text-zinc-400 hover:text-white">Tools</button>
+    <button id="tab-skills" onclick="switchTab('skills')" class="px-3 py-1 rounded-full text-xs font-medium text-zinc-400 hover:text-white">Skills</button>
+  </div>
+  <div class="flex-1"></div>
+  <div class="flex items-center gap-1.5">
+    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+    <span class="text-xs text-zinc-400 mono" id="llm-status">Qwen2.5-32B • 4 skills on</span>
+    <div class="h-4 w-px bg-zinc-700 mx-1"></div>
+    <button onclick="openLLMSettings()" title="LLM Settings" class="w-7 h-7 bg-zinc-800 border border-zinc-700 rounded-lg flex items-center justify-center hover:bg-zinc-700 transition"><i class="ri-settings-3-line text-zinc-400 text-sm"></i></button>
+    <button onclick="openSkillsQuick()" title="Skills" class="w-7 h-7 bg-zinc-800 border border-zinc-700 rounded-lg flex items-center justify-center hover:bg-zinc-700 transition"><i class="ri-flashlight-line text-zinc-400 text-sm"></i></button>
+    <div class="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><i class="ri-user-3-line text-zinc-400"></i></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="flex flex-1 overflow-hidden">
+  <!-- LEFT SIDEBAR -->
+  <div class="w-[260px] bg-[#0f0f14] border-r border-zinc-800 flex flex-col shrink-0">
+    <div class="p-3">
+      <button class="w-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition"><i class="ri-add-line"></i> New Analysis</button>
+      <div class="mt-3 flex gap-1">
+        <button class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-1.5 text-xs flex items-center justify-center gap-1 hover:border-zinc-700 transition"><i class="ri-file-excel-2-line text-emerald-400"></i> Excel</button>
+        <button class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-1.5 text-xs flex items-center justify-center gap-1 hover:border-zinc-700 transition"><i class="ri-slideshow-line text-orange-400"></i> PPT</button>
+        <button class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-1.5 text-xs flex items-center justify-center gap-1 hover:border-zinc-700 transition"><i class="ri-database-2-line text-sky-400"></i> DB</button>
+      </div>
+    </div>
+    <div class="px-3 py-2">
+      <p class="text-[10px] font-semibold tracking-widest text-zinc-500 mb-2">PROJECTS</p>
+      <div class="space-y-1">
+        <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-2 hover:border-zinc-700 transition cursor-pointer">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span><span class="text-xs font-medium flex-1">Cluster Jabodetabek</span><span class="text-[10px] bg-violet-600 text-white px-1.5 py-0.5 rounded mono">12 LOGS</span>
+        </div>
+        <div class="flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-900 rounded-lg cursor-pointer transition"><span class="w-2 h-2 bg-zinc-600 rounded-full"></span><span class="text-xs text-zinc-400">Cluster Surabaya</span></div>
+        <div class="flex items-center gap-2 px-2.5 py-1.5 hover:bg-zinc-900 rounded-lg cursor-pointer transition"><span class="w-2 h-2 bg-amber-500 rounded-full"></span><span class="text-xs text-zinc-400">5G Trial Bali</span></div>
+      </div>
+    </div>
+    <div class="px-3 py-2 flex-1 overflow-y-auto">
+      <p class="text-[10px] font-semibold tracking-widest text-zinc-500 mb-2">RECENT TASKS</p>
+      <div class="space-y-1.5">
+        <div class="bg-[#1a1a22] border border-zinc-800 rounded-lg p-2.5 hover:border-zinc-700 transition cursor-pointer">
+          <p class="text-xs font-medium">DT Cluster 1 — RSRP Analysis</p><p class="text-[11px] text-zinc-500 mono mt-1">2 jam lalu • 98% RSRP ≥ -100dBm</p>
+          <div class="flex gap-1 mt-2"><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">Excel ✓</span><span class="text-[10px] bg-sky-950 text-sky-400 border border-sky-800 px-1.5 py-0.5 rounded">PPT ✓</span></div>
+        </div>
+        <div class="px-2.5 py-2 hover:bg-zinc-900 rounded-lg cursor-pointer border border-transparent transition"><p class="text-xs text-zinc-300">OSS KPI Weekly — HOSR Drop</p><p class="text-[11px] text-zinc-500">Kemarin • 3 cells degraded</p></div>
+        <div class="px-2.5 py-2 hover:bg-zinc-900 rounded-lg cursor-pointer border border-transparent transition"><p class="text-xs text-zinc-300">PCI Collision Audit</p><p class="text-[11px] text-zinc-500">3 hari lalu</p></div>
+      </div>
+      <p class="text-[10px] font-semibold tracking-widest text-zinc-500 mt-4 mb-2">ACTIVE SKILLS</p>
+      <div class="space-y-1" id="sidebar-skills">
+        <div class="flex items-center gap-2 text-xs px-2 py-1 rounded hover:bg-zinc-900"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span><span class="flex-1 truncate">Analyze Drive Test</span><span class="text-[10px] text-zinc-500">on</span></div>
+        <div class="flex items-center gap-2 text-xs px-2 py-1 rounded hover:bg-zinc-900"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span><span class="flex-1 truncate">OSS KPI Weekly</span><span class="text-[10px] text-zinc-500">on</span></div>
+        <div class="flex items-center gap-2 text-xs px-2 py-1 rounded hover:bg-zinc-900"><span class="w-1.5 h-1.5 bg-zinc-600 rounded-full"></span><span class="flex-1 truncate text-zinc-500">Coverage Map</span><span class="text-[10px] text-zinc-600">off</span></div>
+        <button onclick="switchTab('skills')" class="text-[11px] text-violet-400 hover:text-violet-300 mt-1 px-2">Manage skills →</button>
+      </div>
+    </div>
+    <div class="p-2.5 border-t border-zinc-800 flex items-center gap-2">
+      <span class="text-[11px] text-zinc-500 mono">DB: PostGIS</span><span class="ml-auto w-2 h-2 bg-emerald-500 rounded-full"></span>
+    </div>
+  </div>
+
+  <!-- CENTER VIEWS -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- AGENT WORKSPACE -->
+    <div id="view-agent" class="flex flex-1 overflow-hidden">
+      <div class="flex-1 flex flex-col bg-[#0a0a0f] min-w-0">
+        <div class="h-10 border-b border-zinc-800 flex items-center px-4 gap-2">
+          <span class="text-xs font-semibold tracking-widest text-zinc-500">AGENT CHAT</span>
+          <span class="text-[11px] bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full mono text-zinc-400">auto-tool • excel • pptx • postgis • skills:4</span>
+          <div class="flex-1"></div>
+          <button class="text-xs bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg hover:border-zinc-700 transition"><i class="ri-history-line"></i> History</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+          <div class="flex justify-end"><div class="max-w-[78%] bg-violet-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm">Analisa log DT_Jakarta_C1_0409.csv, hitung KPI RSRP/SINR/Throughput, cari 5 worst spot + rekomendasi tilt & neighbor, generate Excel + PPT 5 slide.</div></div>
+          <div class="flex gap-2.5">
+            <div class="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shrink-0 mt-1"><i class="ri-cpu-line text-violet-400 text-sm"></i></div>
+            <div class="flex-1 space-y-2">
+              <div class="bg-[#14141b] border border-zinc-800 rounded-2xl rounded-tl-sm p-3">
+                <div class="flex items-center gap-2 text-xs font-medium"><span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span> Agent memanggil skill: <span class="bg-violet-600 text-white px-1.5 py-0.5 rounded text-[11px]">Analyze Drive Test</span></div>
+                <div class="mt-2 space-y-1.5 mono text-[11px]">
+                  <div class="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-lg px-2.5 py-1.5"><i class="ri-flashlight-line text-violet-400"></i> skill load: SKILL - Analyze Drive Test.md <span class="ml-auto text-emerald-400">✓ active</span></div>
+                  <div class="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-lg px-2.5 py-1.5"><i class="ri-code-s-slash-line text-emerald-400"></i> parse_dt_log("DT_Jakarta_C1_0409.csv") <span class="ml-auto text-emerald-400">✓ 142.3k rows</span></div>
+                  <div class="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-lg px-2.5 py-1.5"><i class="ri-database-2-line text-sky-400"></i> query PostGIS: join cell_master <span class="ml-auto text-emerald-400">✓ 847 cells</span></div>
+                  <div class="flex items-center gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-lg px-2.5 py-1.5"><i class="ri-bar-chart-line text-amber-400"></i> calc KPI: RSRP/SINR/DL Thr <span class="ml-auto text-zinc-500">running...</span></div>
+                </div>
+              </div>
+              <div class="bg-[#14141b] border border-zinc-800 rounded-2xl rounded-tl-sm p-3">
+                <p class="text-sm"><b>Hasil cepat:</b> RSRP ≥ -100 dBm = 94.2% (target 95% — <span class="text-amber-400">slightly below</span>), SINR ≥ 5 dB = 81.4%, Avg DL 42.7 Mbps. 5 worst spot terdeteksi (skill logic).</p>
+                <div class="grid grid-cols-3 gap-2 mt-3">
+                  <div class="bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2 text-center"><p class="text-[10px] text-zinc-500 tracking-widest">RSRP AVG</p><p class="text-sm font-bold mono">-87.3 dBm</p></div>
+                  <div class="bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2 text-center"><p class="text-[10px] text-zinc-500 tracking-widest">SINR AVG</p><p class="text-sm font-bold mono">7.2 dB</p></div>
+                  <div class="bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2 text-center"><p class="text-[10px] text-zinc-500 tracking-widest">DL AVG</p><p class="text-sm font-bold mono">42.7 Mbps</p></div>
+                </div>
+                <div class="flex gap-2 mt-3">
+                  <a class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium py-2 rounded-lg text-center transition"><i class="ri-file-excel-2-line"></i> Download Excel</a>
+                  <a class="flex-1 bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium py-2 rounded-lg text-center transition"><i class="ri-slideshow-line"></i> Download PPTX</a>
+                </div>
+                <p class="text-[11px] text-zinc-500 mt-2 mono">Next: skill <span class="text-violet-400">Generate PPTX Report</span> auto-triggered → 5 slides</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-3 border-t border-zinc-800 bg-[#0f0f14]">
+          <div class="flex gap-1.5 mb-2.5 flex-wrap">
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-full flex items-center gap-1 transition"><i class="ri-file-add-line text-violet-400"></i> DT Log</button>
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-full flex items-center gap-1 transition"><i class="ri-table-line text-emerald-400"></i> OSS</button>
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-full flex items-center gap-1 transition"><i class="ri-flashlight-line text-amber-400"></i> /skill</button>
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-full flex items-center gap-1 transition"><i class="ri-base-station-line text-sky-400"></i> Cell Master</button>
+          </div>
+          <div class="flex items-end gap-2 bg-[#0a0a0f] border border-zinc-800 rounded-xl px-3 py-2 focus-within:border-violet-600 transition">
+            <button class="w-8 h-8 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center shrink-0"><i class="ri-attachment-2 text-zinc-400"></i></button>
+            <textarea rows="1" placeholder="Ketik /skill untuk pilih skill, atau tanya langsung..." class="flex-1 bg-transparent outline-none text-sm placeholder:text-zinc-600 resize-none py-1.5"></textarea>
+            <button class="w-8 h-8 bg-violet-600 hover:bg-violet-500 rounded-lg flex items-center justify-center shrink-0 transition"><i class="ri-send-plane-fill text-white"></i></button>
+          </div>
+          <p class="text-[10px] text-zinc-600 mono mt-1.5 text-center">Python • PostGIS • Excel/PPTX • Skills auto-load → D:\TelecomReports\</p>
+        </div>
+      </div>
+      <div class="w-[360px] bg-[#0f0f14] border-l border-zinc-800 flex flex-col shrink-0">
+        <div class="h-10 border-b border-zinc-800 flex items-center px-3 gap-1.5">
+          <span class="text-xs font-semibold tracking-widest text-zinc-500">LIVE PREVIEW</span>
+          <div class="flex gap-1 ml-auto">
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded-lg text-zinc-300 hover:border-zinc-700 transition">Excel</button>
+            <button class="text-[11px] bg-white text-black px-2 py-1 rounded-lg font-medium">PPT</button>
+            <button class="text-[11px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded-lg text-zinc-300 hover:border-zinc-700 transition">Map</button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-3 space-y-3">
+          <div class="bg-white rounded-xl overflow-hidden border border-zinc-800">
+            <div class="bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2.5 flex items-center justify-between"><p class="text-white text-xs font-semibold">Cluster C1 — Executive Summary</p><span class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded">Slide 1/5</span></div>
+            <div class="p-3 space-y-2">
+              <div class="h-20 bg-zinc-100 rounded-lg border border-zinc-200 flex items-center justify-center relative overflow-hidden"><div class="absolute inset-0 opacity-20" style="background: radial-gradient(circle at 30% 40%, #7c3aed 0%, transparent 50%), radial-gradient(circle at 70% 60%, #06b6d4 0%, transparent 50%)"></div><span class="text-[11px] text-zinc-600 relative"><i class="ri-map-2-line"></i> Coverage Map • RSRP distribution</span></div>
+              <table class="w-full text-[11px]"><tr class="text-zinc-500"><th class="text-left font-medium">KPI</th><th class="text-right">Value</th><th class="text-right">Target</th></tr><tr><td>RSRP ≥-100</td><td class="text-right font-mono">94.2%</td><td class="text-right text-amber-600">95% ✗</td></tr><tr><td>SINR ≥5dB</td><td class="text-right font-mono">81.4%</td><td class="text-right text-emerald-600">80% ✓</td></tr><tr><td>DL Thr</td><td class="text-right font-mono">42.7 Mbps</td><td class="text-right text-emerald-600">30 ✓</td></tr></table>
+            </div>
+          </div>
+          <div class="bg-[#14141b] border border-zinc-800 rounded-xl p-3"><p class="text-xs font-semibold flex items-center gap-1.5"><i class="ri-lightbulb-line text-amber-400"></i> Rekomendasi (via RCA Engine skill)</p><ol class="mt-2 space-y-1.5 text-[11px] text-zinc-400 leading-relaxed list-decimal list-inside"><li><b class="text-zinc-200">JKT_1023_2</b> — downtilt 3°→5° (overshooting)</li><li><b class="text-zinc-200">JKT_1018_1 ↔ 1020_3</b> — PCI confusion (148→312)</li><li><b class="text-zinc-200">Add Neighbor</b> JKT_1015_1 → 1022_2 (42 HO fails)</li></ol></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KNOWLEDGE VAULT -->
+    <div id="view-vault" class="hidden flex-1 overflow-hidden">
+      <div class="flex flex-1 overflow-hidden">
+        <div class="w-[240px] bg-[#0f0f14] border-r border-zinc-800 flex flex-col">
+          <div class="h-10 border-b border-zinc-800 flex items-center px-3 gap-2">
+            <i class="ri-folder-3-line text-zinc-500"></i><span class="text-xs font-semibold tracking-widest text-zinc-500">VAULT</span>
+            <button class="ml-auto w-6 h-6 bg-zinc-900 border border-zinc-800 rounded flex items-center justify-center"><i class="ri-search-line text-xs text-zinc-400"></i></button>
+          </div>
+          <div class="p-2 space-y-3 overflow-y-auto flex-1 text-xs">
+            <div>
+              <p class="text-[10px] font-semibold tracking-widest text-zinc-600 flex items-center gap-1"><i class="ri-arrow-down-s-line"></i> 3GPP Specs</p>
+              <div class="mt-1 ml-3 space-y-0.5 border-l border-zinc-800 pl-3">
+                <div class="py-1 text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5"><i class="ri-file-text-line text-sky-400"></i> TS 38.211</div>
+                <div class="py-1 text-white bg-zinc-900 rounded px-1.5 flex items-center gap-1.5"><i class="ri-file-text-line text-violet-400"></i> TS 38.331</div>
+                <div class="py-1 text-zinc-400 hover:text-white cursor-pointer flex items-center gap-1.5"><i class="ri-file-text-line text-zinc-500"></i> TS 38.300</div>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] font-semibold tracking-widest text-zinc-600"><i class="ri-flashlight-line"></i> SKILLS (.md)</p>
+              <div class="mt-1 ml-3 space-y-0.5 border-l border-zinc-800 pl-3">
+                <div class="py-1 text-violet-300 flex items-center gap-1.5"><i class="ri-quill-pen-line text-violet-400"></i> SKILL - Analyze DT</div>
+                <div class="py-1 text-zinc-400 flex items-center gap-1.5"><i class="ri-quill-pen-line text-zinc-500"></i> SKILL - RCA Engine</div>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] font-semibold tracking-widest text-zinc-600">TAGS</p>
+              <div class="flex flex-wrap gap-1 mt-1.5"><span class="text-[10px] bg-violet-950 text-violet-300 border border-violet-800 px-1.5 py-0.5 rounded-full">#handover</span><span class="text-[10px] bg-sky-950 text-sky-300 border border-sky-800 px-1.5 py-0.5 rounded-full">#rsrp</span><span class="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded-full">#pci</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex-1 flex flex-col bg-[#0a0a0f] min-w-0">
+          <div class="h-10 border-b border-zinc-800 flex items-center px-3 gap-2">
+            <span class="text-xs mono text-zinc-400">TS 38.331 — RRC Protocol</span>
+            <span class="text-[10px] bg-violet-600 text-white px-1.5 py-0.5 rounded">RAG Indexed ✓</span>
+            <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">Fine-tune ✓</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 max-w-[720px]">
+            <h1 class="text-xl font-bold">Handover Control — A3 Event</h1>
+            <p class="text-xs text-zinc-500 mono mt-1">3GPP TS 38.331 § 5.5.4</p>
+            <div class="mt-4 space-y-3 text-[13px] leading-relaxed text-zinc-300">
+              <blockquote class="border-l-2 border-violet-600 pl-3 text-zinc-400 italic">A3 event: Neighbour offset better. Condition: Mn + Ofn - Hys > Mp + Ofp</blockquote>
+              <div><strong class="text-white">Parameter kunci:</strong> a3-Offset, hysteresis, timeToTrigger, CIO</div>
+              <div class="bg-[#14141b] border border-zinc-800 rounded-lg p-3 mono text-xs"><span class="text-zinc-500">Linked skill:</span> <a class="text-violet-400 hover:underline">[[SKILL - RCA Engine]]</a> • <a class="text-violet-400 hover:underline">[[SKILL - OSS KPI]]</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="w-[280px] bg-[#0f0f14] border-l border-zinc-800 flex flex-col">
+          <div class="h-10 border-b border-zinc-800 flex items-center px-3"><span class="text-xs font-semibold tracking-widest text-zinc-500">GRAPH</span><span class="ml-auto text-[11px] text-zinc-500 mono">127 • 342</span></div>
+          <div class="flex-1 relative overflow-hidden bg-[#0a0a0f]">
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 280 200">
+              <line x1="140" y1="40" x2="80" y2="80" stroke="#3f3f46" stroke-width="1"/><line x1="140" y1="40" x2="200" y2="80" stroke="#3f3f46" stroke-width="1"/><line x1="80" y1="80" x2="60" y2="140" stroke="#3f3f46" stroke-width="1"/><line x1="200" y1="80" x2="200" y2="140" stroke="#3f3f46" stroke-width="1"/>
+              <circle cx="140" cy="40" r="14" fill="#7c3aed" stroke="#a78bfa" stroke-width="2"/><text x="140" y="44" text-anchor="middle" font-size="6" fill="white" font-weight="600">RRC</text>
+              <circle cx="80" cy="80" r="11" fill="#0e7490" stroke="#38bdf8" stroke-width="1.5"/><text x="80" y="83" text-anchor="middle" font-size="5" fill="white">HO</text>
+              <circle cx="200" cy="80" r="11" fill="#9a3412" stroke="#fb923c" stroke-width="1.5"/><text x="200" y="83" text-anchor="middle" font-size="5" fill="white">PCI</text>
+              <circle cx="60" cy="140" r="9" fill="#14532d" stroke="#4ade80" stroke-width="1"/><text x="60" y="143" text-anchor="middle" font-size="4" fill="white">RCA</text>
+              <circle cx="200" cy="140" r="9" fill="#422006" stroke="#fbbf24" stroke-width="1"/><text x="200" y="143" text-anchor="middle" font-size="4" fill="white">Tilt</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS PANEL -->
+    <div id="view-tools" class="hidden flex-1 overflow-hidden bg-[#0a0a0f]">
+      <div class="flex flex-col h-full">
+        <div class="h-10 border-b border-zinc-800 flex items-center px-4">
+          <span class="text-xs font-semibold tracking-widest text-zinc-500">AVAILABLE TOOLS</span>
+          <span class="ml-2 text-[11px] bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full mono text-zinc-500">8 tools • dipanggil via Skills</span>
+          <button onclick="switchTab('skills')" class="ml-auto text-xs bg-violet-600 hover:bg-violet-500 text-white px-3 py-1 rounded-lg">Manage Skills →</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-file-csv-line text-violet-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">DT Log Parser</p><p class="text-[11px] text-zinc-500 mt-1">Parse TEMS/Nemo CSV — polars</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Python</span><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Polars</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-bar-chart-2-line text-emerald-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">KPI Calculator</p><p class="text-[11px] text-zinc-500 mt-1">RSRP, SINR, Throughput stats</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">DuckDB</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-database-line text-sky-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">PostGIS Query</p><p class="text-[11px] text-zinc-500 mt-1">Cell Master + spatial joins</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">PostGIS</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-file-excel-2-line text-emerald-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">Excel Generator</p><p class="text-[11px] text-zinc-500 mt-1">Automated xlsx with pivot</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Openpyxl</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-slideshow-line text-orange-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">PPTX Generator</p><p class="text-[11px] text-zinc-500 mt-1">Executive summary deck</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">python-pptx</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-map-2-line text-amber-400 text-lg"></i><span class="text-[10px] bg-amber-950 text-amber-400 border border-amber-800 px-1.5 py-0.5 rounded">BETA</span></div>
+              <p class="text-xs font-semibold">Coverage Map</p><p class="text-[11px] text-zinc-500 mt-1">RSRP/SINR heatmap PNG</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Folium</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-lightbulb-line text-amber-400 text-lg"></i><span class="text-[10px] bg-amber-950 text-amber-400 border border-amber-800 px-1.5 py-0.5 rounded">BETA</span></div>
+              <p class="text-xs font-semibold">RCA Engine</p><p class="text-[11px] text-zinc-500 mt-1">Root cause analysis rules</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Qdrant RAG</span></div>
+            </div>
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+              <div class="flex items-start justify-between mb-2"><i class="ri-book-mark-line text-violet-400 text-lg"></i><span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">READY</span></div>
+              <p class="text-xs font-semibold">Vault Indexer</p><p class="text-[11px] text-zinc-500 mt-1">3GPP & vendor doc index</p>
+              <div class="mt-2 flex gap-1"><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">Qdrant</span><span class="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded">RAG</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS PANEL (Hermes-style) -->
+    <div id="view-skills" class="hidden flex-1 overflow-hidden bg-[#0a0a0f]">
+      <div class="flex flex-col h-full">
+        <div class="h-10 border-b border-zinc-800 flex items-center px-4 gap-3">
+          <span class="text-xs font-semibold tracking-widest text-zinc-500">SKILLS</span>
+          <span class="text-[11px] bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full mono text-zinc-500" id="skill-count">6 skills • 4 active</span>
+          <div class="flex-1"></div>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <i class="ri-search-line absolute left-2 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+              <input id="skill-search" oninput="filterSkills(this.value)" placeholder="Search skills..." class="bg-[#14141b] border border-zinc-800 rounded-lg pl-7 pr-3 py-1.5 text-xs w-[200px] outline-none focus:border-violet-600 placeholder:text-zinc-600">
+            </div>
+            <button onclick="openSkillModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"><i class="ri-add-line"></i> New Skill</button>
+          </div>
+        </div>
+        <!-- category filter -->
+        <div class="px-4 py-2 border-b border-zinc-800/50 flex items-center gap-1.5 overflow-x-auto">
+          <button onclick="filterCategory('all')" data-cat="all" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-white text-black font-medium whitespace-nowrap">All</button>
+          <button onclick="filterCategory('drive-test')" data-cat="drive-test" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap">Drive Test</button>
+          <button onclick="filterCategory('reporting')" data-cat="reporting" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap">Reporting</button>
+          <button onclick="filterCategory('rca')" data-cat="rca" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap">RCA</button>
+          <button onclick="filterCategory('kpi')" data-cat="kpi" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap">KPI</button>
+          <button onclick="filterCategory('optimization')" data-cat="optimization" class="cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap">Optimization</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4">
+          <div class="grid grid-cols-1 gap-2" id="skills-grid">
+            <!-- Skill 1 -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3" data-category="drive-test" data-name="Analyze Drive Test" onclick="openSkillDetail('analyze-dt')">
+              <div class="w-9 h-9 rounded-lg bg-violet-600/20 border border-violet-600/30 flex items-center justify-center shrink-0"><i class="ri-route-line text-violet-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold">Analyze Drive Test</span>
+                  <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">ACTIVE</span>
+                  <span class="text-[10px] mono text-zinc-500">SKILL - Analyze Drive Test.md</span>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Parse CSV/TXT DT logs, hitung KPI (RSRP/SINR/Throughput), detect 5 worst spots, generate Excel report.</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">drive-test</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">kpi</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">excel</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">autopilot</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle on" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+            <!-- Skill 2 -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3" data-category="reporting" data-name="Generate PPTX Report" onclick="openSkillDetail('gen-pptx')">
+              <div class="w-9 h-9 rounded-lg bg-orange-600/20 border border-orange-600/30 flex items-center justify-center shrink-0"><i class="ri-slideshow-line text-orange-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold">Generate PPTX Report</span>
+                  <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">ACTIVE</span>
+                  <span class="text-[10px] mono text-zinc-500">SKILL - Generate PPTX Report.md</span>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Convert KPI Excel → 5-slide executive deck (cover, summary, coverage map, worst spots, recommendations).</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">reporting</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">pptx</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle on" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+            <!-- Skill 3 -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3" data-category="kpi" data-name="OSS KPI Weekly Report" onclick="openSkillDetail('oss-kpi')">
+              <div class="w-9 h-9 rounded-lg bg-sky-600/20 border border-sky-600/30 flex items-center justify-center shrink-0"><i class="ri-bar-chart-box-line text-sky-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold">OSS KPI Weekly Report</span>
+                  <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">ACTIVE</span>
+                  <span class="text-[10px] mono text-zinc-500">SKILL - OSS KPI Weekly Report.md</span>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation &gt;5%.</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">oss</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">kpi</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">trending</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle on" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+            <!-- Skill 4 -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3" data-category="rca" data-name="RCA Engine" onclick="openSkillDetail('rca')">
+              <div class="w-9 h-9 rounded-lg bg-amber-600/20 border border-amber-600/30 flex items-center justify-center shrink-0"><i class="ri-bug-line text-amber-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold">RCA Engine</span>
+                  <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">ACTIVE</span>
+                  <span class="text-[10px] mono text-zinc-500">SKILL - RCA Engine.md</span>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Rule-based + RAG diagnostics: overshooting, PCI collision, missing neighbor → actionable fix.</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">rca</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">postgis</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle on" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+            <!-- Skill 5 - OFF -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3 opacity-60" data-category="optimization" data-name="Coverage Map" onclick="openSkillDetail('coverage')">
+              <div class="w-9 h-9 rounded-lg bg-zinc-700/30 border border-zinc-600/30 flex items-center justify-center shrink-0"><i class="ri-map-2-line text-zinc-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-zinc-300">Coverage Map</span>
+                  <span class="text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded">OFF</span>
+                  <span class="text-[10px] mono text-zinc-600">SKILL - Coverage Map.md</span>
+                </div>
+                <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Generate RSRP/SINR heatmap PNG via Folium + GeoJSON — overlay cell azimuth & tilt.</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">folium</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">optimization</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+            <!-- Skill 6 - OFF -->
+            <div class="skill-card bg-[#14141b] border border-zinc-800 rounded-xl p-3 flex gap-3 opacity-60" data-category="optimization" data-name="Tilt Optimizer" onclick="openSkillDetail('tilt')">
+              <div class="w-9 h-9 rounded-lg bg-zinc-700/30 border border-zinc-600/30 flex items-center justify-center shrink-0"><i class="ri-compass-3-line text-zinc-400"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-zinc-300">Tilt Optimizer</span>
+                  <span class="text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded">OFF</span>
+                  <span class="text-[10px] mono text-zinc-600">SKILL - Tilt Optimizer.md</span>
+                </div>
+                <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Slope-based electronic tilt suggestion per cell — minimize overshooting, maximize overlap control.</p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">optimization</span>
+                  <span class="text-[10px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded mono">tilt</span>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <div class="toggle" onclick="event.stopPropagation(); toggleSkill(this)"></div>
+                <button class="text-[11px] text-violet-400 hover:text-violet-300">View →</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 bg-[#14141b] border border-dashed border-zinc-700 rounded-xl text-center">
+            <p class="text-xs text-zinc-400"><i class="ri-lightbulb-line"></i> Skills = file <span class="mono text-violet-400">SKILL - *.md</span> di vault. Edit langsung di Vault atau klik New Skill.</p>
+            <p class="text-[11px] text-zinc-600 mt-1">Mirip Hermes: YAML frontmatter (title, description, tags) + steps + pitfalls.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LLM SETTINGS MODAL (Hermes-style manual config) -->
+<div id="llm-modal-backdrop" class="hidden modal-backdrop" onclick="closeLLMSettings()"></div>
+<div id="llm-modal" class="hidden modal-panel">
+  <div class="flex items-center justify-between h-14 border-b border-zinc-800 px-4 sticky top-0 bg-[#0f0f14]">
+    <span class="text-sm font-semibold flex items-center gap-2"><i class="ri-settings-3-line text-violet-400"></i> LLM Configuration</span>
+    <button onclick="closeLLMSettings()" class="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800"><i class="ri-close-line text-sm"></i></button>
+  </div>
+  <div class="p-4 space-y-5">
+    <!-- Provider -->
+    <div>
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">PROVIDER</label>
+      <select id="llm-provider" onchange="onProviderChange()" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-violet-600">
+        <option value="ollama" selected>Ollama (Local)</option>
+        <option value="openrouter">OpenRouter</option>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="hf">Hugging Face Inference</option>
+        <option value="custom">Custom OpenAI-compatible</option>
+      </select>
+      <p class="text-[11px] text-zinc-600 mt-1.5 mono" id="provider-hint">Local — no API key needed. Pastikan Ollama running.</p>
+    </div>
+    <!-- Model -->
+    <div>
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">MODEL</label>
+      <select id="llm-model" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-violet-600">
+        <option selected>qwen2.5:32b</option>
+        <option>qwen2.5:72b</option>
+        <option>llama3.3:70b</option>
+        <option>deepseek-r1:32b</option>
+        <option>mistral-nemo:12b</option>
+      </select>
+      <div class="flex gap-2 mt-2">
+        <button class="text-[11px] bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg hover:border-zinc-700 flex items-center gap-1"><i class="ri-refresh-line"></i> Refresh models</button>
+        <button class="text-[11px] bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg hover:border-zinc-700">ollama list</button>
+      </div>
+    </div>
+    <!-- Base URL -->
+    <div id="field-baseurl">
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">BASE URL</label>
+      <input id="llm-baseurl" value="http://localhost:11434/v1" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200 mono placeholder:text-zinc-600 outline-none focus:border-violet-600">
+    </div>
+    <!-- API Key -->
+    <div id="field-apikey">
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">API KEY <span class="font-normal normal-case tracking-normal text-zinc-600">— untuk cloud provider</span></label>
+      <div class="relative">
+        <input id="llm-apikey" type="password" placeholder="sk-... / sk-or-..." class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200 mono placeholder:text-zinc-600 outline-none focus:border-violet-600 pr-9">
+        <button onclick="toggleApiKey()" class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300"><i class="ri-eye-line text-sm" id="eye-icon"></i></button>
+      </div>
+      <p class="text-[10px] text-zinc-600 mt-1">Disimpan lokal (encrypted). Tidak dikirim kemana-mana.</p>
+    </div>
+    <!-- Temperature -->
+    <div>
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">TEMPERATURE <span class="mono font-normal normal-case tracking-normal text-zinc-500" id="temp-val">0.30</span></label>
+      <div class="flex items-center gap-3">
+        <input type="range" min="0" max="1" step="0.05" value="0.3" oninput="document.getElementById('temp-val').textContent=this.value" class="flex-1 accent-violet-600">
+        <span class="text-[11px] text-zinc-500 whitespace-nowrap">Deterministik → Kreatif</span>
+      </div>
+      <p class="text-[11px] text-zinc-600 mt-1">0.1–0.3 untuk analisis KPI (presisi), 0.7+ untuk brainstorming.</p>
+    </div>
+    <!-- Max Tokens / Context -->
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">MAX TOKENS</label>
+        <input type="number" value="4096" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200 mono outline-none focus:border-violet-600">
+      </div>
+      <div>
+        <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">CONTEXT WINDOW</label>
+        <select class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200 outline-none focus:border-violet-600">
+          <option>8K</option>
+          <option selected>32K</option>
+          <option>128K</option>
+          <option>200K</option>
+        </select>
+      </div>
+    </div>
+    <!-- System Prompt -->
+    <div>
+      <label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-2">SYSTEM PROMPT</label>
+      <textarea rows="4" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 mono placeholder:text-zinc-600 outline-none focus:border-violet-600 resize-none">You are TelecomAgent — expert RF engineer for 4G/5G. Help optimize networks using precise technical knowledge. Always cite 3GPP/vendor sources when relevant. Generate Excel/PPT outputs via tools.</textarea>
+    </div>
+    <!-- RAG / Tools -->
+    <div class="bg-[#14141b] border border-zinc-800 rounded-xl p-3 space-y-2">
+      <p class="text-xs font-semibold tracking-widest text-zinc-500">RAG & TOOLS</p>
+      <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked class="accent-violet-600"> <span>RAG enabled (Qdrant)</span> <span class="ml-auto text-[11px] text-zinc-500 mono">3 collections</span></label>
+      <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked class="accent-violet-600"> <span>Auto-index Vault (.md → vectors)</span></label>
+      <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked class="accent-violet-600"> <span>Graph-aware traversal</span></label>
+      <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked class="accent-violet-600"> <span>Skill auto-load on chat</span></label>
+    </div>
+    <!-- Test connection -->
+    <button onclick="testLLM()" class="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-sm py-2.5 rounded-lg flex items-center justify-center gap-2 transition"><i class="ri-plug-line"></i> Test Connection</button>
+    <p id="test-result" class="text-xs text-center hidden"></p>
+    <!-- Actions -->
+    <div class="flex gap-2 pt-2 border-t border-zinc-800">
+      <button onclick="closeLLMSettings()" class="flex-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 py-2.5 rounded-lg transition text-sm">Cancel</button>
+      <button onclick="saveLLMSettings()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-lg transition font-medium text-sm">Save & Apply</button>
+    </div>
+    <p class="text-[11px] text-zinc-600 text-center">Config disimpan di <span class="mono text-zinc-500">config.yaml</span> — hot-reload tanpa restart.</p>
+  </div>
+</div>
+
+<!-- SKILL DETAIL MODAL -->
+<div id="skill-detail-backdrop" class="hidden modal-backdrop" onclick="closeSkillDetail()"></div>
+<div id="skill-detail" class="hidden" style="position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px">
+  <div class="bg-[#0f0f14] border border-zinc-800 rounded-2xl w-full max-w-[640px] max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+    <div class="h-14 border-b border-zinc-800 flex items-center px-5 gap-3 shrink-0">
+      <div class="w-8 h-8 rounded-lg bg-violet-600/20 border border-violet-600/30 flex items-center justify-center"><i class="ri-quill-pen-line text-violet-400"></i></div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold" id="detail-title">Analyze Drive Test</p>
+        <p class="text-xs mono text-zinc-500" id="detail-file">SKILL - Analyze Drive Test.md</p>
+      </div>
+      <button onclick="closeSkillDetail()" class="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-5 space-y-4 text-sm">
+      <div class="bg-[#14141b] border border-zinc-800 rounded-xl p-3">
+        <p class="text-[11px] font-semibold tracking-widest text-zinc-500 mb-2">FRONTMATTER (YAML)</p>
+        <pre class="mono text-xs text-zinc-300 leading-relaxed overflow-x-auto">---
+title: "Analyze Drive Test Log"
+description: "Use when analyzing DT CSV logs..."
+tags: [drive-test, kpi, excel]
+---</pre>
+      </div>
+      <div>
+        <p class="text-xs font-semibold mb-2">Trigger phrases</p>
+        <ul class="text-xs text-zinc-400 list-disc list-inside space-y-1">
+          <li>"Analisa log DT_Jakarta.csv"</li>
+          <li>"Hitung KPI RSRP/SINR/Throughput"</li>
+          <li>"Cari 5 worst spot"</li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-xs font-semibold mb-2">Steps (ringkas)</p>
+        <ol class="text-xs text-zinc-400 list-decimal list-inside space-y-1">
+          <li>Parse CSV/TXT → DataFrame (polars)</li>
+          <li>Join cell_master via PostGIS</li>
+          <li>Calc KPI + worst spots</li>
+          <li>Generate Excel (.xlsx) + preview</li>
+        </ol>
+      </div>
+      <div class="bg-amber-950/30 border border-amber-800/50 rounded-lg p-3">
+        <p class="text-xs font-semibold text-amber-400 flex items-center gap-1"><i class="ri-error-warning-line"></i> Pitfalls</p>
+        <p class="text-xs text-zinc-400 mt-1">Pastikan CSV header sesuai (RSRP, SINR). Jika TXT/NRT format, gunakan parser terpisah.</p>
+      </div>
+    </div>
+    <div class="p-4 border-t border-zinc-800 flex gap-2">
+      <button onclick="closeSkillDetail()" class="flex-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 py-2 rounded-lg text-sm">Close</button>
+      <button class="flex-1 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 py-2 rounded-lg text-sm flex items-center justify-center gap-1"><i class="ri-edit-line"></i> Edit .md</button>
+      <button class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg text-sm font-medium">Test Skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW SKILL MODAL -->
+<div id="new-skill-backdrop" class="hidden modal-backdrop" onclick="closeSkillModal()"></div>
+<div id="new-skill" class="hidden" style="position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px">
+  <div class="bg-[#0f0f14] border border-zinc-800 rounded-2xl w-full max-w-[560px] overflow-hidden flex flex-col shadow-2xl">
+    <div class="h-14 border-b border-zinc-800 flex items-center px-5 justify-between shrink-0">
+      <span class="text-sm font-semibold">New Skill</span>
+      <button onclick="closeSkillModal()" class="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:bg-zinc-800"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="p-5 space-y-4">
+      <div><label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-1.5">SKILL NAME</label><input placeholder="e.g. Handover Analyzer" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-violet-600"></div>
+      <div><label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-1.5">DESCRIPTION (when to use)</label><input placeholder="Use when analyzing handover failures..." class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-violet-600"></div>
+      <div><label class="text-xs font-semibold tracking-widest text-zinc-500 block mb-1.5">TAGS (comma separated)</label><input placeholder="handover, kpi, rca" class="w-full bg-[#14141b] border border-zinc-800 rounded-lg px-3 py-2 text-sm mono outline-none focus:border-violet-600"></div>
+      <p class="text-xs text-zinc-500">File akan dibuat: <span class="mono text-violet-400">SKILL - [Name].md</span> dari template.</p>
+    </div>
+    <div class="p-4 border-t border-zinc-800 flex gap-2">
+      <button onclick="closeSkillModal()" class="flex-1 bg-zinc-900 border border-zinc-800 py-2 rounded-lg text-sm">Cancel</button>
+      <button onclick="createSkill()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg text-sm font-medium">Create from Template</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(t){
+  ['agent','vault','tools','skills'].forEach(tab => {
+    document.getElementById('view-'+tab).classList.toggle('hidden', tab !== t);
+  });
+  ['agent','vault','tools','skills'].forEach(tab => {
+    const el=document.getElementById('tab-'+tab);
+    if(el) el.className = tab===t ? 'px-3 py-1 rounded-full text-xs font-medium bg-white text-black' : 'px-3 py-1 rounded-full text-xs font-medium text-zinc-400 hover:text-white';
+  });
+}
+function openLLMSettings(){
+  document.getElementById('llm-modal-backdrop').classList.remove('hidden');
+  document.getElementById('llm-modal').classList.remove('hidden');
+}
+function closeLLMSettings(){
+  document.getElementById('llm-modal-backdrop').classList.add('hidden');
+  document.getElementById('llm-modal').classList.add('hidden');
+}
+function openSkillsQuick(){ switchTab('skills'); }
+function onProviderChange(){
+  const p=document.getElementById('llm-provider').value;
+  const modelSel=document.getElementById('llm-model');
+  const hint=document.getElementById('provider-hint');
+  const baseUrl=document.getElementById('field-baseurl');
+  const apiKey=document.getElementById('field-apikey');
+  if(p==='ollama'){
+    modelSel.innerHTML='<option selected>qwen2.5:32b</option><option>qwen2.5:72b</option><option>llama3.3:70b</option><option>deepseek-r1:32b</option>';
+    hint.textContent='Local — no API key needed. Pastikan Ollama running.';
+    baseUrl.classList.remove('hidden'); apiKey.classList.add('opacity-50');
+  } else if(p==='openrouter'){
+    modelSel.innerHTML='<option selected>qwen/qwen-2.5-32b</option><option>anthropic/claude-3.5-sonnet</option><option>openai/gpt-4o</option>';
+    hint.textContent='OpenRouter — 1 key untuk banyak model.';
+    baseUrl.classList.add('hidden'); apiKey.classList.remove('opacity-50');
+  } else if(p==='openai'){
+    modelSel.innerHTML='<option selected>gpt-4o</option><option>gpt-4o-mini</option><option>o1-preview</option>';
+    hint.textContent='OpenAI API — butuh sk-...';
+    baseUrl.classList.add('hidden'); apiKey.classList.remove('opacity-50');
+  } else if(p==='anthropic'){
+    modelSel.innerHTML='<option selected>claude-3-5-sonnet-20241022</option><option>claude-3-5-haiku-20241022</option>';
+    hint.textContent='Anthropic API.';
+    baseUrl.classList.add('hidden'); apiKey.classList.remove('opacity-50');
+  } else {
+    hint.textContent='Custom endpoint — isi Base URL + API key jika perlu.';
+    baseUrl.classList.remove('hidden'); apiKey.classList.remove('opacity-50');
+  }
+}
+function toggleApiKey(){
+  const inp=document.getElementById('llm-apikey');
+  const icon=document.getElementById('eye-icon');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  icon.className = inp.type==='password' ? 'ri-eye-line text-sm' : 'ri-eye-off-line text-sm';
+}
+function testLLM(){
+  const r=document.getElementById('test-result');
+  r.classList.remove('hidden'); r.textContent='⏳ Testing connection...'; r.className='text-xs text-center text-zinc-400';
+  setTimeout(()=>{ r.textContent='✓ Connected — Qwen2.5-32B responded in 412ms'; r.className='text-xs text-center text-emerald-400'; }, 900);
+}
+function saveLLMSettings(){
+  const model=document.getElementById('llm-model').value;
+  document.getElementById('llm-status').textContent = model + ' • 4 skills on';
+  closeLLMSettings();
+}
+function toggleSkill(el){
+  el.classList.toggle('on');
+  const card=el.closest('.skill-card');
+  const isOn=el.classList.contains('on');
+  card.style.opacity = isOn ? '1' : '0.6';
+  const badge=card.querySelector('span:nth-child(2)');
+  // quick feedback
+  updateSkillCount();
+}
+function updateSkillCount(){
+  const on=document.querySelectorAll('#skills-grid .toggle.on').length;
+  const total=document.querySelectorAll('#skills-grid .skill-card').length;
+  document.getElementById('skill-count').textContent = total+' skills • '+on+' active';
+  document.getElementById('llm-status').textContent = document.getElementById('llm-model').value + ' • '+on+' skills on';
+}
+function filterSkills(q){
+  q=q.toLowerCase();
+  document.querySelectorAll('#skills-grid .skill-card').forEach(c=>{
+    const name=c.dataset.name.toLowerCase();
+    c.style.display = name.includes(q) ? '' : 'none';
+  });
+}
+function filterCategory(cat){
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.className = b.dataset.cat===cat ? 'cat-btn text-[11px] px-2.5 py-1 rounded-full bg-white text-black font-medium whitespace-nowrap' : 'cat-btn text-[11px] px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white whitespace-nowrap';
+  });
+  document.querySelectorAll('#skills-grid .skill-card').forEach(c=>{
+    c.style.display = (cat==='all' || c.dataset.category===cat) ? '' : 'none';
+  });
+}
+function openSkillDetail(id){
+  document.getElementById('skill-detail-backdrop').classList.remove('hidden');
+  const m=document.getElementById('skill-detail');
+  m.classList.remove('hidden'); m.style.display='flex';
+  // could swap content per id — keep generic for mockup
+}
+function closeSkillDetail(){
+  document.getElementById('skill-detail-backdrop').classList.add('hidden');
+  const m=document.getElementById('skill-detail');
+  m.classList.add('hidden'); m.style.display='none';
+}
+function openSkillModal(){
+  document.getElementById('new-skill-backdrop').classList.remove('hidden');
+  const m=document.getElementById('new-skill');
+  m.classList.remove('hidden'); m.style.display='flex';
+}
+function closeSkillModal(){
+  document.getElementById('new-skill-backdrop').classList.add('hidden');
+  const m=document.getElementById('new-skill');
+  m.classList.add('hidden'); m.style.display='none';
+}
+function createSkill(){
+  alert('Skill file akan dibuat dari SKILL - Template.md → isi title/description/tags lalu save.');
+  closeSkillModal();
+}
+</script>
+</body>
+</html>
