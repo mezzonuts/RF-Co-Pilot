@@ -1,7 +1,29 @@
 {
   "name": "rf-copilot",
   "version": "0.1.0",
+  "description": "TelecomAgent — Tauri + React desktop app untuk RF engineering (NPM-only dev, no Rust/Docker required)",
   "type": "module",
+  "bin": {
+    "rf-copilot": "./bin/rf-copilot.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "src",
+    "index.html",
+    "vite.config.*",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mezzonuts/RF-Co-Pilot.git"
+  },
+  "keywords": ["telecom", "rf", "tauri", "react", "vite"],
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
