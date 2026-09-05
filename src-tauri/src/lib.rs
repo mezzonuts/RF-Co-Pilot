@@ -17,6 +17,12 @@ pub fn run() {
             commands::qdrant_search_similar_kpi,
             commands::export_report,
             commands::export_qgis_project,
+            commands::vault_ingest_file,
+            commands::vault_ingest_content,
+            commands::vault_get_tree,
+            commands::vault_get_file,
+            commands::vault_get_graph,
+            commands::vault_search,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

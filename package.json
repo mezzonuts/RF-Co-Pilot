@@ -25,6 +25,8 @@
   "keywords": ["telecom", "rf", "tauri", "react", "vite"],
   "license": "MIT",
   "scripts": {
+    "tauri": "tauri",
+    "tauri-dev": "tauri dev",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

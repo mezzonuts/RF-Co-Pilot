@@ -397,3 +397,160 @@ pub async fn export_qgis_project(
     info!("QGIS project exported: csv={}, qgs={}", csv_path, qgs_path);
     Ok(json!({ "status": "ok", "csv_path": csv_path, "qgs_path": qgs_path }))
 }
+
+/// Tauri command: Ingest a knowledge file (PDF/DOCX/TXT) into Obsidian vault.
+/// 
+/// # Arguments
+/// - `file_path`: Absolute path to the source file.
+/// 
+/// # Returns
+/// - JSON object with status, message, concepts, atomic_notes, etc.
+#[tauri::command]
+pub async fn vault_ingest_file(file_path: String) -> Result<Value, String> {
+    let path = std::path::Path::new(&file_path);
+    if !path.exists() {
+        return Err(format!("File not found: {}", file_path));
+    }
+    
+    let abs_path = path.canonicalize().map_err(|e| format!("Invalid path: {}", e))?;
+    let abs_path_str = abs_path.to_string_lossy();
+    
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    let py_code = format!(
+        "import json, sys; from pathlib import Path; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_ingest import get_vault_engine; engine = get_vault_engine(); result = engine.ingest_file(Path(r'{}')); print(json.dumps(result))",
+        abs_path_str
+    );
+    cmd.arg(py_code);
+    
+    info!("Ingesting file: {}", abs_path_str);
+    let output = cmd.output()
+        .map_err(|e| format!("Failed to run ingest command: {}", e))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        error!("Python ingest error: {}", stderr);
+        return Err(format!("Python ingest error: {}", stderr));
+    }
+    
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout)
+        .map_err(|e| format!("Failed to parse ingest result JSON: {}. Output: {}", e, stdout))
+}
+
+/// Tauri command: Ingest from raw text content (browser fallback when file.path unavailable).
+/// Frontend sends fileName + content (file.text()), backend writes to raw/ then reuses pipeline.
+#[tauri::command]
+pub async fn vault_ingest_content(fileName: String, content: String) -> Result<Value, String> {
+    let safe = std::path::Path::new(&fileName)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("upload.txt")
+        .to_string();
+    let py_exe = get_python_exe()?;
+    let mut cmd = Command::new(&py_exe);
+    cmd.arg("-c");
+    // escape single quotes for inline python string
+    let esc_name = safe.replace('\'', "\\'");
+    let esc_content = content.replace('\\', "\\\\").replace('\'', "\\'").replace('\n', "\\n").replace('\r', "\\r");
+    let py_code = format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_ingest import get_vault_engine; e=get_vault_engine(); r=e.ingest_content(r'{}', '{}'); print(json.dumps(r))",
+        esc_name, esc_content
+    );
+    cmd.arg(py_code);
+    info!("Ingesting content: {} ({} chars)", safe, content.len());
+    let output = cmd.output().map_err(|e| format!("Failed to run ingest_content: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        error!("ingest_content error: {}", stderr);
+        return Err(format!("Python ingest_content error: {}", stderr));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse ingest_content JSON: {}. Output: {}", e, stdout))
+}
+
+/// Tauri command: Get vault tree (left panel navigator).
+#[tauri::command]
+pub async fn vault_get_tree() -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let py_code = "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_api import build_tree; from pathlib import Path; root = Path(r'C:\\Users\\PC\\Documents\\Obsidian\\Dika\\wiki'); print(json.dumps(build_tree(root), default=str))";
+    let output = std::process::Command::new(&py_exe)
+        .arg("-c")
+        .arg(py_code)
+        .output()
+        .map_err(|e| format!("Failed to run vault_get_tree: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Python vault_get_tree error: {}", stderr));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse tree JSON: {}. Output: {}", e, stdout))
+}
+
+/// Tauri command: Get vault file content (center panel).
+#[tauri::command]
+pub async fn vault_get_file(path: String) -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let safe_path = path.replace('\\', "/").replace('"', "");
+    let py_code = format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_api import get_file_content; r = get_file_content(r'{}'); print(json.dumps(r, default=str))",
+        safe_path
+    );
+    let output = std::process::Command::new(&py_exe)
+        .arg("-c")
+        .arg(&py_code)
+        .output()
+        .map_err(|e| format!("Failed to run vault_get_file: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Python vault_get_file error: {}", stderr));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let result: Value = serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse file JSON: {}. Output: {}", e, stdout))?;
+    if result.is_null() {
+        return Err("File not found".to_string());
+    }
+    Ok(result)
+}
+
+/// Tauri command: Get knowledge graph (right panel).
+#[tauri::command]
+pub async fn vault_get_graph() -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let py_code = "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_api import build_knowledge_graph; g = build_knowledge_graph(); print(json.dumps(g, default=str))";
+    let output = std::process::Command::new(&py_exe)
+        .arg("-c")
+        .arg(py_code)
+        .output()
+        .map_err(|e| format!("Failed to run vault_get_graph: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Python vault_get_graph error: {}", stderr));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse graph JSON: {}. Output: {}", e, stdout))
+}
+
+/// Tauri command: Search vault.
+#[tauri::command]
+pub async fn vault_search(query: String, limit: Option<i32>) -> Result<Value, String> {
+    let py_exe = get_python_exe()?;
+    let limit_val = limit.unwrap_or(20);
+    let safe_query = query.replace('"', "").replace('\\', "/");
+    let py_code = format!(
+        "import json, sys; sys.path.insert(0, 'src-tauri/python'); from telecom_agent.vault_api import search_vault; r = search_vault(r'{}', {}); print(json.dumps(r, default=str))",
+        safe_query, limit_val
+    );
+    let output = std::process::Command::new(&py_exe)
+        .arg("-c")
+        .arg(&py_code)
+        .output()
+        .map_err(|e| format!("Failed to run vault_search: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Python vault_search error: {}", stderr));
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    serde_json::from_str(&stdout).map_err(|e| format!("Failed to parse search JSON: {}. Output: {}", e, stdout))
+}

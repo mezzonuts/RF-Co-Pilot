@@ -149,25 +149,35 @@ export function useHealthCheck() {
   const check = useCallback(async () => {
     setState(prev => ({ ...prev, isPending: true }))
     try {
-      const result = (await invoke('health_check')) as {
-        status: string
-        python_executable?: string
-        error?: string
-      }
-      if (result.status === 'ok') {
-        setState({
-          isPending: false,
-          isOk: true,
-          pythonExe: result.python_executable || null,
-          error: null,
-        })
-      } else {
-        setState({
-          isPending: false,
-          isOk: false,
-          pythonExe: null,
-          error: result.error || 'Unknown error',
-        })
+      // Try Tauri invoke first (native app mode)
+      try {
+        const result = (await invoke('health_check')) as {
+          status: string
+          python_executable?: string
+          error?: string
+        }
+        if (result.status === 'ok') {
+          setState({
+            isPending: false,
+            isOk: true,
+            pythonExe: result.python_executable || null,
+            error: null,
+          })
+          return
+        }
+      } catch (tauri_err) {
+        // Fallback to API check (web mode)
+        const apiRes = await fetch('/api/vault/tree', { method: 'GET' })
+        if (apiRes.ok) {
+          setState({
+            isPending: false,
+            isOk: true,
+            pythonExe: null,
+            error: null,
+          })
+          return
+        }
+        throw new Error('API check failed')
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
