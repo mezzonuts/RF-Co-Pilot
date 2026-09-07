@@ -68,15 +68,16 @@ def check_sufficiency(
     if len(q_low) < 3:
         return {"enough": False, "missing": "query kosong", "question": "Bisa jelaskan lebih detail apa yang ingin dianalisa?", "mode": "B"}
 
-    needs_file = _needs_file(query)
+    # definisional (Mode B) — jangan paksa file walau menyebut KPI
+    is_definition = any(p in q_low for p in ["apa itu", "definisi", "apa arti", "jelaskan", "threshold", "formula", "standar", "sop", "parameter"])
+
+    needs_file = _needs_file(query) and not is_definition
     needs_vault = _needs_vault(query)
     has_file = _has_file_context(messages, file_context)
     has_vault = _has_vault_context(vault_hits)
 
     # 2) Mode A: butuh file tapi file belum ada
     if needs_file and not has_file:
-        # cek apakah user baru upload file tapi belum kirim query KPI
-        # jika query sangat generik seperti "halo" → tidak perlu file
         if any(w in q_low for w in ["halo", "hai", "hello", "help", "bantuan"]):
             return {"enough": True, "missing": None, "question": None, "mode": "B"}
         return {

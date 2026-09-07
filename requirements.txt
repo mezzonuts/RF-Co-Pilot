@@ -1,12 +1,21 @@
-# rf-copilot Python Sidecar Dependencies
-# Pinned for stability and reproducibility
+# rf-copilot — unified Python deps (Python 3.11/3.14, NPM-only dev)
+# Install: pip install -r requirements.txt
+# Vector search optional: pip install lancedb fastembed  (fallback FTS5+graph kalau tidak ada)
 
-polars==1.44.1
-duckdb==1.1.3
-qdrant-client==1.12.2
-pydantic==2.10.3
-xlsxwriter==3.2.0
-reportlab==4.2.0
-# matplotlib optional — no wheel for Python 3.14 yet; charts gracefully disabled if missing
-# matplotlib==3.9.2
-pytest==8.3.3
+# --- Vault-First v0.4 sidecar (wajib) ---
+openpyxl>=3.1.5
+python-pptx>=0.6.21
+pyyaml>=6.0.2
+networkx>=3.4.2
+
+# --- legacy src-tauri/python (PostGIS/Qdrant/KPI) ---
+polars>=1.44
+qdrant-client>=1.12
+duckdb>=1.1
+pydantic>=2.10
+xlsxwriter>=3.2.0
+reportlab>=4.2.0
+
+# --- dev / test ---
+pytest>=8.3
+ruff>=0.8

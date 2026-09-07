@@ -1,0 +1,195 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [master, v0.3, "feat/v0.4-vault-grounded-loop"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [master, v0.3, "feat/v0.4-vault-grounded-loop"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1) Frontend — NPM-only, no Rust/Docker
+  # ─────────────────────────────────────────────
+  build-frontend:
+    name: frontend (Node 20 · tsc + vite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify dist
+        run: |
+          test -f dist/index.html || (echo "dist/index.html missing" && exit 1)
+          ls -lh dist/
+          du -sh dist/
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+          retention-days: 14
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────
+  # 2) Python sidecar — Vault-First v0.4
+  #    FTS5 + NetworkX wajib, LanceDB/FastEmbed opsional (fallback aman)
+  # ─────────────────────────────────────────────
+  verify-python:
+    name: python (3.14 · py_compile + vault smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # vector DB opsional — tidak fail kalau wheel belum ada
+          pip install "lancedb>=0.22" "fastembed>=0.7" || echo "::notice::lancedb/fastembed skip — fallback FTS5+graph"
+
+      - name: Syntax check (compileall)
+        run: python -m compileall -q sidecar http_server.py src-tauri/python 2>&1 | head -n 50
+
+      - name: Vault engine smoke test
+        run: |
+          python - << 'PY'
+          import tempfile, pathlib
+          from pathlib import Path
+
+          # 1) buat vault dummy 2 notes dengan wikilink 1-hop
+          with tempfile.TemporaryDirectory() as td:
+              p = Path(td)
+              (p / "a.md").write_text("""---
+          title: RSRP
+          type: atomic-note
+          domain: rf
+          ---
+          ## Definition
+          RSRP -110 dBm threshold
+          ## Related Concepts
+          [[SINR]]
+          """, encoding="utf-8")
+              (p / "b.md").write_text("""---
+          title: SINR
+          type: atomic-note
+          domain: rf
+          ---
+          ## Definition
+          SINR 0 dB threshold
+          """, encoding="utf-8")
+
+              from sidecar.vault_engine import load_atomic_notes, build_graph, hybrid_retrieve, format_context_for_prompt
+              from sidecar.vault_engine.graph import graph_stats
+
+              notes = load_atomic_notes(str(p))
+              assert len(notes) == 2, f"expected 2 notes got {len(notes)}"
+              g = build_graph(notes)
+              st = graph_stats(g)
+              assert st["nodes"] >= 2, st
+              hits = hybrid_retrieve("RSRP threshold", notes=notes, graph=g, top_k=2)
+              assert len(hits) >= 1, "hybrid should return at least 1 hit"
+              ctx = format_context_for_prompt(hits)
+              assert "RSRP" in ctx or "SINR" in ctx
+
+              # 2) sufficiency gate
+              from sidecar.agent.sufficiency_gate import check_sufficiency
+              r1 = check_sufficiency("analisa RSRP cluster ini", vault_hits=hits, file_context="", messages=[{"role":"user","content":"analisa RSRP cluster ini"}])
+              assert r1["enough"] is False and r1["mode"] == "A", r1  # butuh file
+              r2 = check_sufficiency("apa itu RSRP?", vault_hits=hits, file_context="", messages=[{"role":"user","content":"apa itu RSRP?"}])
+              assert r2["enough"] is True, r2
+
+              # 3) prompt builder grounding contract
+              from sidecar.agent.prompt_builder import build_grounded_messages
+              msgs = build_grounded_messages([{"role":"user","content":"apa threshold RSRP?"}], vault_context=ctx, file_context="", mode="B")
+              assert "KONTRAK GROUNDING" in msgs[0]["content"]
+              assert "Vault Context" in msgs[0]["content"]
+
+              print(f"smoke OK: {len(notes)} notes, graph {st}, {len(hits)} hits, ctx {len(ctx)} chars")
+
+          # 4) parsers + export
+          from sidecar.parsers import parse_csv_text
+          r = parse_csv_text("RSRP,SINR\n-100,5\n-110,-2\n", file_name="dummy.csv")
+          assert r["ok"] and r["cols"] == 2
+
+          from sidecar.export import build_excel_bytes, build_pptx_bytes
+          assert len(build_excel_bytes()) > 1000
+          assert len(build_pptx_bytes()) > 1000
+          print("parsers+export OK")
+          PY
+
+      - name: Pytest
+        run: |
+          if [ -d tests ] || [ -d src-tauri/python/tests ] || compgen -G "test_*.py" > /dev/null || compgen -G "tests/**/*.py" > /dev/null; then
+            pytest -q
+          else
+            echo "no tests — skip (add tests/ later)"
+          fi
+
+      - name: Ruff (non-blocking)
+        run: |
+          ruff check . || echo "::notice::ruff warnings — non-blocking (fix with ruff check --fix)"
+
+  # ─────────────────────────────────────────────
+  # 3) Release — hanya saat push tag v*.*.*
+  #    Hasil: rf-copilot-vX.Y.Z.zip (dist + sidecar + docs)
+  # ─────────────────────────────────────────────
+  release:
+    name: release (zip + GitHub Release)
+    needs: [build-frontend, verify-python]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          pattern: dist-*
+          path: dist
+          merge-multiple: true
+
+      - name: Pack archive
+        run: |
+          test -f dist/index.html || (echo "dist missing" && ls -R && exit 1)
+          ZIP="rf-copilot-${{ github.ref_name }}.zip"
+          zip -r "$ZIP" dist sidecar http_server.py requirements.txt README.md ARCHITECTURE.md ARCHITECTURE_v0.4.md -x "sidecar/db/*" "sidecar/__pycache__/*" "*.pyc" "*__pycache__*"
+          ls -lh "$ZIP"
+          unzip -l "$ZIP" | head -n 60
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: rf-copilot-*.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
