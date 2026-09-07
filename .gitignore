@@ -30,3 +30,10 @@ b.txt
 c.txt
 # Public duplicate mockup (keep root if needed)
 public/
+
+
+# v0.4 Vault-First (vector DB + drafts)
+sidecar/db/lancedb_data/
+sidecar/db/*.db
+*.lancedb
+raw/drafts/

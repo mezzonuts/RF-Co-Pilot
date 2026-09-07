@@ -22,6 +22,72 @@ import urllib.error
 
 # Add Python path untuk imports backend
 sys.path.insert(0, str(Path(__file__).parent / "src-tauri" / "python"))
+sys.path.insert(0, str(Path(__file__).parent))  # for sidecar package
+
+# ── v0.4 sidecar imports (graceful fallback jika belum ada dep) ──
+try:
+    from sidecar.parsers import parse_excel_b64 as _sidecar_parse_excel, parse_csv_text as _sidecar_parse_csv
+    from sidecar.export import build_excel_bytes as _sidecar_build_excel, build_pptx_bytes as _sidecar_build_pptx
+    from sidecar.vault_engine import load_atomic_notes, build_graph, hybrid_retrieve, format_context_for_prompt, graph_stats
+    from sidecar.vault_engine.indexer import build_vector_index
+    from sidecar.agent.router_client import get_9router_key as _sc_get_key, forward_to_9router as _sc_forward
+    from sidecar.agent.prompt_builder import build_grounded_messages
+    from sidecar.agent.sufficiency_gate import check_sufficiency, build_clarification_reply
+    from sidecar.agent.self_improvement import capture_gap
+    SIDECAR_V04 = True
+except Exception as _sc_err:
+    print(f"[v0.4] sidecar import fallback: {_sc_err}")
+    SIDECAR_V04 = False
+    _sidecar_parse_excel = _sidecar_parse_csv = None
+    _sidecar_build_excel = _sidecar_build_pptx = None
+    load_atomic_notes = build_graph = hybrid_retrieve = format_context_for_prompt = graph_stats = None
+    build_vector_index = None
+    _sc_get_key = _sc_forward = None
+    build_grounded_messages = check_sufficiency = build_clarification_reply = capture_gap = None
+
+# ── vault cache (lazy, mtime-based) ──
+_VAULT_NOTES = None
+_VAULT_GRAPH = None
+_VAULT_MTIME = 0
+_VAULT_ATOMIC_DIR = Path("C:/Users/PC/Documents/Obsidian/Dika/wiki/atomic")
+
+def _get_vault_cache(force: bool = False):
+    global _VAULT_NOTES, _VAULT_GRAPH, _VAULT_MTIME
+    try:
+        if not SIDECAR_V04 or load_atomic_notes is None:
+            return [], None
+        # check mtime of atomic dir
+        mtime = 0
+        if _VAULT_ATOMIC_DIR.exists():
+            for f in _VAULT_ATOMIC_DIR.rglob("*.md"):
+                try:
+                    m = f.stat().st_mtime
+                    if m > mtime:
+                        mtime = m
+                except: pass
+        if not force and _VAULT_NOTES is not None and mtime == _VAULT_MTIME:
+            return _VAULT_NOTES, _VAULT_GRAPH
+        notes = load_atomic_notes(str(_VAULT_ATOMIC_DIR)) if _VAULT_ATOMIC_DIR.exists() else []
+        graph = build_graph(notes) if notes else None
+        _VAULT_NOTES, _VAULT_GRAPH, _VAULT_MTIME = notes, graph, mtime
+        return notes, graph
+    except Exception as e:
+        print(f"_get_vault_cache err: {e}")
+        return [], None
+
+def _vault_context_for_query(query: str, top_k: int = 6):
+    if not SIDECAR_V04 or not query.strip():
+        return [], ""
+    try:
+        notes, graph = _get_vault_cache()
+        if not notes:
+            return [], ""
+        hits = hybrid_retrieve(query, notes=notes, graph=graph, top_k=top_k)
+        ctx = format_context_for_prompt(hits) if hits else ""
+        return hits, ctx
+    except Exception as e:
+        print(f"_vault_context err: {e}")
+        return [], ""
 
 from telecom_agent.vault_api import build_tree, get_file_content, build_knowledge_graph, search_vault
 from telecom_agent.vault_ingest import get_vault_engine
@@ -469,8 +535,40 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
             limit = int(query.get("limit", [20])[0])
             if not q:
                 return self.send_error(400, "Missing q parameter")
+            # v0.4 hybrid if available
+            if SIDECAR_V04 and hybrid_retrieve is not None:
+                try:
+                    notes, graph = _get_vault_cache()
+                    if notes:
+                        hits = hybrid_retrieve(q, notes=notes, graph=graph, top_k=limit)
+                        self.send_json({"hits": hits, "engine": "hybrid-v0.4"})
+                        return
+                except Exception as e:
+                    print(f"hybrid search fallback: {e}")
             results = search_vault(q, limit)
             self.send_json(results)
+
+        elif path == "/api/vault/retrieve":
+            # v0.4 explicit hybrid retrieve (Vault-First)
+            q = query.get("q", [""])[0]
+            limit = int(query.get("limit", [6])[0])
+            if not q:
+                return self.send_error(400, "Missing q parameter")
+            if not SIDECAR_V04 or hybrid_retrieve is None:
+                return self.send_error(503, "Vault engine v0.4 not available")
+            notes, graph = _get_vault_cache()
+            hits = hybrid_retrieve(q, notes=notes, graph=graph, top_k=limit)
+            ctx = format_context_for_prompt(hits) if hits else ""
+            stats = graph_stats(graph) if graph is not None and graph_stats else {}
+            self.send_json({"hits": hits, "context": ctx, "stats": stats, "notes_cached": len(notes)})
+
+        elif path == "/api/vault/reindex":
+            return self.send_error(405, "Use POST for reindex")
+
+        elif path == "/api/vault/stats":
+            notes, graph = _get_vault_cache()
+            stats = graph_stats(graph) if (graph is not None and graph_stats) else {}
+            self.send_json({"vault_cached": len(notes or []), "graph": stats, "sidecar_v04": SIDECAR_V04})
 
         elif path == "/api/vault/ingest":
             return self.send_error(405, "Use POST for ingest")
@@ -507,13 +605,72 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
                 clen = int(self.headers.get("Content-Length", 0) or 0)
                 raw = self.rfile.read(clen) if clen else b"{}"
                 body = json.loads(raw.decode() or "{}")
-                if "messages" not in body:
+                messages = body.get("messages", [])
+                if not messages:
                     return self.send_error(400, "messages required")
+
+                # Extract last user query
+                last_user = next((m.get("content","") for m in reversed(messages) if m.get("role")=="user"), "")
+                file_context = body.get("fileContext") or body.get("file_context") or ""
+                # fallback: detect file block embedded in messages (frontend v0.3 format)
+                if not file_context:
+                    for m in messages:
+                        c = m.get("content","")
+                        if "[DATA FILE TERLAMPIR]" in c or "Header" in c:
+                            file_context = c[:3000]
+                            break
+
+                # ── v0.4 Vault-First Grounding & Sufficiency Gate ──
+                vault_hits = []
+                vault_ctx = ""
+                if SIDECAR_V04 and check_sufficiency is not None:
+                    # 1. Retrieve hybrid context from Vault
+                    vault_hits, vault_ctx = _vault_context_for_query(last_user)
+
+                    # 2. Sufficiency Gate check
+                    suff = check_sufficiency(last_user, vault_hits=vault_hits, file_context=file_context, messages=messages)
+                    if not suff.get("enough"):
+                        # AI memvalidasi kelengkapan data & bertanya balik (Clarification Loop)
+                        q_msg = suff.get("question") or "Bisa sebutkan detail file/parameter yang mau dianalisa?"
+                        reply = build_clarification_reply(suff.get("missing","data kurang"), q_msg)
+                        return self.send_json({
+                            "choices": [{"message": {"role": "assistant", "content": reply}}],
+                            "clarification": True,
+                            "missing": suff.get("missing"),
+                        })
+
+                    # 3. Grounded Context Injector
+                    user_mem = _load_memory().get("userMemory")
+                    grounded_msgs = build_grounded_messages(
+                        messages,
+                        vault_context=vault_ctx,
+                        file_context=file_context,
+                        user_memory=user_mem,
+                        mode=suff.get("mode","auto")
+                    )
+                    body["messages"] = grounded_msgs
+
+                # Forward ke 9Router
                 if "model" not in body or not body["model"]:
                     body["model"] = "cx/gpt-5.4-mini"
-                result, err = _forward_to_9router(body)
+
+                forward_fn = _sc_forward if (SIDECAR_V04 and _sc_forward) else _forward_to_9router
+                result, err = forward_fn(body)
                 if err:
                     return self.send_error(502, f"9Router error: {err}")
+
+                # ── v0.4 Self-Improvement Loop (capture gap jika Vault/SOP belum lengkap) ──
+                if SIDECAR_V04 and capture_gap is not None and result:
+                    try:
+                        reply_text = (result.get("choices") or [{}])[0].get("message",{}).get("content","")
+                        fname = body.get("fileName") or ""
+                        gap_res = capture_gap(last_user, llm_text=reply_text, vault_hits=vault_hits, file_name=fname)
+                        if gap_res.get("gap"):
+                            result["gap_captured"] = True
+                            result["draft_path"] = gap_res.get("draft_path")
+                    except Exception as _g_err:
+                        print(f"capture_gap err: {_g_err}")
+
                 self.send_json(result)
             except Exception as e:
                 import traceback; traceback.print_exc()
@@ -529,13 +686,17 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
                 content = data.get("content") or data.get("b64") or ""
                 is_b64 = bool(data.get("isBase64") or data.get("is_base64"))
                 ext = fname.rsplit(".",1)[-1].lower() if "." in fname else ""
+
+                parse_excel_fn = _sidecar_parse_excel if (SIDECAR_V04 and _sidecar_parse_excel) else _parse_excel_b64
+                parse_csv_fn = _sidecar_parse_csv if (SIDECAR_V04 and _sidecar_parse_csv) else _parse_csv_text
+
                 if ext in ("xlsx","xls") or is_b64:
                     if "," in content and ";base64" in content:
                         content = content.split(",",1)[1]
-                    res = _parse_excel_b64(content, fname)
+                    res = parse_excel_fn(content, fname)
                     self.send_json(res)
                 else:
-                    res = _parse_csv_text(content, fname)
+                    res = parse_csv_fn(content, fname)
                     self.send_json(res)
             except Exception as e:
                 import traceback; traceback.print_exc()
@@ -574,6 +735,23 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
                 self.send_error(500, f"/api/memory failed: {e}")
             return
 
+        if path == "/api/vault/reindex":
+            # v0.4: rebuild vault cache + vector index
+            try:
+                notes, graph = _get_vault_cache(force=True)
+                vec_res = {"ok": False, "reason": "vector not enabled"}
+                if SIDECAR_V04 and build_vector_index is not None:
+                    try:
+                        vec_res = build_vector_index(notes, force=True)
+                    except Exception as ve:
+                        vec_res = {"ok": False, "reason": str(ve)[:400]}
+                stats = graph_stats(graph) if (graph is not None and graph_stats) else {}
+                self.send_json({"ok": True, "notes": len(notes or []), "graph": stats, "vector": vec_res})
+            except Exception as e:
+                import traceback; traceback.print_exc()
+                self.send_error(500, f"reindex failed: {e}")
+            return
+
         if path == "/api/vault/ingest":
             try:
                 content_length = int(self.headers.get("Content-Length", 0))
@@ -585,7 +763,10 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
 
                 engine = get_vault_engine()
                 result = engine.ingest_content(file_name, file_content)
-
+                # invalidate vault cache so next retrieve sees new note
+                try:
+                    _get_vault_cache(force=True)
+                except: pass
                 self.send_json(result)
             except Exception as e:
                 self.send_error(400, f"Ingest failed: {str(e)}")
@@ -594,7 +775,8 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
 
     def serve_excel(self):
         try:
-            data = _build_excel_bytes()
+            fn = _sidecar_build_excel if (SIDECAR_V04 and _sidecar_build_excel) else _build_excel_bytes
+            data = fn()
             self.send_response(200)
             self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             self.send_header("Content-Disposition", 'attachment; filename="Cluster_C1_KPI.xlsx"')
@@ -606,7 +788,8 @@ class VaultAPIHandler(SimpleHTTPRequestHandler):
 
     def serve_pptx(self):
         try:
-            data = _build_pptx_bytes()
+            fn = _sidecar_build_pptx if (SIDECAR_V04 and _sidecar_build_pptx) else _build_pptx_bytes
+            data = fn()
             self.send_response(200)
             self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation")
             self.send_header("Content-Disposition", 'attachment; filename="Cluster_C1_Report.pptx"')
