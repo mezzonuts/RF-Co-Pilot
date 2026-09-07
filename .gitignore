@@ -37,3 +37,20 @@ sidecar/db/lancedb_data/
 sidecar/db/*.db
 *.lancedb
 raw/drafts/
+
+# Env (never commit real .env)
+.env
+.env.local
+
+# Bun / alternate lock
+bun.lock
+bun.lockb
+
+# Release artifacts (use GitHub Releases, not repo)
+*.zip
+rf-copilot-*.zip
+release_notes_*.md
+
+# OS
+.DS_Store
+Thumbs.db

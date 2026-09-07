@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
+import LivePreviewPanel from './LivePreviewPanel';
 import './AgentWorkspace.css';
 
 interface ExecutionStep {
@@ -47,10 +48,38 @@ interface UserMemory {
   styleNotes: string;
 }
 
-export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: () => void }) {
+export interface LLMConfig {
+  provider: string;
+  model: string;
+  apiKey: string;
+  temp: number;
+  maxTokens: number;
+  systemPrompt: string;
+}
+
+export interface ChatMsgMeta {
+  provider?: string;
+  providerId?: string;
+  model?: string;
+  modelVersion?: string;
+  isLive?: boolean;
+  latencyMs?: number;
+  status?: string;
+  reason?: string;
+}
+
+export type ChatMsg = { role: 'user' | 'assistant'; content: string; meta?: ChatMsgMeta };
+
+export default function AgentWorkspace({
+  onManageSkills,
+  onOpenLlmSettings,
+  llmConfig
+}: {
+  onManageSkills?: () => void;
+  onOpenLlmSettings?: () => void;
+  llmConfig?: LLMConfig;
+}) {
   const [activeTab, setActiveTab] = useState<'chat' | 'execution'>('chat');
-  const [showNewAnalysis, setShowNewAnalysis] = useState(false);
-  const [newAnalysisPrompt, setNewAnalysisPrompt] = useState('');
   const [previewTab, setPreviewTab] = useState<'Excel'|'PPT'|'Map'>('PPT');
   const [inputText, setInputText] = useState('');
   const [exportBusy, setExportBusy] = useState<null|'excel'|'pptx'>(null);
@@ -62,8 +91,6 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
   const [parsedRows, setParsedRows] = useState<string[][]|null>(null);
   const [sheetsData, setSheetsData] = useState<any>(null);
   const [selectedSheet, setSelectedSheet] = useState<string|null>(null);
-  const [hasStarted, setHasStarted] = useState(false);
-  type ChatMsg = { role: 'user' | 'assistant'; content: string };
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
@@ -71,6 +98,15 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
   const [recentTasks, setRecentTasks] = useState<RecentTask[]>([]);
   const [userMemory, setUserMemory] = useState<UserMemory|null>(null);
   const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
+  const [showSkillMenu, setShowSkillMenu] = useState(false);
+
+  const skillPrompts = [
+    { title: 'Analyze Drive Test', icon: 'ri-file-chart-line', color: '#8b5cf6', prompt: 'Analisa Drive Test log secara komprehensif: hitung % RSRP ≥ -100 dBm, % SINR ≥ 5 dB, throughput DL, dan temukan 5 worst spot beserta rekomendasi tuning.' },
+    { title: 'Generate PPTX Report', icon: 'ri-slideshow-line', color: '#f97316', prompt: 'Buatkan slide presentasi 5 deck executive summary (.pptx) yang mencakup KPI benchmark, coverage distribution, worst spots, dan engineering action plan.' },
+    { title: 'RCA Engine Diagnostics', icon: 'ri-bug-line', color: '#f59e0b', prompt: 'Lakukan diagnosa Root Cause Analysis (RCA) untuk mengidentifikasi overshooting cell, PCI Modulo 3 collision, dan missing neighbor handover fail.' },
+    { title: 'Tilt Optimizer', icon: 'ri-compass-3-line', color: '#10b981', prompt: 'Hitung rekomendasi antenna mechanical tilt dan electrical RET tilt untuk mengeliminasi overshooting cell ke cluster tetangga.' },
+    { title: 'Audit OSS KPI Weekly', icon: 'ri-table-line', color: '#06b6d4', prompt: 'Audit KPI mingguan OSS: evaluasi Call Drop Rate, HOSR (Handover Success Rate), dan sel yang mengalami degradasi performa.' },
+  ];
 
   // -- Memory & session bootstrap --
   useEffect(() => {
@@ -94,13 +130,8 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     });
     try{
       const cur = localStorage.getItem('rf_current_messages');
-      if(cur){ const arr=JSON.parse(cur); if(Array.isArray(arr) && arr.length){ setMessages(arr); setHasStarted(true); } else throw 1; }
-      else {
-        const savedSession = localStorage.getItem('rf_session_active');
-        if (savedSession === 'true') setHasStarted(true);
-        else setShowNewAnalysis(true);
-      }
-    }catch{ const savedSession = localStorage.getItem('rf_session_active'); if(savedSession==='true') setHasStarted(true); else setShowNewAnalysis(true); }
+      if(cur){ const arr=JSON.parse(cur); if(Array.isArray(arr) && arr.length){ setMessages(arr); } }
+    }catch{}
   }, []);
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -110,21 +141,46 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
   };
-  const handleExportExcel = async () => {
-    try { setExportBusy('excel');
-      const r = await fetch('/api/export/excel');
-      if(!r.ok) throw new Error(await r.text());
+  const handleExportExcel = async (customData?: any) => {
+    try {
+      setExportBusy('excel');
+      const r = customData
+        ? await fetch('/api/export/excel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customData),
+          })
+        : await fetch('/api/export/excel');
+      if (!r.ok) throw new Error(await r.text());
       const blob = await r.blob();
-      downloadBlob(blob, 'Cluster_C1_KPI.xlsx');
-    } catch(e:any){ alert('Excel gagal: '+(e?.message??e)); } finally{ setExportBusy(null); }
+      const fname = (customData?.fileName ? customData.fileName.replace(/\.[^/.]+$/, '') : 'Cluster_C1') + '_KPI.xlsx';
+      downloadBlob(blob, fname);
+    } catch (e: any) {
+      alert('Excel gagal: ' + (e?.message ?? e));
+    } finally {
+      setExportBusy(null);
+    }
   };
-  const handleExportPptx = async () => {
-    try { setExportBusy('pptx');
-      const r = await fetch('/api/export/pptx');
-      if(!r.ok) throw new Error(await r.text());
+
+  const handleExportPptx = async (customData?: any) => {
+    try {
+      setExportBusy('pptx');
+      const r = customData
+        ? await fetch('/api/export/pptx', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customData),
+          })
+        : await fetch('/api/export/pptx');
+      if (!r.ok) throw new Error(await r.text());
       const blob = await r.blob();
-      downloadBlob(blob, 'Cluster_C1_Report.pptx');
-    } catch(e:any){ alert('PPTX gagal: '+(e?.message??e)); } finally{ setExportBusy(null); }
+      const fname = (customData?.fileName ? customData.fileName.replace(/\.[^/.]+$/, '') : 'Cluster_C1') + '_Report.pptx';
+      downloadBlob(blob, fname);
+    } catch (e: any) {
+      alert('PPTX gagal: ' + (e?.message ?? e));
+    } finally {
+      setExportBusy(null);
+    }
   };
   // -- persist current chat --
   useEffect(()=>{ try{ if(messages.length) localStorage.setItem('rf_current_messages', JSON.stringify(messages)); else localStorage.removeItem('rf_current_messages'); }catch{} }, [messages]);
@@ -148,13 +204,27 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     return { totalSessions, totalMessages, preferredLang: lang, topics: mergedTopics, style, lastActive: new Date().toISOString(), styleNotes: `User berbahasa \${lang==='id'?'Indonesia':'campur'}, gaya \${style}; fokus: \${mergedTopics.join(', ')||'umum RF'}. Sesi \${totalSessions}, \${totalMessages} pesan.` };
   }, []);
   const archiveCurrent = useCallback(async ()=>{
-    if(messages.length===0) return;
-    const firstUser = messages.find(m=>m.role==='user')?.content || lastUpload || 'Analysis';
+    if(messages.length===0 && !parsedRows) return;
+    const firstUser = messages.find(m=>m.role==='user')?.content || lastUpload || (attachedFile ? `Dataset: ${attachedFile}` : 'Analysis');
     const title = firstUser.slice(0,48).replace(/\n/g,' ').trim() || 'Analysis ' + new Date().toLocaleDateString('id-ID');
     const timeStr = new Date().toLocaleString('id-ID', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
     const badges: string[] = [];
-    if(attachedFile) badges.push(attachedFile.endsWith('.xlsx')?'Excel':'File');
-    const memProj = { id: String(Date.now()), title, time: timeStr, messages: [...messages], badges };
+    if(attachedFile) badges.push(attachedFile.endsWith('.xlsx')?'Excel':'Drive Test');
+    else badges.push('RF Audit');
+
+    const memProj = {
+      id: String(Date.now()),
+      title,
+      time: timeStr,
+      messages: [...messages],
+      badges,
+      parsedRows: parsedRows ? JSON.parse(JSON.stringify(parsedRows)) : null,
+      parsedInfo,
+      lastUpload,
+      attachedFile,
+      sheetsData,
+      selectedSheet
+    };
     const nextUser = buildUserMemory(messages, userMemory);
     setUserMemory(nextUser);
     setProjects(prev=>[{ id: memProj.id, name: title, status:'inactive', count: messages.length, dot:'emerald' } as Project, ...prev].slice(0,20));
@@ -168,20 +238,35 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
       localStorage.setItem('rf_memory_cache', JSON.stringify(cache));
     }catch{}
     try{ await fetch('/api/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'archive', project: memProj, userMemory: nextUser})}); }catch{}
-  }, [messages, lastUpload, attachedFile, userMemory, buildUserMemory]);
+  }, [messages, lastUpload, attachedFile, parsedRows, parsedInfo, sheetsData, selectedSheet, userMemory, buildUserMemory]);
+
   const handleLoadProject = useCallback((id:string)=>{
     const load = async()=>{
+      let hit: any = null;
       try{
-        const r=await fetch('/api/memory'); const j=await r.json();
-        const hit = (j.projects||[]).find((p:any)=>p.id===id);
-        if(hit?.messages){ setMessages(hit.messages); setHasStarted(true); setShowNewAnalysis(false); setActiveProjectId(id); return; }
+        const r = await fetch('/api/memory');
+        const j = await r.json();
+        hit = (j.projects||[]).find((p:any)=>p.id===id);
       }catch{}
-      try{
-        const cache=JSON.parse(localStorage.getItem('rf_memory_cache')||'{}');
-        const hit=(cache.projects||[]).find((p:any)=>p.id===id);
-        if(hit?.messages){ setMessages(hit.messages); setHasStarted(true); setShowNewAnalysis(false); setActiveProjectId(id); }
-      }catch{}
-    }; load();
+      if(!hit){
+        try{
+          const cache = JSON.parse(localStorage.getItem('rf_memory_cache')||'{}');
+          hit = (cache.projects||[]).find((p:any)=>p.id===id);
+        }catch{}
+      }
+      if(hit){
+        if(Array.isArray(hit.messages)) setMessages(hit.messages);
+        if(hit.parsedRows) setParsedRows(hit.parsedRows);
+        else setParsedRows(null);
+        setAttachedFile(hit.attachedFile || null);
+        setParsedInfo(hit.parsedInfo || null);
+        setLastUpload(hit.lastUpload || (hit.attachedFile ? `File: ${hit.attachedFile}` : null));
+        setSheetsData(hit.sheetsData || null);
+        setSelectedSheet(hit.selectedSheet || null);
+        setActiveProjectId(id);
+      }
+    };
+    load();
   }, []);
   const triggerUpload = (source: string) => {
     setPendingSource(source);
@@ -192,7 +277,7 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     if(lines.length===0) return { rows:0, cols:0, hdr:[] as string[], preview:[] as string[][] };
     const split = (s:string)=> s.split(/[,;\t]/).map(x=>x.trim());
     const hdr = split(lines[0]);
-    const preview = lines.slice(1,6).map(l=>split(l));
+    const preview = lines.slice(1, 101).map(l=>split(l));
     return { rows: lines.length-1, cols: hdr.length, hdr, preview };
   };
   const onFilePicked = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,7 +285,6 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     if(!f) return;
     setAttachedFile(f.name);
     localStorage.setItem('rf_session_active', 'true');
-    setHasStarted(true);
     const kb = (f.size/1024).toFixed(1);
     const label = pendingSource ?? 'File';
     setParsedInfo(null); setParsedRows(null);
@@ -282,8 +366,6 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
     const text = inputText.trim();
     if(!text && !attachedFile) return;
     localStorage.setItem('rf_session_active', 'true');
-    setHasStarted(true);
-    setShowNewAnalysis(false);
     setChatError(null);
     // Build display text (UI) vs llmText (dengan konteks file)
     const displayText = text || (attachedFile ? `Analisa file ${attachedFile}` : '');
@@ -330,9 +412,11 @@ ${previewStr}`:''}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: payloadMessages,
-          model: 'cx/gpt-5.4-mini',
-          temperature: 0.3,
-          max_tokens: 1024,
+          provider: llmConfig?.provider || 'google',
+          model: llmConfig?.model || 'gemini-3.8-flash',
+          apiKey: llmConfig?.apiKey,
+          temperature: llmConfig?.temp ?? 0.3,
+          max_tokens: llmConfig?.maxTokens ?? 2048,
         })
       });
       const j = await r.json().catch(()=> ({}));
@@ -340,9 +424,10 @@ ${previewStr}`:''}
         throw new Error(j?.error || j?.message || `HTTP ${r.status}`);
       }
       const reply: string = j?.choices?.[0]?.message?.content ?? j?.choices?.[0]?.text ?? '';
-      if(!reply.trim()) throw new Error('Respons kosong dari 9Router');
+      if(!reply.trim()) throw new Error('Respons kosong dari AI Engine');
+      const responseMeta: ChatMsgMeta | undefined = j?.meta;
       setMessages(prev=> {
-        const nxt=[...prev, { role:'assistant', content: reply } as ChatMsg];
+        const nxt=[...prev, { role:'assistant', content: reply, meta: responseMeta } as ChatMsg];
         try{
           const title = nxt.find(m=>m.role==='user')?.content.slice(0,44).replace(/\n/g,' ') || 'Analysis';
           const timeStr = new Date().toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -362,7 +447,7 @@ ${previewStr}`:''}
     }catch(e:any){
       const msg = e?.message ?? String(e);
       setChatError(msg);
-      setMessages(prev=> [...prev, { role:'assistant', content: `Maaf, chat gagal: ${msg}. Cek server 9Router di http://localhost:20128 dan coba lagi.` }]);
+      setMessages(prev=> [...prev, { role:'assistant', content: `Maaf, request ke model ${llmConfig?.model || 'Gemini'} gagal: ${msg}. Periksa konfigurasi LLM Anda.` }]);
     }finally{
       setIsSending(false);
     }
@@ -388,15 +473,17 @@ ${previewStr}`:''}
       <div className="agent-sidebar">
         <div className="sidebar-header">
           <button className="btn-new-analysis" onClick={async () => {
-            if(!showNewAnalysis && messages.length>0){
+            if(messages.length > 0){
               await archiveCurrent();
               setMessages([]);
               setParsedInfo(null); setParsedRows(null); setAttachedFile(null); setLastUpload(null);
               localStorage.removeItem('rf_current_messages');
+            } else {
+              setMessages([]);
+              setParsedInfo(null); setParsedRows(null); setAttachedFile(null); setLastUpload(null);
             }
-            setShowNewAnalysis(v => !v);
-          }} title={showNewAnalysis ? 'Tutup' : 'Mulai analisis baru (arsipkan chat jadi memori)'}>
-            <i className={`ri-${showNewAnalysis ? 'close-line' : 'add-line'}`}></i> {showNewAnalysis ? 'Tutup' : 'New Analysis'}
+          }} title="Mulai analisis baru (arsipkan riwayat sesi sebelumnya)">
+            <i className="ri-add-line"></i> New Analysis
           </button>
           <div className="sidebar-quick-actions">
             <button title="Download Excel (real .xlsx)" onClick={handleExportExcel} disabled={exportBusy==='excel'} className="quick-action-btn"><i className="ri-file-excel-2-line"></i> {exportBusy==='excel'?'...':'Excel'}</button>
@@ -465,88 +552,68 @@ ${previewStr}`:''}
 
       {/* CENTER CHAT */}
       <div className="agent-center">
-        <div className="center-header">
-          <span className="header-label">AGENT CHAT</span>
-          <span className="header-status mono">auto-tool • excel • pptx • postgis • skills:4</span>
-          <div className="flex-1"></div>
-          <button className="header-btn"><i className="ri-history-line"></i> History</button>
+        <div className="center-header" style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span className="header-label">AGENT CHAT</span>
+            <span className="header-status mono" style={{display:'flex',alignItems:'center',gap:6}}>
+              <span style={{width:6,height:6,borderRadius:999,background:'#10b981',display:'inline-block'}} className="animate-pulse" />
+              <span>{llmConfig?.provider === 'google' ? 'Google AI Studio' : (llmConfig?.provider || 'Google AI Studio')}</span>
+              <span>•</span>
+              <span style={{color:'#a78bfa'}}>{llmConfig?.model || 'gemini-2.5-flash'}</span>
+            </span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <button onClick={onOpenLlmSettings} style={{background:'#1e1b4b',border:'1px solid #4338ca',color:'#c7d2fe',padding:'3px 10px',borderRadius:6,fontSize:11,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
+              <i className="ri-settings-3-line"></i> Configure LLM
+            </button>
+            <button className="header-btn"><i className="ri-history-line"></i> History</button>
+          </div>
         </div>
 
         <div className="chat-area">
-          {showNewAnalysis ? (
-            <div className="new-analysis-form">
-              <div className="new-analysis-welcome">
-                <i className="ri-sparkles-line"></i>
-                <h2>Start New Analysis</h2>
+          {messages.length === 0 ? (
+            <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14, padding:'32px 20px', color:'#71717a'}}>
+              <div style={{width:48,height:48,borderRadius:12,background:'#18181b',border:'1px solid #27272a',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <i className="ri-sparkling-2-line" style={{color:'#7c3aed',fontSize:22}}></i>
               </div>
-              <textarea
-                className="new-analysis-textarea"
-                placeholder="Deskripsikan tugas…&#10;&#10;Contoh:&#10;• Analisa DT Cluster Jakarta, hitung KPI RSRP/SINR&#10;• Cari 5 worst spot dan beri rekomendasi tilt&#10;• Generate Excel + PPT dengan 5 slide&#10;&#10;Agent akan memilih skill & tools yang sesuai automatically."
-                value={newAnalysisPrompt}
-                onChange={e => setNewAnalysisPrompt(e.target.value)}
-              />
-              <div className="new-analysis-footer">
-                <button
-                  className="btn-start-now"
-                  disabled={!newAnalysisPrompt.trim()}
-                  onClick={async () => {
-                    const prompt = newAnalysisPrompt.trim();
-                    if(!prompt) return;
-                    if(messages.length>0) await archiveCurrent();
-                    localStorage.setItem('rf_session_active', 'true');
-                    setHasStarted(true);
-                    setShowNewAnalysis(false);
-                    setLastUpload(`Analysis: ${prompt.slice(0, 80)}`);
-                    setMessages([{ role:'user', content: prompt }]);
-                    setNewAnalysisPrompt('');
-                    setActiveProjectId(null);
-                    setTimeout(()=>{ if(prompt) { setInputText(prompt); } }, 100);
-                  }}
-                >
-                  <i className="ri-play-large-fill"></i> Start Analysis
-                </button>
-                <button className="btn-cancel-form" onClick={() => {
-                  setShowNewAnalysis(false);
-                }}>Cancel</button>
+              <div style={{textAlign:'center'}}>
+                <p style={{fontSize:14,color:'#f4f4f5',fontWeight:600,margin:'0 0 4px 0'}}>RF Optimization Copilot</p>
+                <p className="mono" style={{fontSize:11,color:'#71717a',maxWidth:380,lineHeight:1.5,margin:0}}>
+                  Upload log Drive Test (.csv/.xlsx), audit OSS KPI mingguan, atau ketik instruksi analisis langsung di bawah.
+                </p>
               </div>
             </div>
-          ) : hasStarted ? (
-            <>
-              {/* Dynamic chat history — real LLM via /api/chat -> 9Router */}
-              {messages.length === 0 ? (
-                <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:10, padding:'24px', color:'#71717a'}}>
-                  <div style={{width:44,height:44,borderRadius:12,background:'#18181b',border:'1px solid #27272a',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="ri-chat-3-line" style={{color:'#7c3aed',fontSize:18}}></i></div>
-                  <p className="mono" style={{fontSize:12,color:'#a1a1aa',fontWeight:500}}>Belum ada chat di sesi ini</p>
-                  <p className="mono" style={{fontSize:11,color:'#52525b',textAlign:'center',maxWidth:300,lineHeight:1.5}}>Upload DT/OSS/Excel di tab bawah atau ketik pertanyaan. Riwayat lama tersimpan di <b style={{color:'#a1a1aa'}}>Projects</b> sebagai memori.</p>
-                </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
+              {messages.map((m,i)=> m.role==='user' ? (
+                <div key={i} className="flex justify-end"><div className="user-message" style={{whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div></div>
               ) : (
-                <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                  {messages.map((m,i)=> m.role==='user' ? (
-                    <div key={i} className="flex justify-end"><div className="user-message" style={{whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div></div>
-                  ) : (
-                    <div key={i} className="agent-msg-row">
-                      <div className="agent-avatar"><i className="ri-cpu-line"></i></div>
-                      <div className="flex-1"><div className="results-box" style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontSize:13,lineHeight:1.6}}>{m.content}</div></div>
-                    </div>
-                  ))}
-                  {isSending && (
-                    <div className="agent-msg-row">
-                      <div className="agent-avatar"><i className="ri-loader-4-line" style={{animation:'spin 1s linear infinite'}}></i></div>
-                      <div className="flex-1"><div className="results-box mono" style={{fontSize:12,color:'#a1a1aa'}}>Mengetik... terhubung ke 9Router (cx/gpt-5.5)...</div></div>
-                    </div>
-                  )}
-                  {chatError && <div className="mono" style={{fontSize:11,color:'#f87171',background:'#1a0a0a',border:'1px solid #441a1a',borderRadius:8,padding:'8px 10px'}}>{chatError}</div>}
+                <div key={i} className="agent-msg-row">
+                  <div className="agent-avatar"><i className="ri-cpu-line"></i></div>
+                  <div className="flex-1">
+                    <div className="results-box" style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontSize:13,lineHeight:1.6}}>{m.content}</div>
+                    {m.meta && (
+                      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6,fontSize:11,color:'#a1a1aa',fontFamily:'JetBrains Mono, monospace'}}>
+                        <span style={{width:6,height:6,borderRadius:999,background:m.meta.isLive?'#10b981':'#f59e0b',display:'inline-block'}} />
+                        <span style={{color:m.meta.isLive?'#34d399':'#fbbf24',fontWeight:500}}>{m.meta.provider}</span>
+                        <span>•</span>
+                        <span style={{color:'#e4e4e7'}}>{m.meta.model}</span>
+                        {m.meta.latencyMs ? <span>• {(m.meta.latencyMs/1000).toFixed(1)}s</span> : null}
+                        <span style={{marginLeft:'auto',fontSize:10,background:m.meta.isLive?'#064e3b':'#451a03',color:m.meta.isLive?'#a7f3d0':'#fde68a',padding:'1px 6px',borderRadius:4}}>
+                          {m.meta.isLive ? 'Live Gemini' : 'RF Fallback'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isSending && (
+                <div className="agent-msg-row">
+                  <div className="agent-avatar"><i className="ri-loader-4-line" style={{animation:'spin 1s linear infinite'}}></i></div>
+                  <div className="flex-1"><div className="results-box mono" style={{fontSize:12,color:'#a1a1aa'}}>Menghubungi {llmConfig?.provider === 'google' ? 'Google AI Studio' : (llmConfig?.provider || 'Google AI Studio')} ({llmConfig?.model || 'gemini-2.5-flash'})...</div></div>
                 </div>
               )}
-            </>
-          ) : (
-            <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:12, padding:'40px 24px', color:'#71717a'}}>
-              <div style={{width:48, height:48, borderRadius:12, background:'#18181b', border:'1px solid #27272a', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20}}><i className="ri-sparkling-2-line" style={{color:'#7c3aed'}}></i></div>
-              <p className="mono" style={{fontSize:13, color:'#a1a1aa', fontWeight:500}}>Belum ada analisis</p>
-              <p className="mono" style={{fontSize:11, color:'#52525b', textAlign:'center', maxWidth:320, lineHeight:1.5}}>Mulai dengan <b style={{color:'#a1a1aa'}}>New Analysis</b> — deskripsikan tugas (DT log, KPI, worst spot, Excel/PPT). History akan muncul di sini setelah analisis pertama.</p>
-              <button onClick={() => setShowNewAnalysis(true)} style={{marginTop:4, padding:'8px 16px', borderRadius:8, background:'#7c3aed', color:'#fff', fontSize:12, fontWeight:600, border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:6}}>
-                <i className="ri-add-line"></i> New Analysis
-              </button>
+              {chatError && <div className="mono" style={{fontSize:11,color:'#f87171',background:'#1a0a0a',border:'1px solid #441a1a',borderRadius:8,padding:'8px 10px'}}>{chatError}</div>}
             </div>
           )}
         </div>
@@ -568,12 +635,119 @@ ${previewStr}`:''}
             </div>
           )}
           <input ref={fileInputRef} type="file" hidden accept=".csv,.txt,.xlsx,.xls,.kml,.kmz,.log,.db,.sqlite" onChange={onFilePicked} />
-          <div className="data-source-tabs">
+          
+          {/* Quick Action Chips */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+            <button
+              onClick={() => {
+                const q = 'Say hello dan jelaskan model dan provider apa yang sedang dipakai saat ini, serta alasannya.';
+                setInputText(q);
+              }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#1e1b4b', border: '1px solid #4338ca', borderRadius: 6, color: '#a5b4fc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-sparkling-fill text-indigo-400"></i> 👋 Say Hello & Detect Model
+            </button>
+            <button
+              onClick={() => {
+                const q = 'Jalankan kalkulasi KPI Drive Test: hitung % RSRP ≥ -100 dBm, % SINR ≥ 5 dB, dan rata-rata DL throughput.';
+                setInputText(q);
+              }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#18181b', border: '1px solid #27272a', borderRadius: 6, color: '#34d399', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-flashlight-line text-emerald-400"></i> ⚡ Hitung KPI Otomatis
+            </button>
+            <button
+              onClick={() => {
+                const q = 'Identifikasi 5 worst spots terburuk dari log data dan tentukan root cause serta rekomendasi tuning antenna/PCI.';
+                setInputText(q);
+              }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#18181b', border: '1px solid #27272a', borderRadius: 6, color: '#fde047', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-error-warning-line text-amber-400"></i> 🎯 Cari Worst Spots
+            </button>
+            <button
+              onClick={() => { setPreviewTab('Excel'); handleExportExcel(); }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#18181b', border: '1px solid #27272a', borderRadius: 6, color: '#a5b4fc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-file-excel-2-line text-violet-400"></i> 📥 Download Excel
+            </button>
+            <button
+              onClick={() => { setPreviewTab('PPT'); handleExportPptx(); }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#18181b', border: '1px solid #27272a', borderRadius: 6, color: '#fdba74', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-slideshow-line text-orange-400"></i> 📽️ Download PPT
+            </button>
+            <button
+              onClick={() => { setPreviewTab('Map'); }}
+              style={{ padding: '3px 8px', fontSize: 10, background: '#18181b', border: '1px solid #27272a', borderRadius: 6, color: '#7dd3fc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <i className="ri-map-2-line text-sky-400"></i> 🗺️ Buka Cluster Map
+            </button>
+          </div>
+
+          {/* Data Source & Skill Tabs */}
+          <div className="data-source-tabs" style={{ position: 'relative' }}>
             <button className="source-tab" onClick={()=>triggerUpload('DT Log')}><i className="ri-file-add-line text-violet-400"></i> DT Log</button>
             <button className="source-tab" onClick={()=>triggerUpload('OSS')}><i className="ri-table-line text-emerald-400"></i> OSS</button>
-            <button className="source-tab" onClick={()=>{ setInputText(v=> v.includes('/skill')?v: (v? v+' /skill':'/skill')); }}><i className="ri-flashlight-line text-amber-400"></i> /skill</button>
+            <button
+              className="source-tab"
+              onClick={() => setShowSkillMenu(v => !v)}
+              style={{ background: showSkillMenu ? '#7c3aed' : '#18181b', color: showSkillMenu ? '#fff' : '#e4e4e7' }}
+            >
+              <i className="ri-flashlight-line text-amber-400"></i> /skill {showSkillMenu ? '▲' : '▼'}
+            </button>
             <button className="source-tab" onClick={()=>triggerUpload('Cell Master')}><i className="ri-base-station-line text-sky-400"></i> Cell Master</button>
+
+            {/* Skill Selector Dropdown Palette */}
+            {showSkillMenu && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: 0,
+                  marginBottom: 8,
+                  width: 320,
+                  background: '#111118',
+                  border: '1px solid #3f3f46',
+                  borderRadius: 10,
+                  boxShadow: '0 12px 28px rgba(0,0,0,0.6)',
+                  padding: 8,
+                  zIndex: 50,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}
+              >
+                <div style={{ fontSize: 10, fontWeight: 600, color: '#71717a', padding: '4px 6px', letterSpacing: 0.5 }}>
+                  PILIH SKILL OTOMATIS:
+                </div>
+                {skillPrompts.map(sk => (
+                  <div
+                    key={sk.title}
+                    onClick={() => {
+                      setInputText(sk.prompt);
+                      setShowSkillMenu(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      background: '#181822',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#272738')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#181822')}
+                  >
+                    <i className={sk.icon} style={{ color: sk.color, fontSize: 14 }}></i>
+                    <span style={{ fontSize: 12, color: '#e4e4e7', fontWeight: 500 }}>{sk.title}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
           <div className="input-area">
             <button className="input-btn attach-btn" onClick={()=>triggerUpload('Attachment')} title={attachedFile ?? 'Attach file'}><i className="ri-attachment-2"></i></button>
             <textarea value={inputText} onChange={e=>setInputText(e.target.value)} onKeyDown={e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); handleSend(); }}} placeholder={isSending ? "Menunggu balasan..." : "Ketik /skill untuk pilih skill, atau tanya langsung..."} className="input-field" disabled={isSending}></textarea>
@@ -584,69 +758,17 @@ ${previewStr}`:''}
       </div>
 
       {/* RIGHT PREVIEW */}
-      <div className="agent-preview">
-        <div className="preview-header">
-          <span className="header-label">LIVE PREVIEW</span>
-          <div className="preview-tabs">
-            {(['Excel','PPT','Map'] as const).map(t=>(
-              <button key={t} className={`preview-tab ${previewTab===t?'active':''}`} onClick={()=>setPreviewTab(t)}>{t}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="preview-area">
-          {/* Slide card */}
-          <div className="slide-card">
-            <div className="slide-header">
-              <p className="slide-title">Cluster C1 — Executive Summary</p>
-              <span className="slide-number">Slide 1/5</span>
-            </div>
-            <div className="slide-content">
-              <div className="coverage-map">
-                <i className="ri-map-2-line"></i> Coverage Map • RSRP distribution
-              </div>
-              <table className="kpi-table">
-                <thead>
-                  <tr>
-                    <th>KPI</th>
-                    <th>Value</th>
-                    <th>Target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>RSRP ≥-100</td>
-                    <td className="mono">94.2%</td>
-                    <td className="text-amber-600">95% ✗</td>
-                  </tr>
-                  <tr>
-                    <td>SINR ≥5dB</td>
-                    <td className="mono">81.4%</td>
-                    <td className="text-emerald-600">80% ✓</td>
-                  </tr>
-                  <tr>
-                    <td>DL Thr</td>
-                    <td className="mono">42.7 Mbps</td>
-                    <td className="text-emerald-600">30 ✓</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Recommendations */}
-          <div className="recommendations-box">
-            <p className="recommendations-title">
-              <i className="ri-lightbulb-line"></i> Rekomendasi (via RCA Engine skill)
-            </p>
-            <ol className="recommendations-list">
-              <li><b>JKT_1023_2</b> — downtilt 3°→5° (overshooting)</li>
-              <li><b>JKT_1018_1 ↔ 1020_3</b> — PCI confusion (148→312)</li>
-              <li><b>Add Neighbor</b> JKT_1015_1 → 1022_2 (42 HO fails)</li>
-            </ol>
-          </div>
-        </div>
-      </div>
+      <LivePreviewPanel
+        previewTab={previewTab}
+        onTabChange={setPreviewTab}
+        attachedFile={attachedFile}
+        parsedRows={parsedRows}
+        sheetsData={sheetsData}
+        onExportExcel={handleExportExcel}
+        onExportPptx={handleExportPptx}
+        exportBusy={exportBusy}
+        onParsedRowsChange={setParsedRows}
+      />
     </div>
   );
 }

@@ -1,0 +1,6 @@
+{
+  "name": "TelecomAgent — RF Co-Pilot",
+  "description": "AI-assisted RF engineering copilot for 4G/5G networks with drive test analysis, KPI calculation, and knowledge vault.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

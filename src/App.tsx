@@ -3,14 +3,16 @@ import { useParserCommand, useHealthCheck, type ParseResult, type KPIResult } fr
 import { useReporting, useQgisExport, useQdrantSearch, useDbCommands } from './hooks/useBackendCommands'
 import AgentWorkspace from './components/AgentWorkspace';
 import KnowledgeVault from './components/KnowledgeVault';
+import RfToolDrawer from './components/RfToolDrawer';
 
 function isParseResult(d: ParseResult | KPIResult): d is ParseResult { return 'rows' in d && 'columns' in d }
 function isKPIResult(d: ParseResult | KPIResult): d is KPIResult { return 'result' in d && 'action' in d }
 
 type Tab = 'agent' | 'vault' | 'tools' | 'skills'
-type Provider = 'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
+type Provider = 'google'|'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
 
 const MODELS: Record<Provider,string[]> = {
+  google: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash'],
   ollama: ['qwen2.5:32b','qwen2.5:72b','llama3.3:70b','deepseek-r1:32b','mistral-nemo:12b'],
   openrouter: ['qwen/qwen-2.5-32b','anthropic/claude-3.5-sonnet','openai/gpt-4o'],
   openai: ['gpt-4o','gpt-4o-mini','o1-preview'],
@@ -25,16 +27,17 @@ export default function App() {
   const [llmOpen, setLlmOpen] = useState(false)
   const [skillDetailId, setSkillDetailId] = useState<string|null>(null)
   const [newSkillOpen, setNewSkillOpen] = useState(false)
+  const [activeTool, setActiveTool] = useState<any | null>(null)
 
-  // LLM settings state — mirrors mock
-  const [provider, setProvider] = useState<Provider>('9router')
-  const [model, setModel] = useState('my-combo')
-  const [baseUrl, setBaseUrl] = useState('http://localhost:20128/v1')
-  const [apiKey, setApiKey] = useState('sk-48e24c9658')
+  // LLM settings state — default to Google AI Studio (key via .env GEMINI_API_KEY atau Settings UI)
+  const [provider, setProvider] = useState<Provider>('google')
+  const [model, setModel] = useState('gemini-2.5-flash')
+  const [baseUrl, setBaseUrl] = useState('https://generativelanguage.googleapis.com')
+  const [apiKey, setApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
   const [temp, setTemp] = useState(0.30)
   const [maxTokens, setMaxTokens] = useState(4096)
-  const [ctxWindow, setCtxWindow] = useState('32K')
+  const [ctxWindow, setCtxWindow] = useState('1M')
   const [systemPrompt, setSystemPrompt] = useState('You are TelecomAgent — expert RF engineer for 4G/5G. Help optimize networks using precise technical knowledge. Always cite 3GPP/vendor sources when relevant. Generate Excel/PPT outputs via tools.')
   const [testResult, setTestResult] = useState<{msg:string, ok:boolean}|null>(null)
   const [testing, setTesting] = useState(false)
@@ -45,14 +48,18 @@ export default function App() {
   const [skillsOn, setSkillsOn] = useState<Record<string,boolean>>({
     'analyze-dt': true, 'gen-pptx': true, 'oss-kpi': true, 'rca': true, 'coverage': false, 'tilt': false,
   })
-  const allSkills = [
+  const [allSkills, setAllSkills] = useState([
     { id:'analyze-dt', name:'Analyze Drive Test', cat:'drive-test', desc:'Parse CSV/TXT DT logs, hitung KPI (RSRP/SINR/Throughput), detect 5 worst spots, generate Excel report.', tags:['drive-test','kpi','excel','autopilot'], file:'SKILL - Analyze Drive Test.md', icon:'ri-route-line', color:'violet' },
     { id:'gen-pptx', name:'Generate PPTX Report', cat:'reporting', desc:'Convert KPI Excel → 5-slide executive deck (cover, summary, coverage map, worst spots, recommendations).', tags:['reporting','pptx'], file:'SKILL - Generate PPTX Report.md', icon:'ri-slideshow-line', color:'orange' },
     { id:'oss-kpi', name:'OSS KPI Weekly Report', cat:'kpi', desc:'Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation >5%.', tags:['oss','kpi','trending'], file:'SKILL - OSS KPI Weekly Report.md', icon:'ri-bar-chart-box-line', color:'sky' },
     { id:'rca', name:'RCA Engine', cat:'rca', desc:'Rule-based + RAG diagnostics: overshooting, PCI collision, missing neighbor → actionable fix.', tags:['rca','postgis'], file:'SKILL - RCA Engine.md', icon:'ri-bug-line', color:'amber' },
     { id:'coverage', name:'Coverage Map', cat:'optimization', desc:'Generate RSRP/SINR heatmap PNG via Folium + GeoJSON — overlay cell azimuth & tilt.', tags:['folium','optimization'], file:'SKILL - Coverage Map.md', icon:'ri-map-2-line', color:'zinc' },
     { id:'tilt', name:'Tilt Optimizer', cat:'optimization', desc:'Slope-based electronic tilt suggestion per cell — minimize overshooting, maximize overlap control.', tags:['optimization','tilt'], file:'SKILL - Tilt Optimizer.md', icon:'ri-compass-3-line', color:'zinc' },
-  ]
+  ])
+  const [newSkillName, setNewSkillName] = useState('')
+  const [newSkillDesc, setNewSkillDesc] = useState('')
+  const [newSkillTags, setNewSkillTags] = useState('')
+  const [newSkillCat, setNewSkillCat] = useState('drive-test')
   const activeCount = useMemo(()=> Object.values(skillsOn).filter(Boolean).length, [skillsOn])
   const filteredSkills = allSkills.filter(s => {
     const catOk = skillCategory==='all' || s.cat===skillCategory
@@ -66,15 +73,102 @@ export default function App() {
     setProvider(p)
     const first = MODELS[p][0]
     if (first) setModel(first)
+    if (p==='google') {
+      setBaseUrl('https://generativelanguage.googleapis.com')
+      setApiKey('')
+    }
     if (p==='ollama') setBaseUrl('http://localhost:11434/v1')
-    if (p==='9router') { setBaseUrl('http://localhost:20128/v1'); setApiKey('sk-48e24c9658'); }
+    if (p==='9router') { setBaseUrl('http://localhost:20128/v1'); setApiKey(''); }
     setTestResult(null)
   }
   const doTestLLM = () => {
     setTesting(true); setTestResult(null)
-    setTimeout(()=>{ setTesting(false); setTestResult({msg:'✓ Connected — '+model+' responded in 412ms', ok:true}) }, 900)
+    const t0 = performance.now();
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: 'Say hello dan jelaskan model dan provider apa yang sedang dipakai serta alasannya' }],
+        provider,
+        model,
+        apiKey,
+      })
+    })
+      .then(r => r.json())
+      .then(j => {
+        const ms = Math.round(performance.now() - t0);
+        const meta = j?.meta;
+        if (meta?.isLive) {
+          setTestResult({
+            msg: `✓ Connected — ${meta.provider} (${meta.model}) • responded in ${meta.latencyMs || ms}ms [Live API]`,
+            ok: true
+          });
+        } else {
+          setTestResult({
+            msg: `✓ Active — ${meta?.provider || 'TelecomAgent RF Engine'} (${meta?.model || model}) • ${ms}ms [Domain Standby]`,
+            ok: true
+          });
+        }
+      })
+      .catch(e => {
+        setTestResult({ msg: `✗ Connection failed: ${e.message}`, ok: false });
+      })
+      .finally(() => setTesting(false));
   }
-  const llmStatusText = `${model} • ${activeCount} skills on`
+
+  const handleExportExcel = () => {
+    const a = document.createElement('a');
+    a.href = '/api/export/excel';
+    a.download = 'RF_Cluster_Optimization_Report.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleExportPptx = () => {
+    const a = document.createElement('a');
+    a.href = '/api/export/pptx';
+    a.download = 'RF_Cluster_Optimization_Executive_Summary.pptx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleCreateSkill = () => {
+    if (!newSkillName.trim()) return;
+    const id = newSkillName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const newSkill = {
+      id,
+      name: newSkillName,
+      cat: newSkillCat,
+      desc: newSkillDesc || 'Custom RF engineering skill created by user.',
+      tags: newSkillTags ? newSkillTags.split(',').map(t => t.trim()) : ['rf', 'custom'],
+      file: `SKILL - ${newSkillName}.md`,
+      icon: 'ri-flashlight-line',
+      color: 'violet',
+    };
+
+    setAllSkills(prev => [newSkill, ...prev]);
+    setSkillsOn(prev => ({ ...prev, [id]: true }));
+
+    // Ingest into vault
+    fetch('/api/vault/ingest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: `SKILL - ${newSkillName}.md`,
+        content: `---\ntitle: "${newSkillName}"\ndescription: "${newSkillDesc}"\ntags: [${newSkillTags}]\n---\n\n## Trigger phrases\n- "${newSkillName}"\n\n## Steps\n1. Run analysis\n2. Output results\n`,
+        tags: newSkillTags.split(',').map(t => t.trim()),
+      }),
+    }).catch(console.error);
+
+    setNewSkillName('');
+    setNewSkillDesc('');
+    setNewSkillTags('');
+    setNewSkillOpen(false);
+  };
+  const providerLabel = provider === 'google' ? 'Google AI Studio' : provider;
+  const llmStatusText = `${providerLabel} • ${model} • ${activeCount} skills on`
 
   // Backend hooks (kept for future wiring)
   const { isPending: parseLoading, data: parseData, error: parseError, parseFile, computeKPI } = useParserCommand()
@@ -91,7 +185,8 @@ export default function App() {
     { icon:'ri-book-mark-line', color:'violet', title:'Vault Indexer', desc:'3GPP & vendor doc index', tags:['Qdrant','RAG'], badge:'READY', badgeColor:'emerald' },
   ]
 
-  const hintText = provider==='ollama' ? 'Local — no API key needed. Pastikan Ollama running.'
+  const hintText = provider==='google' ? 'Google AI Studio — model Gemini 3 series berkecepatan tinggi & akurasi RF 4G/5G.'
+    : provider==='ollama' ? 'Local — no API key needed. Pastikan Ollama running.'
     : provider==='openrouter' ? 'OpenRouter — 1 key untuk banyak model.'
     : provider==='openai' ? 'OpenAI API — butuh sk-...'
     : provider==='anthropic' ? 'Anthropic API.'
@@ -104,7 +199,7 @@ export default function App() {
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#7c3aed,#4f46e5)',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="ri-signal-cellular-3-line" style={{color:'#fff',fontSize:16}}></i></div>
           <span style={{fontWeight:600,fontSize:14,letterSpacing:-0.2}}>TelecomAgent</span>
-          <span style={{fontSize:11,background:'#27272a',border:'1px solid #3f3f46',padding:'2px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace',color:'#a1a1aa',fontWeight:500}}>RF COPILOT v0.3</span>
+          <span style={{fontSize:11,background:'#27272a',border:'1px solid #3f3f46',padding:'2px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace',color:'#a1a1aa',fontWeight:500}}>RF COPILOT v0.4</span>
         </div>
         <div style={{height:20,width:1,background:'#27272a',margin:'0 4px'}} />
         <div style={{display:'flex',alignItems:'center',gap:4,background:'#0a0a0f',border:'1px solid #27272a',borderRadius:999,padding:4}}>
@@ -125,7 +220,13 @@ export default function App() {
 
       {/* MAIN */}
       <div style={{display:'flex',flex:1,overflow:'hidden'}}>
-        {tab==='agent' && <AgentWorkspace onManageSkills={()=>setTab('skills')} />}
+        {tab==='agent' && (
+          <AgentWorkspace
+            llmConfig={{ provider, model, apiKey, temp, maxTokens, systemPrompt }}
+            onManageSkills={()=>setTab('skills')}
+            onOpenLlmSettings={()=>setLlmOpen(true)}
+          />
+        )}
         {tab==='vault' && <KnowledgeVault />}
 
         {tab==='tools' && (
@@ -138,10 +239,35 @@ export default function App() {
             <div style={{flex:1,overflowY:'auto',padding:16}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 {tools.map(t=>(
-                  <div key={t.title} className="skill-card" style={{background:'#14141b',border:'1px solid #27272a',borderRadius:12,padding:12}}>
-                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}><i className={t.icon} style={{color: t.color==='violet'?'#a78bfa':t.color==='emerald'?'#34d399':t.color==='sky'?'#38bdf8':t.color==='orange'?'#fb923c':'#fbbf24',fontSize:18}}></i><span style={{fontSize:10,background: t.badgeColor==='emerald'?'#022c22':'#422006',color: t.badgeColor==='emerald'?'#34d399':'#fbbf24',border:'1px solid '+ (t.badgeColor==='emerald'?'#065f46':'#92400e'),padding:'2px 6px',borderRadius:4}}>{t.badge}</span></div>
-                    <p style={{fontSize:12,fontWeight:600}}>{t.title}</p><p style={{fontSize:11,color:'#71717a',marginTop:4}}>{t.desc}</p>
-                    <div style={{display:'flex',gap:4,marginTop:8}}>{t.tags.map(tag=><span key={tag} style={{fontSize:10,background:'#27272a',padding:'2px 6px',borderRadius:4}}>{tag}</span>)}</div>
+                  <div
+                    key={t.title}
+                    className="skill-card"
+                    onClick={() => setActiveTool(t)}
+                    style={{
+                      background:'#14141b',
+                      border:'1px solid #27272a',
+                      borderRadius:12,
+                      padding:14,
+                      cursor:'pointer',
+                      transition:'border-color 0.2s, transform 0.1s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = '#7c3aed';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = '#27272a';
+                    }}
+                  >
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                      <i className={t.icon} style={{color: t.color==='violet'?'#a78bfa':t.color==='emerald'?'#34d399':t.color==='sky'?'#38bdf8':t.color==='orange'?'#fb923c':'#fbbf24',fontSize:18}}></i>
+                      <span style={{fontSize:10,background: t.badgeColor==='emerald'?'#022c22':'#422006',color: t.badgeColor==='emerald'?'#34d399':'#fbbf24',border:'1px solid '+ (t.badgeColor==='emerald'?'#065f46':'#92400e'),padding:'2px 6px',borderRadius:4}}>{t.badge}</span>
+                    </div>
+                    <p style={{fontSize:13,fontWeight:600,color:'#fff'}}>{t.title}</p>
+                    <p style={{fontSize:11,color:'#a1a1aa',marginTop:4}}>{t.desc}</p>
+                    <div style={{display:'flex',gap:4,marginTop:8,alignItems:'center'}}>
+                      {t.tags.map(tag=><span key={tag} style={{fontSize:10,background:'#27272a',padding:'2px 6px',borderRadius:4,color:'#d4d4d8'}}>{tag}</span>)}
+                      <span style={{marginLeft:'auto',fontSize:11,color:'#a78bfa',fontWeight:500}}>Launch Tool →</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -212,6 +338,7 @@ export default function App() {
               <div>
                 <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>PROVIDER</div>
                 <select value={provider} onChange={e=>onProviderChange(e.target.value as Provider)} style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'10px 12px',color:'#e4e4e7',outline:'none'}}>
+                  <option value="google">Google AI Studio (Gemini 3)</option>
                   <option value="ollama">Ollama (Local)</option>
                   <option value="openrouter">OpenRouter</option>
                   <option value="openai">OpenAI</option>
@@ -310,9 +437,9 @@ export default function App() {
                 </div>
               </div>
               <div style={{padding:16,borderTop:'1px solid #27272a',display:'flex',gap:8}}>
-                <button onClick={()=>setSkillDetailId(null)} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer'}}>Close</button>
-                <button style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer'}}><i className="ri-edit-line"></i> Edit .md</button>
-                <button style={{flex:1,background:'#7c3aed',color:'#fff',border:'none',padding:'8px',borderRadius:8,fontSize:13,fontWeight:500,cursor:'pointer'}}>Test Skill</button>
+                <button onClick={()=>setSkillDetailId(null)} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7'}}>Close</button>
+                <button onClick={()=>{ setTab('vault'); setSkillDetailId(null); }} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7'}}><i className="ri-edit-line"></i> Edit .md</button>
+                <button onClick={()=>{ setTab('agent'); setSkillDetailId(null); }} style={{flex:1,background:'#7c3aed',color:'#fff',border:'none',padding:'8px',borderRadius:8,fontSize:13,fontWeight:500,cursor:'pointer'}}><i className="ri-play-line"></i> Test Skill</button>
               </div>
             </div>
           </div>
@@ -327,22 +454,84 @@ export default function App() {
             <div style={{background:'#0f0f14',border:'1px solid #27272a',borderRadius:16,width:'100%',maxWidth:560,overflow:'hidden',display:'flex',flexDirection:'column',boxShadow:'0 20px 40px rgba(0,0,0,0.6)'}}>
               <div style={{height:56,borderBottom:'1px solid #27272a',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 20px',flexShrink:0}}>
                 <span style={{fontSize:14,fontWeight:600}}>New Skill</span>
-                <button onClick={()=>setNewSkillOpen(false)} style={{width:28,height:28,background:'#18181b',border:'1px solid #27272a',borderRadius:8,cursor:'pointer'}}><i className="ri-close-line"></i></button>
+                <button onClick={()=>setNewSkillOpen(false)} style={{width:28,height:28,background:'#18181b',border:'1px solid #27272a',borderRadius:8,cursor:'pointer',color:'#a1a1aa'}}><i className="ri-close-line"></i></button>
               </div>
               <div style={{padding:20,display:'flex',flexDirection:'column',gap:16}}>
-                <div><div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>SKILL NAME</div><input placeholder="e.g. Handover Analyzer" style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,outline:'none',color:'#e4e4e7'}} /></div>
-                <div><div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>DESCRIPTION (when to use)</div><input placeholder="Use when analyzing handover failures..." style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,outline:'none',color:'#e4e4e7'}} /></div>
-                <div><div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>TAGS (comma separated)</div><input placeholder="handover, kpi, rca" style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,fontFamily:'JetBrains Mono, monospace',outline:'none',color:'#e4e4e7'}} /></div>
-                <p style={{fontSize:12,color:'#71717a'}}>File akan dibuat: <span style={{fontFamily:'JetBrains Mono, monospace',color:'#a78bfa'}}>SKILL - [Name].md</span> dari template.</p>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>SKILL NAME</div>
+                  <input
+                    value={newSkillName}
+                    onChange={e => setNewSkillName(e.target.value)}
+                    placeholder="e.g. Handover Failure Diagnostic"
+                    style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,outline:'none',color:'#e4e4e7'}}
+                  />
+                </div>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>CATEGORY</div>
+                  <select
+                    value={newSkillCat}
+                    onChange={e => setNewSkillCat(e.target.value)}
+                    style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,outline:'none',color:'#e4e4e7'}}
+                  >
+                    <option value="drive-test">Drive Test</option>
+                    <option value="reporting">Reporting</option>
+                    <option value="rca">RCA</option>
+                    <option value="kpi">KPI</option>
+                    <option value="optimization">Optimization</option>
+                  </select>
+                </div>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>DESCRIPTION (when to use)</div>
+                  <input
+                    value={newSkillDesc}
+                    onChange={e => setNewSkillDesc(e.target.value)}
+                    placeholder="Use when analyzing handover failures or missing neighbors..."
+                    style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,outline:'none',color:'#e4e4e7'}}
+                  />
+                </div>
+                <div>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:6}}>TAGS (comma separated)</div>
+                  <input
+                    value={newSkillTags}
+                    onChange={e => setNewSkillTags(e.target.value)}
+                    placeholder="handover, kpi, rca, 3gpp"
+                    style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',fontSize:13,fontFamily:'JetBrains Mono, monospace',outline:'none',color:'#e4e4e7'}}
+                  />
+                </div>
+                <p style={{fontSize:12,color:'#71717a'}}>File akan dibuat otomatis dan di-indeks di Vault: <span style={{fontFamily:'JetBrains Mono, monospace',color:'#a78bfa'}}>SKILL - {newSkillName || '[Name]'}.md</span>.</p>
               </div>
               <div style={{padding:16,borderTop:'1px solid #27272a',display:'flex',gap:8}}>
-                <button onClick={()=>setNewSkillOpen(false)} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer'}}>Cancel</button>
-                <button onClick={()=>{alert('Skill file akan dibuat dari SKILL - Template.md → isi title/description/tags lalu save.'); setNewSkillOpen(false)}} style={{flex:1,background:'#7c3aed',color:'#fff',border:'none',padding:'8px',borderRadius:8,fontSize:13,fontWeight:500,cursor:'pointer'}}>Create from Template</button>
+                <button onClick={()=>setNewSkillOpen(false)} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'8px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7'}}>Cancel</button>
+                <button
+                  onClick={handleCreateSkill}
+                  disabled={!newSkillName.trim()}
+                  style={{
+                    flex:1,
+                    background: newSkillName.trim() ? '#7c3aed' : '#27272a',
+                    color:'#fff',
+                    border:'none',
+                    padding:'8px',
+                    borderRadius:8,
+                    fontSize:13,
+                    fontWeight:500,
+                    cursor: newSkillName.trim() ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  Create & Activate Skill
+                </button>
               </div>
             </div>
           </div>
         </>
       )}
+
+      {/* RF INTERACTIVE TOOL DRAWER */}
+      <RfToolDrawer
+        tool={activeTool}
+        onClose={() => setActiveTool(null)}
+        onExportExcel={handleExportExcel}
+        onExportPptx={handleExportPptx}
+      />
     </div>
   )
 }
