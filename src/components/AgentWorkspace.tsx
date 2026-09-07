@@ -60,6 +60,8 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
   const [attachedFile, setAttachedFile] = useState<string | null>(null);
   const [parsedInfo, setParsedInfo] = useState<string|null>(null);
   const [parsedRows, setParsedRows] = useState<string[][]|null>(null);
+  const [sheetsData, setSheetsData] = useState<any>(null);
+  const [selectedSheet, setSelectedSheet] = useState<string|null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   type ChatMsg = { role: 'user' | 'assistant'; content: string };
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -219,7 +221,7 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
         setParsedInfo(`Header: ${hdr.join(' | ')}${kpi}`);
         setParsedRows([hdr, ...preview]);
       } else if(ext==='xlsx' || ext==='xls'){
-        // Excel: parse real via backend /api/parse (openpyxl) — biar header/preview terbaca AI
+        // Excel: parse real via backend /api/parse — sekarang scan SEMUA sheet (Power Query Raw ikut kebaca)
         try{
           const b64: string = await new Promise<string>((resolve, reject)=>{
             const reader = new FileReader();
@@ -234,16 +236,37 @@ export default function AgentWorkspace({ onManageSkills }: { onManageSkills?: ()
           const r = await fetch('/api/parse', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fileName: f.name, content: b64, isBase64:true})});
           const j = await r.json();
           if(j.ok){
-            setLastUpload(`${label}: ${f.name} (${kb} KB) — ${j.rows} rows, ${j.cols} cols` + (j.sheets? ` • ${j.sheets.length} sheets`:''));
-            setParsedInfo(j.info || `Header: ${j.header?.join(' | ')}`);
-            setParsedRows([j.header, ...(j.preview||[])]);
+            // New multi-sheet payload: j.sheetsData, j.sheets
+            if(j.sheetsData){
+              setSheetsData(j.sheetsData);
+              // Prioritas: cari sheet "raw"/"data"/"log", kalau tidak pakai activeSheet
+              let target = j.activeSheet;
+              const lowerSheets = (j.sheets as string[]).map((s:string)=>s.toLowerCase());
+              const rawIdx = lowerSheets.findIndex((s:string)=> s.includes('raw'));
+              const dataIdx = lowerSheets.findIndex((s:string)=> s.includes('data') || s.includes('log') || s.includes('export'));
+              if(rawIdx>=0) target = j.sheets[rawIdx];
+              else if(dataIdx>=0) target = j.sheets[dataIdx];
+              setSelectedSheet(target);
+              const sd = j.sheetsData[target];
+              setLastUpload(`${label}: ${f.name} (${kb} KB) — ${j.sheets.length} sheets • target: ${target} (${sd.rows} rows)`);
+              setParsedInfo(j.info || `Header ${target}: ${sd.header?.join(' | ')}`);
+              setParsedRows([sd.header, ...(sd.preview||[])]);
+            } else {
+              // Fallback single-sheet (backward compat)
+              setLastUpload(`${label}: ${f.name} (${kb} KB) — ${j.rows} rows, ${j.cols} cols` + (j.sheets? ` • ${j.sheets.length} sheets`:''));
+              setParsedInfo(j.info || `Header: ${j.header?.join(' | ')}`);
+              setParsedRows([j.header, ...(j.preview||[])]);
+              setSheetsData(null); setSelectedSheet(null);
+            }
           } else {
             setLastUpload(`${label}: ${f.name} (${kb} KB) — Excel terdeteksi (parse gagal)`);
             setParsedInfo(j.error ? `Parse gagal: ${j.error}` : 'Preview gagal, tapi file tetap terlampir untuk analisa.');
+            setSheetsData(null); setSelectedSheet(null);
           }
         }catch(err:any){
           setLastUpload(`${label}: ${f.name} (${kb} KB) — Excel terdeteksi (parse error)`);
           setParsedInfo(`Parse gagal: ${err?.message ?? err}`);
+          setSheetsData(null); setSelectedSheet(null);
         }
       } else {
         const t = await f.slice(0, 4000).text().catch(()=> '');

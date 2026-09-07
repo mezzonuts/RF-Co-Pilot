@@ -95,34 +95,69 @@ def _forward_to_9router(payload: dict, api_key: str = None):
     return None, last_err or "unknown error"
 
 def _parse_excel_b64(b64: str, file_name: str = ""):
-    """Decode base64 xlsx/xls -> {header, rows, info}. Pure openpyxl, no save."""
+    """Decode base64 xlsx/xls -> {sheetsData, info}. Loops through all sheets."""
     try:
         raw = base64.b64decode(b64)
         import openpyxl
         wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True, read_only=True)
-        ws = wb.active
-        rows = list(ws.iter_rows(values_only=True))
-        if not rows:
-            return {"ok": False, "error": "Excel kosong"}
-        hdr = [str(c).strip() if c is not None else "" for c in rows[0]]
-        preview=[]
-        for r in rows[1:6]:
-            preview.append([str(c) if c is not None else "" for c in r])
-        sheets = wb.sheetnames
+        
+        sheets_data = {}
+        all_sheets = wb.sheetnames
+        
+        # Limit processing to first 15 sheets to avoid OOM/Timeout
+        for sn in all_sheets[:15]:
+            ws = wb[sn]
+            # row_count can be slow in read_only if not cached, but usually okay for typical files
+            # get_highest_row is old, max_row is current
+            rows_iter = ws.iter_rows(values_only=True)
+            try:
+                first_row = next(rows_iter, None)
+            except:
+                first_row = None
+                
+            if not first_row:
+                sheets_data[sn] = {"rows": 0, "cols": 0, "header": [], "preview": []}
+                continue
+                
+            hdr = [str(c).strip() if c is not None else "" for c in first_row]
+            preview = []
+            count = 0
+            for r in rows_iter:
+                if count < 5:
+                    preview.append([str(c) if c is not None else "" for c in r])
+                count += 1
+            
+            sheets_data[sn] = {
+                "rows": count, # count after header
+                "cols": len(hdr),
+                "header": hdr,
+                "preview": preview
+            }
+            
         wb.close()
-        info = f"Sheet: {sheets[0]} ({len(sheets)} sheets) \u2022 {len(rows)-1} rows \u2022 {len(hdr)} cols"
-        lower = [h.lower() for h in hdr]
-        for key in ["rsrp","sinr","throughput","dl","rsrq"]:
-            idx = next((i for i,h in enumerate(lower) if key in h), -1)
-            if idx>=0 and preview:
-                vals=[]
-                for pr in preview:
-                    try: vals.append(float(str(pr[idx]).replace(",",".")))
-                    except: pass
-                if vals:
-                    info += f" \u2022 {key.upper()} sample {min(vals):.1f}~{max(vals):.1f}"
-                    break
-        return {"ok": True, "header": hdr, "preview": preview, "info": info, "rows": len(rows)-1, "cols": len(hdr), "sheets": sheets, "fileName": file_name}
+        
+        # Summary info
+        active_sheet = all_sheets[0]
+        s_data = sheets_data[active_sheet]
+        info = f"File: {file_name} \u2022 {len(all_sheets)} sheets \u2022 Active: {active_sheet} ({s_data['rows']} rows)"
+        
+        # Auto-detect "raw" or "data" sheet for better default info
+        raw_names = [s for s in all_sheets if any(k in s.lower() for k in ["raw", "data", "log", "export"])]
+        if raw_names:
+            target = raw_names[0]
+            t_data = sheets_data[target]
+            info += f" \u2022 Found data in '{target}' ({t_data['rows']} rows)"
+
+        return {
+            "ok": True, 
+            "info": info, 
+            "sheets": all_sheets, 
+            "sheetsData": sheets_data, 
+            "activeSheet": active_sheet,
+            "fileName": file_name,
+            "totalRows": sum(s["rows"] for s in sheets_data.values()),
+            "totalCols": sum(s["cols"] for s in sheets_data.values())
+        }
     except Exception as e:
         import traceback; traceback.print_exc()
         return {"ok": False, "error": str(e)[:600]}
