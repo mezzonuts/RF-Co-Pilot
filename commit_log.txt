@@ -1,0 +1,14 @@
+## RF-Co-Pilot commit log
+
+- Pushed verified changes on 2026-09-07 to `feat/v0.4-vault-grounded-loop` (commit 90d99fd).
+- Added Express/Vite server (`server.ts`), Gemini API proxy, Excel & PPTX export, Vault in‑memory API.
+- Implemented LivePreviewPanel with dynamic KPI calculations, map samples, worst‑spot analysis.
+- Integrated EsriLiveMap (Leaflet), RfToolDrawer, updated App.tsx to use Google Gemini model (`gemini-2.5-flash`) and sanitized all API keys (`apiKey=''`, `GEMINI_API_KEY` placeholder in .env.example).
+- Updated AgentWorkspace to persist parsed rows, sheet data, and export custom data.
+- Added backend command guards for Tauri vs web fallback.
+- Updated package.json scripts, .gitignore (ignore .env, bun.lock, zip artifacts).
+- Security scan: 0 hard‑coded secrets, no shell injection, eval/exec, or pickle usage.
+- TypeScript and Vite build pass (`tsc --noEmit` 0, `npm run build` 0). Python compile 0.
+- CI/CD workflow (`.github/workflows/ci-cd.yml`) will run on push.
+
+All changes are verified and pushed.
