@@ -20,3 +20,13 @@ logs/
 # Python cache
 __pycache__/
 *.pyc
+
+# RF memory (local)
+.rf_memory.json
+memory/
+# Temp demo files
+a.txt
+b.txt
+c.txt
+# Public duplicate mockup (keep root if needed)
+public/

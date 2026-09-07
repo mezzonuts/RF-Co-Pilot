@@ -8,7 +8,7 @@ function isParseResult(d: ParseResult | KPIResult): d is ParseResult { return 'r
 function isKPIResult(d: ParseResult | KPIResult): d is KPIResult { return 'result' in d && 'action' in d }
 
 type Tab = 'agent' | 'vault' | 'tools' | 'skills'
-type Provider = 'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'
+type Provider = 'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
 
 const MODELS: Record<Provider,string[]> = {
   ollama: ['qwen2.5:32b','qwen2.5:72b','llama3.3:70b','deepseek-r1:32b','mistral-nemo:12b'],
@@ -17,6 +17,7 @@ const MODELS: Record<Provider,string[]> = {
   anthropic: ['claude-3-5-sonnet-20241022','claude-3-5-haiku-20241022'],
   hf: ['Qwen/Qwen2.5-32B-Instruct','meta-llama/Llama-3.3-70B-Instruct'],
   custom: ['custom-model'],
+  '9router': ['my-combo', 'gc/gemini-3.1-pro-preview', 'gc/gemini-3-pro-preview', 'gc/gemini-3-flash-preview', 'kr/claude-sonnet-4.5', 'kr/auto'],
 }
 
 export default function App() {
@@ -26,10 +27,10 @@ export default function App() {
   const [newSkillOpen, setNewSkillOpen] = useState(false)
 
   // LLM settings state — mirrors mock
-  const [provider, setProvider] = useState<Provider>('ollama')
-  const [model, setModel] = useState('qwen2.5:32b')
-  const [baseUrl, setBaseUrl] = useState('http://localhost:11434/v1')
-  const [apiKey, setApiKey] = useState('')
+  const [provider, setProvider] = useState<Provider>('9router')
+  const [model, setModel] = useState('my-combo')
+  const [baseUrl, setBaseUrl] = useState('http://localhost:20128/v1')
+  const [apiKey, setApiKey] = useState('sk-48e24c9658')
   const [showKey, setShowKey] = useState(false)
   const [temp, setTemp] = useState(0.30)
   const [maxTokens, setMaxTokens] = useState(4096)
@@ -66,6 +67,7 @@ export default function App() {
     const first = MODELS[p][0]
     if (first) setModel(first)
     if (p==='ollama') setBaseUrl('http://localhost:11434/v1')
+    if (p==='9router') { setBaseUrl('http://localhost:20128/v1'); setApiKey('sk-48e24c9658'); }
     setTestResult(null)
   }
   const doTestLLM = () => {
@@ -216,6 +218,7 @@ export default function App() {
                   <option value="anthropic">Anthropic</option>
                   <option value="hf">Hugging Face Inference</option>
                   <option value="custom">Custom OpenAI-compatible</option>
+                  <option value="9router">9Router Local (localhost:20128)</option>
                 </select>
                 <p style={{fontSize:11,color:'#71717a',marginTop:6,fontFamily:'JetBrains Mono, monospace'}}>{hintText}</p>
               </div>
