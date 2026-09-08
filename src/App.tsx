@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { useParserCommand, useHealthCheck, type ParseResult, type KPIResult } from './hooks/useParserCommand'
 import { useReporting, useQgisExport, useQdrantSearch, useDbCommands } from './hooks/useBackendCommands'
 import AgentWorkspace from './components/AgentWorkspace';
@@ -42,31 +42,72 @@ export default function App() {
   const [testResult, setTestResult] = useState<{msg:string, ok:boolean}|null>(null)
   const [testing, setTesting] = useState(false)
 
-  // Skills
+  // Skills — fetched from backend (C:\Users\PC\Documents\Skill AI + bundled fallback), toggle persists server-side
   const [skillSearch, setSkillSearch] = useState('')
   const [skillCategory, setSkillCategory] = useState('all')
   const [skillsOn, setSkillsOn] = useState<Record<string,boolean>>({
     'analyze-dt': true, 'gen-pptx': true, 'oss-kpi': true, 'rca': true, 'coverage': false, 'tilt': false,
   })
-  const [allSkills, setAllSkills] = useState([
-    { id:'analyze-dt', name:'Analyze Drive Test', cat:'drive-test', desc:'Parse CSV/TXT DT logs, hitung KPI (RSRP/SINR/Throughput), detect 5 worst spots, generate Excel report.', tags:['drive-test','kpi','excel','autopilot'], file:'SKILL - Analyze Drive Test.md', icon:'ri-route-line', color:'violet' },
-    { id:'gen-pptx', name:'Generate PPTX Report', cat:'reporting', desc:'Convert KPI Excel → 5-slide executive deck (cover, summary, coverage map, worst spots, recommendations).', tags:['reporting','pptx'], file:'SKILL - Generate PPTX Report.md', icon:'ri-slideshow-line', color:'orange' },
-    { id:'oss-kpi', name:'OSS KPI Weekly Report', cat:'kpi', desc:'Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation >5%.', tags:['oss','kpi','trending'], file:'SKILL - OSS KPI Weekly Report.md', icon:'ri-bar-chart-box-line', color:'sky' },
-    { id:'rca', name:'RCA Engine', cat:'rca', desc:'Rule-based + RAG diagnostics: overshooting, PCI collision, missing neighbor → actionable fix.', tags:['rca','postgis'], file:'SKILL - RCA Engine.md', icon:'ri-bug-line', color:'amber' },
-    { id:'coverage', name:'Coverage Map', cat:'optimization', desc:'Generate RSRP/SINR heatmap PNG via Folium + GeoJSON — overlay cell azimuth & tilt.', tags:['folium','optimization'], file:'SKILL - Coverage Map.md', icon:'ri-map-2-line', color:'zinc' },
-    { id:'tilt', name:'Tilt Optimizer', cat:'optimization', desc:'Slope-based electronic tilt suggestion per cell — minimize overshooting, maximize overlap control.', tags:['optimization','tilt'], file:'SKILL - Tilt Optimizer.md', icon:'ri-compass-3-line', color:'zinc' },
+  const [allSkills, setAllSkills] = useState<any[]>([
+    { id:'analyze-dt', name:'Analyze Drive Test', cat:'drive-test', desc:'Parse CSV/TXT DT logs, hitung KPI (RSRP/SINR/Throughput), detect 5 worst spots, generate Excel report.', tags:['drive-test','kpi','excel','autopilot'], file:'SKILL - Analyze Drive Test.md', icon:'ri-route-line', color:'violet', source:'builtin', enabled:true },
+    { id:'gen-pptx', name:'Generate PPTX Report', cat:'reporting', desc:'Convert KPI Excel → 5-slide executive deck (cover, summary, coverage map, worst spots, recommendations).', tags:['reporting','pptx'], file:'SKILL - Generate PPTX Report.md', icon:'ri-slideshow-line', color:'orange', source:'builtin', enabled:true },
+    { id:'oss-kpi', name:'OSS KPI Weekly Report', cat:'kpi', desc:'Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation >5%.', tags:['oss','kpi','trending'], file:'SKILL - OSS KPI Weekly Report.md', icon:'ri-bar-chart-box-line', color:'sky', source:'builtin', enabled:true },
+    { id:'rca', name:'RCA Engine', cat:'rca', desc:'Rule-based + RAG diagnostics: overshooting, PCI collision, missing neighbor → actionable fix.', tags:['rca','postgis'], file:'SKILL - RCA Engine.md', icon:'ri-bug-line', color:'amber', source:'builtin', enabled:true },
+    { id:'coverage', name:'Coverage Map', cat:'optimization', desc:'Generate RSRP/SINR heatmap PNG via Folium + GeoJSON — overlay cell azimuth & tilt.', tags:['folium','optimization'], file:'SKILL - Coverage Map.md', icon:'ri-map-2-line', color:'zinc', source:'builtin', enabled:false },
+    { id:'tilt', name:'Tilt Optimizer', cat:'optimization', desc:'Slope-based electronic tilt suggestion per cell — minimize overshooting, maximize overlap control.', tags:['optimization','tilt'], file:'SKILL - Tilt Optimizer.md', icon:'ri-compass-3-line', color:'zinc', source:'builtin', enabled:false },
   ])
+  const [skillsMeta, setSkillsMeta] = useState<{ total:number; enabled:number; externalRoot?:string; bundledRoot?:string }|null>(null)
+  const [skillsLoading, setSkillsLoading] = useState(false)
+  const colorForCategory = (cat:string) => ({ 'ml-time-series':'violet','lab':'emerald','automation':'amber','clinical':'rose','data-engineering':'sky','office':'blue','eda':'sky','geospatial':'emerald','visualization':'violet','graph':'violet','statistics':'amber','forecasting':'emerald','research':'amber','kpi':'sky','rca':'amber','drive-test':'violet','reporting':'orange','optimization':'zinc' } as any)[cat] || 'zinc'
+  const fetchSkills = async () => {
+    setSkillsLoading(true)
+    try {
+      const r = await fetch('/api/skills')
+      const j = await r.json()
+      if (j?.catalog && Array.isArray(j.catalog)) {
+        const mapped = j.catalog.map((s:any)=> ({
+          id: s.id, name: s.name, cat: s.category || 'general', desc: s.description || s.summary?.slice(0,120) || '', tags: s.tags || [], file: (s.id.startsWith('analyze-')||s.id.startsWith('gen-')||['oss-kpi','rca','coverage','tilt'].includes(s.id)) ? `SKILL - ${s.name}.md` : `${s.id}/SKILL.md`, icon: s.icon || 'ri-flashlight-line', color: s.color || colorForCategory(s.category), source: s.source, enabled: !!s.enabled, summary: s.summary || ''
+        }))
+        setAllSkills(mapped)
+        const onMap: Record<string,boolean> = {}
+        for (const s of j.catalog) onMap[s.id]=!!s.enabled
+        setSkillsOn(onMap)
+        setSkillsMeta({ total: j.total, enabled: j.enabled, externalRoot: j.externalRoot, bundledRoot: j.bundledRoot })
+      }
+    } catch {} finally { setSkillsLoading(false) }
+  }
+  useEffect(()=> { fetchSkills() }, [])
   const [newSkillName, setNewSkillName] = useState('')
   const [newSkillDesc, setNewSkillDesc] = useState('')
   const [newSkillTags, setNewSkillTags] = useState('')
   const [newSkillCat, setNewSkillCat] = useState('drive-test')
   const activeCount = useMemo(()=> Object.values(skillsOn).filter(Boolean).length, [skillsOn])
-  const filteredSkills = allSkills.filter(s => {
+  // Dynamic categories from catalog (RF + 22 external) — keeps RF cats first
+  const skillCategories = useMemo(()=>{
+    const cats = Array.from(new Set(allSkills.map((s:any)=> s.cat).filter(Boolean))) as string[]
+    const order = ['all','drive-test','reporting','rca','kpi','optimization','office','data-engineering','geospatial','visualization','graph','statistics','forecasting','eda','automation','research','ml-time-series','lab','clinical','general']
+    const sorted = cats.sort((a,b)=>{
+      const ia = order.indexOf(a), ib = order.indexOf(b)
+      if (ia>-1 && ib>-1) return ia-ib
+      if (ia>-1) return -1
+      if (ib>-1) return 1
+      return a.localeCompare(b)
+    })
+    return ['all', ...sorted]
+  }, [allSkills])
+  const filteredSkills = allSkills.filter((s:any) => {
     const catOk = skillCategory==='all' || s.cat===skillCategory
-    const qOk = !skillSearch || s.name.toLowerCase().includes(skillSearch.toLowerCase())
+    const q = skillSearch.trim().toLowerCase()
+    const qOk = !q || s.name.toLowerCase().includes(q) || (s.desc && s.desc.toLowerCase().includes(q)) || (Array.isArray(s.tags) && s.tags.join(' ').toLowerCase().includes(q)) || (s.cat && s.cat.toLowerCase().includes(q))
     return catOk && qOk
   })
-  const toggleSkill = (id:string) => setSkillsOn(prev=>({...prev,[id]:!prev[id]}))
+  const toggleSkill = (id:string) => {
+    const next = !skillsOn[id]
+    setSkillsOn(prev=>({...prev,[id]:next}))
+    setAllSkills(prev=> prev.map(s=> s.id===id ? { ...s, enabled: next } : s))
+    fetch('/api/skills/toggle', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, enabled: next }) })
+      .then(r=>r.json()).then(j=>{ if(!j?.ok) throw new Error(j?.error||'toggle failed') }).catch(()=> { setSkillsOn(prev=>({...prev,[id]:!next})); setAllSkills(prev=> prev.map(s=> s.id===id ? { ...s, enabled: !next } : s)) })
+  }
 
   // Provider change — mirrors mock onProviderChange
   const onProviderChange = (p:Provider) => {
@@ -287,12 +328,12 @@ export default function App() {
               </div>
               <button onClick={()=>setNewSkillOpen(true)} style={{background:'#7c3aed',color:'#fff',border:'none',padding:'6px 12px',borderRadius:8,fontSize:12,fontWeight:500,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}><i className="ri-add-line"></i> New Skill</button>
             </div>
-            <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(39,39,42,0.5)',display:'flex',gap:6,overflowX:'auto'}}>
-              {[
-                {id:'all',label:'All'},{id:'drive-test',label:'Drive Test'},{id:'reporting',label:'Reporting'},{id:'rca',label:'RCA'},{id:'kpi',label:'KPI'},{id:'optimization',label:'Optimization'},
-              ].map(c=>(
-                <button key={c.id} onClick={()=>setSkillCategory(c.id)} style={{fontSize:11,padding:'4px 10px',borderRadius:999,whiteSpace:'nowrap',border:'1px solid #27272a',background: skillCategory===c.id ? '#fff' : '#18181b', color: skillCategory===c.id ? '#000' : '#a1a1aa', fontWeight: skillCategory===c.id ? 600 : 400, cursor:'pointer'}}>{c.label}</button>
-              ))}
+            <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(39,39,42,0.5)',display:'flex',gap:6,overflowX:'auto',alignItems:'center'}}>
+              {skillCategories.map(cid=>{
+                const label = cid==='all' ? 'All' : cid.replace(/-/g,' ').replace(/\b\w/g,(c:string)=>c.toUpperCase())
+                return <button key={cid} onClick={()=>setSkillCategory(cid)} style={{fontSize:11,padding:'4px 10px',borderRadius:999,whiteSpace:'nowrap',border:'1px solid #27272a',background: skillCategory===cid ? '#fff' : '#18181b', color: skillCategory===cid ? '#000' : '#a1a1aa', fontWeight: skillCategory===cid ? 600 : 400, cursor:'pointer'}}>{label}</button>
+              })}
+              <button onClick={fetchSkills} disabled={skillsLoading} title={skillsMeta?.externalRoot || 'Reload skills'} style={{marginLeft:'auto',fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8,cursor:'pointer',color:'#a1a1aa',opacity:skillsLoading?0.6:1,flexShrink:0}}>{skillsLoading?'…':'↻'} Reload</button>
             </div>
             <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:8}}>
               {filteredSkills.map(s=>{
@@ -307,7 +348,7 @@ export default function App() {
                         <span style={{fontSize:10,fontFamily:'JetBrains Mono, monospace',color:'#71717a'}}>{s.file}</span>
                       </div>
                       <p style={{fontSize:12,color: isOn?'#a1a1aa':'#71717a',marginTop:4,lineHeight:1.5}}>{s.desc}</p>
-                      <div style={{display:'flex',gap:4,marginTop:8,flexWrap:'wrap'}}>{s.tags.map(t=><span key={t} style={{fontSize:10,background:'#27272a',border:'1px solid #3f3f46',padding:'2px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace'}}>{t}</span>)}</div>
+                      <div style={{display:'flex',gap:4,marginTop:8,flexWrap:'wrap'}}>{(s.tags as string[]).map((t:string)=><span key={t} style={{fontSize:10,background:'#27272a',border:'1px solid #3f3f46',padding:'2px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace'}}>{t}</span>)}</div>
                     </div>
                     <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:8,flexShrink:0}}>
                       <div onClick={e=>{e.stopPropagation();toggleSkill(s.id)}} style={{width:36,height:20,background: isOn?'#7c3aed':'#27272a',borderRadius:999,position:'relative',cursor:'pointer',transition:'background 0.2s'}}><div style={{position:'absolute',top:2,left: isOn?18:2,width:16,height:16,background:'#fff',borderRadius:999,transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.3)'}} /></div>

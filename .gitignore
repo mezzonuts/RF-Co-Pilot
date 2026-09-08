@@ -54,3 +54,6 @@ release_notes_*.md
 # OS
 .DS_Store
 Thumbs.db
+
+# Skills user state (on/off per device)
+skills_state.json

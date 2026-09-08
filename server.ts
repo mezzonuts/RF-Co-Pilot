@@ -12,6 +12,215 @@ const PORT = 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// ── Skills Manager (Vault-First + Skill-Aware) ──
+// Source: C:/Users/PC/Documents/Skill AI  (fallback: ./skills bundled)
+const EXTERNAL_SKILLS_ROOT = 'C:/Users/PC/Documents/Skill AI';
+const BUNDLED_SKILLS_ROOT = path.join(process.cwd(), 'skills');
+const SKILLS_STATE_FILE = path.join(process.cwd(), 'skills_state.json');
+
+interface SkillMeta {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  icon: string;
+  color: string;
+  source: 'external' | 'bundled' | 'builtin';
+  enabled: boolean;
+  filePath: string;
+  summary: string;
+}
+
+// Category/icon/color maps for 22 external skills
+const SKILL_CAT_MAP: Record<string,string> = {
+  aeon: 'ml-time-series', 'analytical-method-validation': 'lab', autoskill: 'automation',
+  'clinical-decision-support': 'clinical', 'clinical-reports': 'clinical',
+  dask: 'data-engineering', docx: 'office', 'exploratory-data-analysis': 'eda',
+  geomaster: 'geospatial', geopandas: 'geospatial', infographics: 'visualization',
+  matplotlib: 'visualization', networkx: 'graph', pdf: 'office', polars: 'data-engineering',
+  pptx: 'office', 'scientific-brainstorming': 'research', 'scientific-visualization': 'visualization',
+  seaborn: 'visualization', 'statistical-analysis': 'statistics', 'timesfm-forecasting': 'forecasting', xlsx: 'office',
+};
+const SKILL_ICON_MAP: Record<string,string> = {
+  aeon: 'ri-timer-line', 'analytical-method-validation': 'ri-test-tube-line', autoskill: 'ri-robot-line',
+  'clinical-decision-support': 'ri-heart-pulse-line', 'clinical-reports': 'ri-file-text-line',
+  dask: 'ri-cpu-line', docx: 'ri-file-word-line', 'exploratory-data-analysis': 'ri-search-line',
+  geomaster: 'ri-earth-line', geopandas: 'ri-map-2-line', infographics: 'ri-image-line',
+  matplotlib: 'ri-line-chart-line', networkx: 'ri-node-tree', pdf: 'ri-file-pdf-line',
+  polars: 'ri-table-line', pptx: 'ri-slideshow-line', 'scientific-brainstorming': 'ri-lightbulb-line',
+  'scientific-visualization': 'ri-microscope-line', seaborn: 'ri-bar-chart-line',
+  'statistical-analysis': 'ri-calculator-line', 'timesfm-forecasting': 'ri-forecast-line', xlsx: 'ri-file-excel-line',
+};
+const SKILL_COLOR_MAP: Record<string,string> = {
+  aeon: 'violet', 'analytical-method-validation': 'emerald', autoskill: 'amber',
+  'clinical-decision-support': 'rose', 'clinical-reports': 'rose',
+  dask: 'sky', docx: 'blue', 'exploratory-data-analysis': 'sky',
+  geomaster: 'emerald', geopandas: 'emerald', infographics: 'orange',
+  matplotlib: 'violet', networkx: 'violet', pdf: 'red', polars: 'sky',
+  pptx: 'orange', 'scientific-brainstorming': 'amber', 'scientific-visualization': 'violet',
+  seaborn: 'sky', 'statistical-analysis': 'amber', 'timesfm-forecasting': 'emerald', xlsx: 'emerald',
+};
+
+// Built-in RF skills (always present, even if external scan fails)
+const BUILTIN_RF_SKILLS: Omit<SkillMeta,'enabled'|'filePath'|'summary'|'source'>[] = [
+  { id: 'analyze-dt', name: 'Analyze Drive Test', description: 'Parse CSV/TXT DT logs, hitung KPI (RSRP/SINR/Throughput), detect 5 worst spots, generate Excel report.', category: 'drive-test', tags: ['drive-test','kpi','excel','autopilot'], icon: 'ri-route-line', color: 'violet' },
+  { id: 'gen-pptx', name: 'Generate PPTX Report', description: 'Convert KPI Excel → 5-slide executive deck (cover, summary, coverage map, worst spots, recommendations).', category: 'reporting', tags: ['reporting','pptx'], icon: 'ri-slideshow-line', color: 'orange' },
+  { id: 'oss-kpi', name: 'OSS KPI Weekly Report', description: 'Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation >5%.', category: 'kpi', tags: ['oss','kpi','trending'], icon: 'ri-bar-chart-box-line', color: 'sky' },
+  { id: 'rca', name: 'RCA Engine', description: 'Rule-based + RAG diagnostics: overshooting, PCI collision, missing neighbor → actionable fix.', category: 'rca', tags: ['rca','postgis'], icon: 'ri-bug-line', color: 'amber' },
+  { id: 'coverage', name: 'Coverage Map', description: 'Generate RSRP/SINR heatmap PNG via Folium + GeoJSON — overlay cell azimuth & tilt.', category: 'optimization', tags: ['folium','optimization'], icon: 'ri-map-2-line', color: 'zinc' },
+  { id: 'tilt', name: 'Tilt Optimizer', description: 'Slope-based electronic tilt suggestion per cell — minimize overshooting, maximize overlap control.', category: 'optimization', tags: ['optimization','tilt'], icon: 'ri-compass-3-line', color: 'zinc' },
+];
+
+let _skillsState: Record<string, boolean> = {};
+try {
+  if (fs.existsSync(SKILLS_STATE_FILE)) {
+    _skillsState = JSON.parse(fs.readFileSync(SKILLS_STATE_FILE, 'utf-8'));
+  }
+} catch {}
+
+function _saveSkillsState() {
+  try { fs.writeFileSync(SKILLS_STATE_FILE, JSON.stringify(_skillsState, null, 2)); } catch {}
+}
+
+function _parseSkillMd(filePath: string): { name: string; description: string; body: string } {
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  const fmMatch = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
+  const fm = fmMatch ? fmMatch[1] : '';
+  const body = fmMatch ? fmMatch[2] : raw;
+  const getField = (key: string): string => {
+    const re = new RegExp(`^${key}:\\s*\"?([\\s\\S]*?)\"?\\s*(?:\\n[a-zA-Z-]+:|$)`, 'm');
+    // fallback simple line parse with continuation
+    const lines = fm.split('\n');
+    const idx = lines.findIndex(l => l.trimStart().startsWith(key + ':'));
+    if (idx < 0) return '';
+    let val = lines[idx].slice(lines[idx].indexOf(':') + 1).trim();
+    // collect indented continuation (2 spaces)
+    const cont: string[] = [];
+    for (let i = idx + 1; i < lines.length; i++) {
+      const l = lines[i];
+      if (l.startsWith('  ') && !/^[a-zA-Z-]+\s*:/.test(l.trim())) cont.push(l.trim());
+      else break;
+    }
+    if (cont.length) val = val + ' ' + cont.join(' ');
+    val = val.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').trim();
+    return val.replace(/\s+/g, ' ').trim();
+  };
+  const name = getField('name') || path.basename(path.dirname(filePath));
+  const description = getField('description') || '';
+  return { name, description, body: body.trim() };
+}
+
+function _summarizeBody(body: string, maxLen = 700): string {
+  // take first meaningful section, strip excessive markdown
+  let s = body.replace(/```[\s\S]*?```/g, ' ').replace(/!\[.*?\]\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen).trim() + '…';
+  return s;
+}
+
+let _skillsCatalogCache: SkillMeta[] | null = null;
+let _skillsCacheMtime = 0;
+
+function loadSkillsCatalog(force = false): SkillMeta[] {
+  if (!force && _skillsCatalogCache && Date.now() - _skillsCacheMtime < 5000) return _skillsCatalogCache;
+  const out: SkillMeta[] = [];
+  const roots: { root: string; source: 'external'|'bundled' }[] = [];
+  if (fs.existsSync(EXTERNAL_SKILLS_ROOT)) roots.push({ root: EXTERNAL_SKILLS_ROOT, source: 'external' });
+  if (fs.existsSync(BUNDLED_SKILLS_ROOT)) roots.push({ root: BUNDLED_SKILLS_ROOT, source: 'bundled' });
+  const seen = new Set<string>();
+  for (const { root, source } of roots) {
+    try {
+      const entries = fs.readdirSync(root, { withFileTypes: true });
+      for (const e of entries) {
+        if (!e.isDirectory()) continue;
+        const id = e.name;
+        if (seen.has(id)) continue;
+        if (id.startsWith('_') || id.startsWith('.')) continue;
+        const mdPath = path.join(root, id, 'SKILL.md');
+        if (!fs.existsSync(mdPath)) continue;
+        try {
+          const parsed = _parseSkillMd(mdPath);
+          const cat = SKILL_CAT_MAP[id] || 'general';
+          const icon = SKILL_ICON_MAP[id] || 'ri-flashlight-line';
+          const color = SKILL_COLOR_MAP[id] || 'violet';
+          const summary = _summarizeBody(parsed.body);
+          const enabled = _skillsState[id] !== undefined ? !!_skillsState[id] : true;
+          out.push({
+            id, name: parsed.name || id, description: parsed.description || summary.slice(0, 140),
+            category: cat, tags: [cat, ...id.split('-')], icon, color, source, enabled, filePath: mdPath, summary,
+          });
+          seen.add(id);
+        } catch {}
+      }
+    } catch {}
+  }
+  // add builtin RF skills (if not already present)
+  for (const b of BUILTIN_RF_SKILLS) {
+    if (seen.has(b.id)) continue;
+    const enabled = _skillsState[b.id] !== undefined ? !!_skillsState[b.id] : true;
+    out.push({
+      ...b, source: 'builtin', enabled,
+      filePath: `builtin:${b.id}`,
+      summary: b.description,
+    });
+    seen.add(b.id);
+  }
+  out.sort((a,b) => a.id.localeCompare(b.id));
+  _skillsCatalogCache = out;
+  _skillsCacheMtime = Date.now();
+  return out;
+}
+
+function selectRelevantSkills(query: string, limit = 3): { skill: SkillMeta; score: number; reason: string }[] {
+  const catalog = loadSkillsCatalog();
+  const enabled = catalog.filter(s => s.enabled);
+  const qLow = query.toLowerCase();
+  const tokens = qLow.split(/[^a-z0-9]+/).filter(t => t.length >= 2);
+  const scored: { skill: SkillMeta; score: number; reason: string }[] = [];
+  for (const sk of enabled) {
+    const hay = `${sk.id} ${sk.name} ${sk.description} ${sk.category} ${sk.tags.join(' ')} ${sk.summary}`.toLowerCase();
+    let score = 0;
+    const reasons: string[] = [];
+    for (const tok of tokens) {
+      if (hay.includes(tok)) { score += 1; reasons.push(tok); }
+    }
+    // phrase bonuses
+    if (qLow.includes('excel') && sk.id === 'xlsx') { score += 3; reasons.push('excel→xlsx'); }
+    if (qLow.includes('spreadsheet') && sk.id === 'xlsx') { score += 2; reasons.push('spreadsheet'); }
+    if ((qLow.includes('dataframe') || qLow.includes('polars') || qLow.includes('etl')) && sk.id === 'polars') { score += 3; reasons.push('polars'); }
+    if ((qLow.includes('pdf') || qLow.includes('document')) && sk.id === 'pdf') { score += 2; reasons.push('pdf'); }
+    if ((qLow.includes('ppt') || qLow.includes('slide') || qLow.includes('deck')) && sk.id === 'pptx') { score += 2; reasons.push('pptx'); }
+    if ((qLow.includes('word') || qLow.includes('docx')) && sk.id === 'docx') { score += 2; reasons.push('docx'); }
+    if ((qLow.includes('plot') || qLow.includes('matplotlib') || qLow.includes('chart') || qLow.includes('visual')) && ['matplotlib','seaborn','scientific-visualization'].includes(sk.id)) { score += 2; reasons.push('plot'); }
+    if ((qLow.includes('geospatial') || qLow.includes('map') || qLow.includes('gis') || qLow.includes('geopandas') || qLow.includes('coverage')) && ['geopandas','geomaster'].includes(sk.id)) { score += 2; reasons.push('geo'); }
+    if ((qLow.includes('graph') || qLow.includes('network') || qLow.includes('topology')) && sk.id === 'networkx') { score += 2; reasons.push('graph'); }
+    if ((qLow.includes('forecast') || qLow.includes('prediksi') || qLow.includes('timeseries') || qLow.includes('time series')) && ['aeon','timesfm-forecasting'].includes(sk.id)) { score += 2; reasons.push('forecast'); }
+    if ((qLow.includes('statistik') || qLow.includes('statistic') || qLow.includes('anova') || qLow.includes('hypothesis')) && sk.id === 'statistical-analysis') { score += 2; reasons.push('stats'); }
+    if ((qLow.includes('eda') || qLow.includes('exploratory')) && sk.id === 'exploratory-data-analysis') { score += 2; reasons.push('eda'); }
+    // RF intents → map to RF builtin skills
+    if ((qLow.includes('drive test') || qLow.includes('rsrp') || qLow.includes('sinr') || qLow.includes('throughput') || qLow.includes('dt log')) && sk.id === 'analyze-dt') { score += 4; reasons.push('rf:analyze-dt'); }
+    if ((qLow.includes('rca') || qLow.includes('root cause') || qLow.includes('pci') || qLow.includes('collision') || qLow.includes('overshoot')) && sk.id === 'rca') { score += 4; reasons.push('rf:rca'); }
+    if ((qLow.includes('tilt') || qLow.includes('azimuth') || qLow.includes('antenna')) && sk.id === 'tilt') { score += 3; reasons.push('rf:tilt'); }
+    if ((qLow.includes('oss') || qLow.includes('kpi') || qLow.includes('counter')) && sk.id === 'oss-kpi') { score += 3; reasons.push('rf:oss'); }
+    if (score > 0) scored.push({ skill: sk, score, reason: reasons.slice(0,3).join(',') });
+  }
+  scored.sort((a,b) => b.score - a.score);
+  return scored.slice(0, limit);
+}
+
+function buildSkillContextBlock(selected: { skill: SkillMeta; score: number; reason: string }[]): string {
+  if (selected.length === 0) return '';
+  const lines: string[] = [];
+  lines.push('### SKILL CONTEXT — gunakan panduan skill berikut (to-the-point, jangan verbose):');
+  for (const { skill, reason } of selected) {
+    // truncate summary to ~500 chars for prompt efficiency
+    const sum = skill.summary.slice(0, 520).replace(/\n/g, ' ');
+    lines.push(`- [${skill.id}] ${skill.name} (${skill.category}) — trigger: ${reason}\n  Deskripsi: ${skill.description}\n  Panduan ringkas: ${sum}`);
+  }
+  lines.push('Gunakan skill di atas hanya yang relevan; jawab to-the-point, sarankan langkah konkret (code/tool) sesuai skill.');
+  return lines.join('\n');
+}
+
 // ── In-Memory Memory & Vault Database ──
 interface VaultNote {
   path: string;
@@ -377,6 +586,62 @@ app.get('/api/vault/stats', (_req: Request, res: Response) => {
   });
 });
 
+// ── 8b. Skills Manager API ──
+app.get('/api/skills', (_req: Request, res: Response) => {
+  const catalog = loadSkillsCatalog();
+  res.json({
+    total: catalog.length,
+    enabled: catalog.filter(s => s.enabled).length,
+    externalRoot: EXTERNAL_SKILLS_ROOT,
+    bundledRoot: BUNDLED_SKILLS_ROOT,
+    catalog: catalog.map(s => ({
+      id: s.id, name: s.name, description: s.description, category: s.category,
+      tags: s.tags, icon: s.icon, color: s.color, source: s.source, enabled: s.enabled,
+      summary: s.summary.slice(0, 900),
+    })),
+  });
+});
+
+app.get('/api/skills/select', (req: Request, res: Response) => {
+  const q = String(req.query.q || '');
+  const limit = Math.min(6, Math.max(1, parseInt(String(req.query.limit || '3'), 10) || 3));
+  if (!q.trim()) return res.status(400).json({ error: 'q required' });
+  const selected = selectRelevantSkills(q, limit);
+  res.json({
+    query: q,
+    selected: selected.map(s => ({
+      id: s.skill.id, name: s.skill.name, category: s.skill.category,
+      score: s.score, reason: s.reason, enabled: s.skill.enabled, source: s.skill.source,
+      description: s.skill.description,
+    })),
+    skillContextBlock: buildSkillContextBlock(selected),
+  });
+});
+
+app.get('/api/skills/:id', (req: Request, res: Response) => {
+  const catalog = loadSkillsCatalog();
+  const hit = catalog.find(s => s.id === req.params.id);
+  if (!hit) return res.status(404).json({ error: 'skill not found' });
+  res.json(hit);
+});
+
+app.post('/api/skills/toggle', (req: Request, res: Response) => {
+  const { id, enabled } = req.body as { id?: string; enabled?: boolean };
+  if (!id || typeof enabled !== 'boolean') return res.status(400).json({ error: 'id and enabled:boolean required' });
+  const catalog = loadSkillsCatalog(true);
+  if (!catalog.find(s => s.id === id)) return res.status(404).json({ error: 'skill not found' });
+  _skillsState[id] = enabled;
+  _saveSkillsState();
+  _skillsCatalogCache = null;
+  res.json({ ok: true, id, enabled });
+});
+
+app.post('/api/skills/reload', (_req: Request, res: Response) => {
+  _skillsCatalogCache = null;
+  const catalog = loadSkillsCatalog(true);
+  res.json({ ok: true, total: catalog.length, enabled: catalog.filter(s => s.enabled).length });
+});
+
 // 9. File Parse (CSV / TXT / Excel)
 app.post('/api/parse', async (req: Request, res: Response) => {
   try {
@@ -734,26 +999,38 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       targetModel = 'gemini-2.5-flash';
     }
 
+    // ── Skill-aware pre-LLM: agent selects most relevant enabled skills (to-the-point) ──
+    // Runs for BOTH live Gemini and fallback — so response is always grounded & effective.
+    const selectedSkills = selectRelevantSkills(lastUserMsg, 3);
+    const skillContext = selectedSkills.length ? buildSkillContextBlock(selectedSkills) : '';
+    const skillsMetaForResponse = selectedSkills.map(s => ({ id: s.skill.id, name: s.skill.name, category: s.skill.category, reason: s.reason, score: s.score }));
+
     // Check if Google AI Studio / Gemini API can be used
     if (effectiveApiKey && effectiveApiKey.length > 5) {
       try {
-        const systemInstructionText = `You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei, Nokia).
-Aktif Provider: Google AI Studio
-Aktif Model: ${targetModel}
-Status Koneksi: Live API Key Verified
+        // Build system instruction with optional skill context
+        let systemInstructionText = `You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei, Nokia).
+        Aktif Provider: Google AI Studio
+        Aktif Model: ${targetModel}
+        Status Koneksi: Live API Key Verified
 
-PANDUAN UTAMA:
-1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
-2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
-   - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
-   - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
-   - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
-   - Jelaskan alasannya ("Bila kenapa / mengapa model ini"):
-     * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
-     * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antena, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
-     * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
-3. JIKA ADA DATA FILE TERLAMPIR:
-   - Data tersebut adalah DATA REAL terlampir. Langsung hitung KPI (% RSRP >= -100, % SINR >= 5, avg Throughput), identifikasi worst spots, dan beri rekomendasi tilt/PCI/neighbor. JANGAN minta upload ulang.`;
+        PANDUAN UTAMA:
+        1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
+        2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
+           - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
+           - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
+           - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
+           - Jelaskan alasannya ("Bila kenapa / mengapa model ini"):
+             * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
+             * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antenna, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
+             * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
+        3. JIKA ADA DATA FILE TERLAMPIR:
+           - Data tersebut adalah DATA REAL terlampir. Langsung hitung KPI (% RSRP >= -100, % SINR >= 5, avg Throughput), identifikasi worst spots, dan beri rekomendasi tilt/PCI/neighbor. JANGAN minta upload ulang.`;
+
+        // Inject skill context (summarized, to-the-point — max 3 skills, ~500 chars each)
+        if (skillContext) {
+          systemInstructionText = `${systemInstructionText}\n\n${skillContext}`;
+        }
 
         // Format history for Gemini generateContent
         const formattedContents = messages
@@ -791,15 +1068,24 @@ PANDUAN UTAMA:
             const reply = resp.text || '';
             if (reply.trim()) {
               const latencyMs = Date.now() - startTime;
+              // Prepend skill banner to live reply too (so user sees agent decision transparently)
+              let liveReply = reply;
+              if (skillsMetaForResponse.length) {
+                const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
+                const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
+                liveReply = `> 🧠 **Skill aktif:** ${badge} — ${names}\n\n${reply}`;
+              }
               return res.json({
                 choices: [
                   {
                     message: {
                       role: 'assistant',
-                      content: reply
+                      content: liveReply
                     }
                   }
                 ],
+                skillsApplied: skillsMetaForResponse,
+                skillContextBlock: skillContext,
                 meta: {
                   provider: 'Google AI Studio',
                   providerId: 'google',
@@ -808,7 +1094,9 @@ PANDUAN UTAMA:
                   isLive: true,
                   latencyMs,
                   status: 'connected',
-                  reason: `Inferensi live berhasil via Google AI Studio API key pada model ${currentModel}.`
+                  reason: skillsMetaForResponse.length
+                    ? `Live Gemini + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(', ')}`
+                    : `Inferensi live berhasil via Google AI Studio API key pada model ${currentModel}.`
                 }
               });
             }
@@ -894,7 +1182,17 @@ Berikut adalah informasi model dan provider yang terdeteksi:
 
 Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk memulai!`;
     } else {
-      reply = `### TelecomAgent RF Engineering Assistant
+      // Generic / fallback — inject skill hints when relevant
+      if (selectedSkills.length) {
+        const hints = selectedSkills.map(s=>`- ${s.skill.name} (${s.skill.category}): ${s.skill.description.slice(0,140)}`).join('\n')
+        reply = `### TelecomAgent RF Engineering Assistant — Skill-Aware
+
+Skill relevan terdeteksi untuk query Anda:
+${hints}
+
+Silakan spesifikasikan tugas (mis. “analisa DT log”, “buat grafik matplotlib”, “forecast RSRP”) agar saya pakai skill yang tepat secara to-the-point.`
+      } else {
+        reply = `### TelecomAgent RF Engineering Assistant
 
 Halo! Saya siap membantu analisa RF engineering 4G/5G Anda:
 - **Drive Test Analysis**: Perhitungan RSRP, SINR, Throughput, dan deteksi worst spot.
@@ -903,7 +1201,20 @@ Halo! Saya siap membantu analisa RF engineering 4G/5G Anda:
 - **Knowledge Vault**: Rujukan spesifikasi 3GPP (TS 38.211, TS 38.331) dan vendor playbook (Ericsson, Huawei, Nokia).
 - **Exporting**: Pembuatan executive report Excel (.xlsx) dan PowerPoint (.pptx).
 
-Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`;
+Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`
+      }
+    }
+
+    // Annotate reply with applied skills banner when applicable (always, so user sees agent decision)
+    let finalReply = reply
+    if (selectedSkills.length) {
+      const badge = selectedSkills.map(s=>`[${s.skill.id}]`).join(' ')
+      const names = selectedSkills.map(s=>s.skill.name).join(' + ')
+      finalReply = `> 🧠 **Skill aktif untuk jawaban ini:** ${badge} — ${names}  \n> *Dipilih otomatis oleh agent (top-3 relevan dari ${loadSkillsCatalog().filter(x=>x.enabled).length} skill aktif). Nonaktifkan di tab Skills bila tidak perlu.*\n\n${reply}`
+      // Also prepend concise skill context block as collapsible hint before body when fallback
+      if (!effectiveApiKey || effectiveApiKey.length <= 5) {
+        // skillContext already built above; reuse for fallback textual grounding at bottom
+      }
     }
 
     const latencyMs = Date.now() - startTime;
@@ -912,10 +1223,12 @@ Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`;
         {
           message: {
             role: 'assistant',
-            content: reply
+            content: finalReply
           }
         }
       ],
+      skillsApplied: skillsMetaForResponse,
+      skillContextBlock: skillContext,
       meta: {
         provider: 'TelecomAgent RF Engine (Fallback)',
         providerId: 'fallback',
@@ -924,7 +1237,7 @@ Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`;
         isLive: false,
         latencyMs,
         status: 'fallback',
-        reason: 'Sistem menggunakan RF domain fallback engine dengan pengetahuan 3GPP & Vendor playbook.'
+        reason: skillsMetaForResponse.length ? `Fallback + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(', ')} diterapkan.` : 'Sistem menggunakan RF domain fallback engine dengan pengetahuan 3GPP & Vendor playbook.'
       }
     });
   } catch (err: any) {
