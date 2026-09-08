@@ -7,7 +7,7 @@ import ExcelJS from 'exceljs';
 import pptxgen from 'pptxgenjs';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -980,6 +980,18 @@ app.all('/api/export/pptx', handlePptxExport);
 // 12. AI Chat (Gemini API with RF Engineering Intelligence Fallback)
 
 // ── Speedtest Benchmark helper (reads uploaded CSV, returns clean plain-text report) ──
+function sanitizePlainText(s: string): string {
+  // hapus markdown berat tapi pertahankan struktur list sederhana
+  return s
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/\$\$(.*?)\$\$/gs, '$1')
+    .replace(/\$(.*?)\$/g, '$1')
+    .replace(/`{1,3}(.*?)`{1,3}/gs, '$1')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 function parseCSVRows(raw: string): string[][] {
   const rows: string[][] = [];
   let cur = ''; let row: string[] = []; let inQ = false;
@@ -1135,6 +1147,27 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const skillContext = selectedSkills.length ? buildSkillContextBlock(selectedSkills) : '';
     const skillsMetaForResponse = selectedSkills.map(s => ({ id: s.skill.id, name: s.skill.name, category: s.skill.category, reason: s.reason, score: s.score }));
 
+    // ── Deterministic benchmark shortcut: always return clean report (no LLM markdown) ──
+    const isBenchmarkEarly = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg);
+    if (isBenchmarkEarly) {
+      const benchEarly = computeSpeedtestBenchmark();
+      if (benchEarly) {
+        const latencyMs = Date.now() - startTime;
+        let earlyReply = benchEarly;
+        if (skillsMetaForResponse.length) {
+          const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
+          const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
+          earlyReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif).\n\n${benchEarly}`;
+        }
+        return res.json({
+          choices: [{ message: { role: 'assistant', content: earlyReply } }],
+          skillsApplied: skillsMetaForResponse,
+          skillContextBlock: skillContext,
+          meta: { provider: 'Benchmark Engine (deterministic)', providerId: 'benchmark', model: 'speedtest-benchmark', modelVersion: 'benchmark-v1', isLive: false, latencyMs, status: 'ok', reason: 'Benchmark deterministic — langsung dari CSV 4397 sampel.' }
+        });
+      }
+    }
+
     // Check if Google AI Studio / Gemini API can be used
     if (effectiveApiKey && effectiveApiKey.length > 5) {
       try {
@@ -1196,15 +1229,16 @@ app.post('/api/chat', async (req: Request, res: Response) => {
               }
             });
 
-            const reply = resp.text || '';
-            if (reply.trim()) {
+            const replyRaw = resp.text || '';
+            if (replyRaw.trim()) {
               const latencyMs = Date.now() - startTime;
+              const cleanReply = sanitizePlainText(replyRaw);
               // Prepend skill banner to live reply too (so user sees agent decision transparently)
-              let liveReply = reply;
+              let liveReply = cleanReply;
               if (skillsMetaForResponse.length) {
                 const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
                 const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
-                liveReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif). Matikan di tab Skills bila tidak perlu.\n\n${reply}`;
+                liveReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif). Matikan di tab Skills bila tidak perlu.\n\n${cleanReply}`;
               }
               return res.json({
                 choices: [
@@ -1242,11 +1276,13 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     // Expert RF Engineering Response Engine (Domain Fallback)
     const isBenchmark = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg);
-    const isDriveTest = /drive\s*test|dt|rsrp|sinr|throughput|cluster|kpi|csv|log|preview/i.test(lastUserMsg);
+    const isDriveTest = /drive\s*test|\bdt\b|\brsrp\b|\bsinr\b|throughput|cluster|\bkpi\b|\.csv|\blog\b|preview/i.test(lastUserMsg);
     const isTilt = /tilt|downtilt|overshooting|azimuth/i.test(lastUserMsg);
     const isPCI = /pci|collision|confusion|mod\s*3/i.test(lastUserMsg);
-    const isHandover = /handover|ho|neighbor|nbr|a3/i.test(lastUserMsg);
-    const isGreetingOrModelQuery = /hello|halo|hi|hai|model|provider|pakai|apa/i.test(lastUserMsg);
+    const isHandover = /handover|\bho\b|neighbor|\bnbr\b|\ba3\b/i.test(lastUserMsg);
+    // greeting/model query — strict, jangan match lone "apa" yang bikin semua pertanyaan jadi sapaan
+    const _lowerTrim = lastUserMsg.toLowerCase().trim();
+    const isGreetingOrModelQuery = /^(halo|hai|hello|hi|hey|test|ping)\b/.test(_lowerTrim) || /say hello/i.test(lastUserMsg) || /(model|provider).*(apa|dipakai|digunakan|aktif|terpakai)|pakai.*(model|provider)|apa.*(model|provider).*\?/i.test(lastUserMsg);
 
     let reply = '';
     if (isBenchmark) {
@@ -1323,6 +1359,28 @@ Kenapa model ini dipakai:
 3. Kecepatan respons tinggi — cocok untuk troubleshooting lapangan
 
 Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
+    } else if (/worst\s*spot|terlambat|tercepat|ranking|per\s*lokasi|DL\s*<\s*10|DL\s*>\s*50/i.test(lastUserMsg)) {
+      const bench = computeSpeedtestBenchmark();
+      if (bench) {
+        const qLow2 = lastUserMsg.toLowerCase();
+        let slice = bench;
+        if (/worst|terlambat/i.test(qLow2)) {
+          const m = bench.match(/3 SAMPEL TERLAMBAT[\s\S]*?(?=\n\n3 SAMPEL TERCEPAT)/);
+          const m2 = bench.match(/3 SAMPEL TERCEPAT[\s\S]*?(?=\n\nKESIMPULAN)/);
+          const part1 = m ? m[0] : '';
+          const part2 = m2 ? m2[0] : '';
+          slice = "Rincian Worst/Best dari Laporan Benchmark (15 Jun 2026)\n\n" + part1 + "\n\n" + part2 + "\n\nLihat laporan lengkap: buat report benchmark";
+        } else if (/ranking|per\s*lokasi/i.test(qLow2)) {
+          const m1 = bench.match(/RANKING[\s\S]*?(?=\n\nPER LOKASI)/);
+          const m2b = bench.match(/PER LOKASI[\s\S]*?(?=\n\n3 SAMPEL)/);
+          const p1 = m1 ? m1[0] : '';
+          const p2 = m2b ? m2b[0] : '';
+          slice = "Ringkasan Ranking dan Lokasi — Benchmark 15 Jun 2026\n\n" + p1 + "\n" + p2;
+        }
+        reply = slice || bench;
+      } else {
+        reply = "Data benchmark belum terbaca. Upload CSV dulu via DT Log / Attachment, lalu ketik: buat report benchmark";
+      }
     } else {
       if (selectedSkills.length) {
         const hints = selectedSkills.map(s=>'- '+s.skill.name+' ('+s.skill.category+'): '+s.skill.description.slice(0,140)).join('\n')
@@ -1347,6 +1405,7 @@ Silakan upload file log/CSV atau ketik pertanyaan teknis.`
     }
 
     // Annotate reply with applied skills banner when applicable (always, so user sees agent decision)
+    reply = sanitizePlainText(reply);
     let finalReply = reply
     if (selectedSkills.length) {
       const badge = selectedSkills.map(s=>`[${s.skill.id}]`).join(' ')
