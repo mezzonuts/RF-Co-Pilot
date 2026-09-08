@@ -34,7 +34,7 @@ interface SkillMeta {
 
 // Category/icon/color maps for 22 external skills
 const SKILL_CAT_MAP: Record<string,string> = {
-  aeon: 'ml-time-series', 'analytical-method-validation': 'lab', autoskill: 'automation',
+  pandas: 'data-analysis', aeon: 'ml-time-series', 'analytical-method-validation': 'lab', autoskill: 'automation',
   'clinical-decision-support': 'clinical', 'clinical-reports': 'clinical',
   dask: 'data-engineering', docx: 'office', 'exploratory-data-analysis': 'eda',
   geomaster: 'geospatial', geopandas: 'geospatial', infographics: 'visualization',
@@ -43,7 +43,7 @@ const SKILL_CAT_MAP: Record<string,string> = {
   seaborn: 'visualization', 'statistical-analysis': 'statistics', 'timesfm-forecasting': 'forecasting', xlsx: 'office',
 };
 const SKILL_ICON_MAP: Record<string,string> = {
-  aeon: 'ri-timer-line', 'analytical-method-validation': 'ri-test-tube-line', autoskill: 'ri-robot-line',
+  pandas: 'ri-table-line', aeon: 'ri-timer-line', 'analytical-method-validation': 'ri-test-tube-line', autoskill: 'ri-robot-line',
   'clinical-decision-support': 'ri-heart-pulse-line', 'clinical-reports': 'ri-file-text-line',
   dask: 'ri-cpu-line', docx: 'ri-file-word-line', 'exploratory-data-analysis': 'ri-search-line',
   geomaster: 'ri-earth-line', geopandas: 'ri-map-2-line', infographics: 'ri-image-line',
@@ -53,7 +53,7 @@ const SKILL_ICON_MAP: Record<string,string> = {
   'statistical-analysis': 'ri-calculator-line', 'timesfm-forecasting': 'ri-forecast-line', xlsx: 'ri-file-excel-line',
 };
 const SKILL_COLOR_MAP: Record<string,string> = {
-  aeon: 'violet', 'analytical-method-validation': 'emerald', autoskill: 'amber',
+  pandas: 'sky', aeon: 'violet', 'analytical-method-validation': 'emerald', autoskill: 'amber',
   'clinical-decision-support': 'rose', 'clinical-reports': 'rose',
   dask: 'sky', docx: 'blue', 'exploratory-data-analysis': 'sky',
   geomaster: 'emerald', geopandas: 'emerald', infographics: 'orange',
@@ -205,6 +205,8 @@ function selectRelevantSkills(query: string, limit = 3): { skill: SkillMeta; sco
     }
     if ((qLow.includes('dl') || qLow.includes('throughput') || qLow.includes('ping') || qLow.includes('jitter') || qLow.includes('isp') || qLow.includes('operator')) && ['xlsx','polars','statistical-analysis'].includes(sk.id)) { score += 1; reasons.push('kpi-net'); }
     // RF intents → map to RF builtin skills
+    if (sk.id === 'pandas') { score += 3; reasons.push('pandas-default'); }
+    if ((qLow.includes('drive test') || qLow.includes('dt') || qLow.includes('log') || qLow.includes('csv') || qLow.includes('raw') || qLow.includes('olah') || qLow.includes('rsrp') || qLow.includes('sinr') || qLow.includes('throughput')) && sk.id === 'pandas') { score += 5; reasons.push('pandas:raw-dt'); }
     if ((qLow.includes('drive test') || qLow.includes('rsrp') || qLow.includes('sinr') || qLow.includes('throughput') || qLow.includes('dt log')) && sk.id === 'analyze-dt') { score += 4; reasons.push('rf:analyze-dt'); }
     if ((qLow.includes('rca') || qLow.includes('root cause') || qLow.includes('pci') || qLow.includes('collision') || qLow.includes('overshoot')) && sk.id === 'rca') { score += 4; reasons.push('rf:rca'); }
     if ((qLow.includes('tilt') || qLow.includes('azimuth') || qLow.includes('antenna')) && sk.id === 'tilt') { score += 3; reasons.push('rf:tilt'); }
@@ -744,9 +746,9 @@ app.post('/api/parse', async (req: Request, res: Response) => {
       // Return sample DT data if empty filePath was passed
       const sampleHeader = ['Timestamp', 'Latitude', 'Longitude', 'RSRP', 'SINR', 'Throughput', 'CellID', 'PCI'];
       const samplePreview = [
-        ['10:00:01', '-6.2088', '106.8456', '-88.5', '12.4', '45.2', 'JKT_1023_2', '148'],
-        ['10:00:05', '-6.2095', '106.8462', '-94.2', '8.1', '38.6', 'JKT_1023_2', '148'],
-        ['10:00:10', '-6.2102', '106.8471', '-108.1', '2.1', '5.3', 'JKT_1023_2', '148']
+        ['10:00:01', '-6.2088', '106.8456', '-88.5', '12.4', '45.2', '(contoh) CELL_A', '148'],
+        ['10:00:05', '-6.2095', '106.8462', '-94.2', '8.1', '38.6', '(contoh) CELL_A', '148'],
+        ['10:00:10', '-6.2102', '106.8471', '-108.1', '2.1', '5.3', '(contoh) CELL_A', '148']
       ];
       return res.json({
         ok: true,
@@ -1183,6 +1185,44 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       }
     }
 
+    // ── System instruction (RAW-FIRST Pandas workflow) ──
+    let systemInstructionText = `You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei, Nokia).
+        Aktif Provider: Google AI Studio
+        Aktif Model: ${targetModel}
+        Status Koneksi: Live API Key Verified
+
+        PANDUAN UTAMA:
+        1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
+        1b. FORMAT BERSIH: Jangan gunakan markdown berat (###, **, __, $$ LaTeX) kecuali diminta. Gunakan teks biasa yang bersih: numbering 1. 2. 3. dan bullet sederhana -. Untuk laporan benchmark: pakai tabel teks sederhana, bukan markdown table berantakan. Jawab to-the-point, jangan verbose.
+        2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
+           - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
+           - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
+           - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
+           - Jelaskan alasannya (\"Bila kenapa / mengapa model ini\"):
+             * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
+             * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antenna, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
+             * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
+        3. JIKA ADA DATA FILE TERLAMPIR / DT LOG CSV (WAJIB RAW-FIRST via Pandas):
+           - Langkah WAJIB sebelum agregasi: inspeksi raw dulu — df.shape, df.columns, df.dtypes, df.isna().sum(), df.describe(), df.nunique(). Pahami jumlah baris/kolom, tipe, missing, duplikat, numerik vs kategorik.
+           - Perhatikan SEMUA kolom dari raw (RSRP, RSRQ, SINR, Throughput DL/UL, PING, JITTER, Band, PCI, CID, LAC, eNB, Group/Lokasi, Time, ISP/Operator) — JANGAN hanya agregasi RSRP saja.
+           - Analisis korelasi (RSRP vs SINR), distribusi per-operator/band/lokasi, outlier — baru ambil keputusan.
+           - Setelah inspeksi lengkap, hitung KPI (% RSRP >= -100, % SINR >= 5, avg throughput), identifikasi 3-5 worst spot multi-parameter, dan beri rekomendasi konkret (tilt/PCI/neighbor/power). JANGAN minta upload ulang, JANGAN pakai contoh dummy JKT_*.`;
+
+        if (skillContext) {
+          systemInstructionText = `${systemInstructionText}\n\n${skillContext}`;
+        }
+
+        const formattedContents = messages
+          .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+          .slice(-10)
+          .map((m: any) => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: String(m.content) }]
+          }));
+        if (formattedContents.length === 0) {
+          formattedContents.push({ role: 'user', parts: [{ text: String(lastUserMsg) }] });
+        }
+
     // ── Live LLM call: Google AI Studio (Gemini) atau OpenRouter / 9Router / custom ──
     const doFetchLLM = (async () => {
       const providerLower = String(provider || "google").toLowerCase();
@@ -1227,7 +1267,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       }
       return null; // semua gagal → fallback engine
     })();
-    const liveResult = await doFetchLLM();
+    const liveResult = await doFetchLLM;
     if (liveResult) {
       const latencyMs = Date.now() - startTime;
       let liveReply = liveResult.reply;
