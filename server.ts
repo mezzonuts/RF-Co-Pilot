@@ -1130,15 +1130,30 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     }
 
     const lastUserMsg = [...messages].reverse().find((m: any) => m.role === 'user')?.content || '';
-    const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY || '';
 
-    // Normalize model name (ensure valid official Gemini model)
-    let targetModel = model || 'gemini-2.5-flash';
-    if (!targetModel || targetModel.includes('3.8') || targetModel.includes('3.1') || targetModel.includes('gpt') || targetModel.includes('custom')) {
-      targetModel = 'gemini-2.5-flash';
+    // ── Auto-detect provider from baseUrl + model ──
+    let baseUrl = String(req.body.baseUrl || '');
+    let providerLower = String(provider || 'google').toLowerCase();
+    // auto-detect provider if baseUrl sent
+    if (baseUrl) {
+      if (baseUrl.includes('20128') || baseUrl.includes('9router')) providerLower = '9router';
+      else if (baseUrl.includes('openrouter')) providerLower = 'openrouter';
+      else if (baseUrl.includes('generativelanguage')) providerLower = 'google';
+      else if (baseUrl.includes('api.openai')) providerLower = 'openai';
     }
-    if (!targetModel.startsWith('gemini-')) {
-      targetModel = 'gemini-2.5-flash';
+    const isGoogle = providerLower === 'google';
+    // resolve api key env-var per provider
+    const providerEnvKey = providerLower.toUpperCase().replace('-', '_') + '_API_KEY';
+    const effectiveApiKey = apiKey || process.env[providerEnvKey] || (isGoogle ? process.env.GEMINI_API_KEY || '' : '');
+    // normalize model name — only force-default for google
+    let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
+    if (isGoogle) {
+      if (!targetModel || targetModel.includes('3.8') || targetModel.includes('3.1') || targetModel.includes('gpt') || targetModel.includes('custom')) {
+        targetModel = 'gemini-2.5-flash';
+      }
+      if (!targetModel.startsWith('gemini-')) {
+        targetModel = 'gemini-2.5-flash';
+      }
     }
 
     // ── Skill-aware pre-LLM: agent selects most relevant enabled skills (to-the-point) ──
@@ -1168,113 +1183,66 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       }
     }
 
-    // Check if Google AI Studio / Gemini API can be used
-    if (effectiveApiKey && effectiveApiKey.length > 5) {
-      try {
-        // Build system instruction with optional skill context
-        let systemInstructionText = `You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei, Nokia).
-        Aktif Provider: Google AI Studio
-        Aktif Model: ${targetModel}
-        Status Koneksi: Live API Key Verified
-
-        PANDUAN UTAMA:
-        1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
-        1b. FORMAT BERSIH: Jangan gunakan markdown berat (###, **, __, $$ LaTeX) kecuali diminta. Gunakan teks biasa yang bersih: numbering 1. 2. 3. dan bullet sederhana -. Untuk laporan benchmark: pakai tabel teks sederhana, bukan markdown table berantakan. Jawab to-the-point, jangan verbose.
-        2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
-           - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
-           - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
-           - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
-           - Jelaskan alasannya ("Bila kenapa / mengapa model ini"):
-             * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
-             * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antenna, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
-             * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
-        3. JIKA ADA DATA FILE TERLAMPIR:
-           - Data tersebut adalah DATA REAL terlampir. Langsung hitung KPI (% RSRP >= -100, % SINR >= 5, avg Throughput), identifikasi worst spots, dan beri rekomendasi tilt/PCI/neighbor. JANGAN minta upload ulang.`;
-
-        // Inject skill context (summarized, to-the-point — max 3 skills, ~500 chars each)
-        if (skillContext) {
-          systemInstructionText = `${systemInstructionText}\n\n${skillContext}`;
-        }
-
-        // Format history for Gemini generateContent
-        const formattedContents = messages
-          .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-          .slice(-10)
-          .map((m: any) => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: String(m.content) }]
-          }));
-
-        // If no user messages formatted, push the last user message
-        if (formattedContents.length === 0) {
-          formattedContents.push({
-            role: 'user',
-            parts: [{ text: lastUserMsg || 'Say hello' }]
-          });
-        }
-
-        const candidateModels = [targetModel, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    // ── Live LLM call: Google AI Studio (Gemini) atau OpenRouter / 9Router / custom ──
+    const doFetchLLM = (async () => {
+      const providerLower = String(provider || "google").toLowerCase();
+      const isGoogle = providerLower === "google" || providerLower === "gemini";
+      const useGemini = isGoogle && effectiveApiKey && effectiveApiKey.length > 5;
+      if (useGemini) {
+        // Gemini native SDK (systemInstruction + chat)
+        const candidateModels = [targetModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
         const testedModels = Array.from(new Set(candidateModels));
-
         for (const currentModel of testedModels) {
           try {
-            const ai = new GoogleGenAI({ apiKey: effectiveApiKey });
+            const ai = new GoogleGenAI({ apiKey: "***"});
             const resp = await ai.models.generateContent({
               model: currentModel,
               contents: formattedContents,
-              config: {
-                systemInstruction: systemInstructionText,
-                temperature: Number(temperature) || 0.3,
-                maxOutputTokens: Number(max_tokens) || 2048,
-              }
+              config: { systemInstruction: systemInstructionText, temperature: Number(temperature) || 0.3, maxOutputTokens: Number(max_tokens) || 2048 },
             });
-
-            const replyRaw = resp.text || '';
-            if (replyRaw.trim()) {
-              const latencyMs = Date.now() - startTime;
-              const cleanReply = sanitizePlainText(replyRaw);
-              // Prepend skill banner to live reply too (so user sees agent decision transparently)
-              let liveReply = cleanReply;
-              if (skillsMetaForResponse.length) {
-                const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
-                const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
-                liveReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif). Matikan di tab Skills bila tidak perlu.\n\n${cleanReply}`;
-              }
-              return res.json({
-                choices: [
-                  {
-                    message: {
-                      role: 'assistant',
-                      content: liveReply
-                    }
-                  }
-                ],
-                skillsApplied: skillsMetaForResponse,
-                skillContextBlock: skillContext,
-                meta: {
-                  provider: 'Google AI Studio',
-                  providerId: 'google',
-                  model: currentModel,
-                  modelVersion: currentModel,
-                  isLive: true,
-                  latencyMs,
-                  status: 'connected',
-                  reason: skillsMetaForResponse.length
-                    ? `Live Gemini + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(', ')}`
-                    : `Inferensi live berhasil via Google AI Studio API key pada model ${currentModel}.`
-                }
-              });
-            }
-          } catch (mErr: any) {
-            console.warn(`Model ${currentModel} error:`, mErr?.message || mErr);
-          }
+            const replyRaw = resp.text || "";
+            if (replyRaw.trim()) return { reply: sanitizePlainText(replyRaw), currentModel, provider: "google", providerId: "google", isLive: true };
+          } catch (mErr:any) { console.warn(`Gemini ${currentModel} error:`, mErr?.message || mErr); }
         }
-      } catch (geminiErr: any) {
-        console.warn('Gemini API call error, using domain RF fallback:', geminiErr?.message || geminiErr);
       }
+      // OpenRouter / 9Router / OpenAI-compatible endpoint
+      const base = baseUrl || (isGoogle ? "https://generativelanguage.googleapis.com" : "http://localhost:20128/v1");
+      const headers = { "Content-Type": "application/json", ...(effectiveApiKey && effectiveApiKey.length > 5 ? { Authorization: `Bearer ${"***"}` } : {}) };
+      const orModels = isGoogle ? ["gemini-2.5-flash"] : [model, "openai/gpt-4o-mini", "deepseek/deepseek-chat"];
+      for (const currentModel of Array.from(new Set(orModels))) {
+        try {
+          const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              model: currentModel, stream: false, temperature: Number(temperature) || 0.3, max_tokens: Number(max_tokens) || 2048,
+              messages: messages.filter((m:any)=>m.role==="user"||m.role==="assistant").slice(-10).map((m:any)=>({ role: m.role==="assistant"?"assistant":"user", content: String(m.content) })),
+              ...(useGemini ? {} : { system: systemInstructionText }),
+            }),
+          });
+          const data = await resp.json();
+          if (!data?.choices?.[0]?.message?.content) { console.warn(`Router ${currentModel} empty/failed:`, resp.status, JSON.stringify(data).slice(0,300)); continue; }
+          return { reply: sanitizePlainText(data.choices[0].message.content), currentModel, provider: provider || "9router", providerId: providerLower, isLive: true };
+        } catch (mErr:any) { console.warn(`Router ${currentModel} error:`, mErr?.message || mErr); }
+      }
+      return null; // semua gagal → fallback engine
+    })();
+    const liveResult = await doFetchLLM();
+    if (liveResult) {
+      const latencyMs = Date.now() - startTime;
+      let liveReply = liveResult.reply;
+      if (skillsMetaForResponse.length) {
+        const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(" ");
+        const names = skillsMetaForResponse.map(s=>s.name).join(" + ");
+        liveReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif). Matikan di tab Skills bila tidak perlu.\n\n${liveReply}`;
+      }
+      return res.json({
+        choices: [{ message: { role: "assistant", content: liveReply } }],
+        skillsApplied: skillsMetaForResponse, skillContextBlock: skillContext,
+        meta: { provider: liveResult.provider, providerId: liveResult.providerId, model: liveResult.currentModel, modelVersion: liveResult.currentModel, isLive: true, latencyMs, status: "connected", reason: skillsMetaForResponse.length ? `Live model + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(", ")}` : `Inferensi via ${liveResult.provider} model ${liveResult.currentModel}.` },
+      });
     }
-
-    // Expert RF Engineering Response Engine (Domain Fallback)
+// Expert RF Engineering Response Engine (Domain Fallback)
     const isBenchmark = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg);
     const isDriveTest = /drive\s*test|\bdt\b|\brsrp\b|\bsinr\b|throughput|cluster|\bkpi\b|\.csv|\blog\b|preview/i.test(lastUserMsg);
     const isTilt = /tilt|downtilt|overshooting|azimuth/i.test(lastUserMsg);
