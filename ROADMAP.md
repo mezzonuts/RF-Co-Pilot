@@ -1,6 +1,6 @@
 # 🗺️ RF-Co-Pilot Roadmap — 0 → Sekarang → v1.0
 
-> **Repo:** [mezzonuts/RF-Co-Pilot](https://github.com/mezzonuts/RF-Co-Pilot) · **Project:** [@mezzonuts's RF-Co-Pilot-Project](https://github.com/users/mezzonuts/projects/5) · **Default branch:** `feat/v0.4-vault-grounded-loop` · **Latest:** `v0.4.0` + `90d99fd`/`aeb8f9f` (2026-09-07)
+> **Repo:** [mezzonuts/RF-Co-Pilot](https://github.com/mezzonuts/RF-Co-Pilot) · **Project:** [@mezzonuts's RF-Co-Pilot-Project](https://github.com/users/mezzonuts/projects/5) · **Default branch:** `feat/v0.4-vault-grounded-loop` · **Latest:** `v0.4.0` + `5c8a906` (2026-09-08 Skill-Aware)
 >
 > Dokumen ini adalah **single source of truth** roadmap. Update via PR ke file ini + sinkron ke GitHub Project (Issues). Bahasa: Indonesia (istilah RF/engineering tetap EN).
 
@@ -133,6 +133,17 @@ gantt
 - Security: `+` lines scan **0** hardcoded secrets (`AQ.Ab8` sanitized → `''` + `[REDACTED]`), `gho_/sk-` 0
 - Build: `tsc 0`, `vite 433KB gzip 124KB`, `py compile 0` — baseline stash juga 0 → no regression
 
+
+### Skill-Aware — 22+6 Default Skills + Summarize-before-LLM (2026-09-08) ✅ `5c8a906`
+| Layer | Detail |
+|-------|--------|
+| **Source** | `C:/Users/PC/Documents/Skill AI` (22 — xlsx/polars/pdf/pptx/docx/dask/geopandas/networkx/aeon/timesfm/matplotlib/seaborn/…) = external primary · `./skills/` bundled fallback (portable) · 6 builtin RF (`analyze-dt`,`rca`,`tilt`,`oss-kpi`,`gen-pptx`,`coverage`) → **28 total, default ON** |
+| **Backend** | `server.ts`: `loadSkillsCatalog()` (5 s cache, external→bundled priority, `skills_state.json` persist per-device), `selectRelevantSkills(q,limit=3)` (keyword+phrase-bonus+RF-intent scoring — hanya enabled), `buildSkillContextBlock()` (~520 char/skill summarized) |
+| **API** | `GET /api/skills` (catalog 28), `GET /api/skills/select?q&limit` (top-3), `GET /api/skills/:id`, `POST /api/skills/toggle` (on/off persist), `POST /api/skills/reload` |
+| **/api/chat** | **summarize-before-LLM** — agent pilih top-3 relevan **sebelum** ke LLM → `skillContextBlock` di-inject ke system prompt (Gemini live) & banner di fallback; `skillsApplied`+`skillContextBlock` di response; toggle OFF → skill tidak pernah terpilih |
+| **Frontend** | `src/App.tsx`: `fetch /api/skills` on mount, kategori dinamis (RF first + 12 external cats), search name/desc/tags/cat, toggle on/off persisten server-side (optimistic+revert), badge + Reload |
+| **E2E** | `GET /api/skills` 28/28, select `excel→xlsx`, `forecast→aeon/timesfm`, `plot→matplotlib/seaborn`, toggle `xlsx off→ analyze-dt/gen-pptx` verified, fallback banner `🧠 Skill aktif:` |
+
 ---
 
 ## 4) Backlog — Yang Sudah Dikerjakan (Done)
@@ -225,6 +236,7 @@ gantt
 | v0.3 | 2026-09-05/07 | `ad05f93` → `6ed96ed` | mockup-identical, Vault fix, memory |
 | **v0.4** | **2026-09-07** | `316574d` → `16019f4` → **`v0.4.0`** | Vault-First + CI/CD + `rf-copilot-v0.4.0.zip` |
 | **Web** | **2026-09-07** | `90d99fd` → `aeb8f9f` | Express+Gemini+dynamic preview (433KB) |
+| **Skills** | **2026-09-08** | `5c8a906` | Skill-Aware 28 skills + summarize-before-LLM (29KB skills/) |
 | v0.5 (next) | 2026-09-21 | `feat/v0.5-vault-prod` (planned) | LanceDB prod + watcher + E2E |
 | v0.6 | 2026-10-05 | `feat/v0.6-tauri-presets` | Tauri binary + presets |
 | **v1.0 GA** | **2026-10-27** | `main`/`v1.0.0` | Telco Copilot GA |
@@ -257,4 +269,4 @@ Env LLM: buat `.env` dari `.env.example` → isi `GEMINI_API_KEY=[REDACTED]` (ja
 
 ---
 
-*Last updated: 2026-09-07 23:35 WIB — branch `feat/v0.4-vault-grounded-loop` @ `aeb8f9f` — next review v0.5 kickoff.*
+*Last updated: 2026-09-08 — branch `feat/v0.4-vault-grounded-loop` @ `5c8a906` — Skill-Aware shipped, next: v0.5 Vault prod hardening.*
