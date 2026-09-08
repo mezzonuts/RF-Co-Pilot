@@ -1,14 +1,26 @@
 ## RF-Co-Pilot commit log
 
 - Pushed verified changes on 2026-09-07 to `feat/v0.4-vault-grounded-loop` (commit 90d99fd).
-- Added Express/Vite server (`server.ts`), Gemini API proxy, Excel & PPTX export, Vault in‑memory API.
-- Implemented LivePreviewPanel with dynamic KPI calculations, map samples, worst‑spot analysis.
+- Added Express/Vite server (`server.ts`), Gemini API proxy, Excel & PPTX export, Vault in-memory API.
+- Implemented LivePreviewPanel with dynamic KPI calculations, map samples, worst-spot analysis.
 - Integrated EsriLiveMap (Leaflet), RfToolDrawer, updated App.tsx to use Google Gemini model (`gemini-2.5-flash`) and sanitized all API keys (`apiKey=''`, `GEMINI_API_KEY` placeholder in .env.example).
 - Updated AgentWorkspace to persist parsed rows, sheet data, and export custom data.
 - Added backend command guards for Tauri vs web fallback.
 - Updated package.json scripts, .gitignore (ignore .env, bun.lock, zip artifacts).
-- Security scan: 0 hard‑coded secrets, no shell injection, eval/exec, or pickle usage.
+- Security scan: 0 hard-coded secrets, no shell injection, eval/exec, or pickle usage.
 - TypeScript and Vite build pass (`tsc --noEmit` 0, `npm run build` 0). Python compile 0.
 - CI/CD workflow (`.github/workflows/ci-cd.yml`) will run on push.
+
+All changes are verified and pushed.
+
+---
+
+- Pushed verified changes on 2026-09-08 to `feat/v0.4-vault-grounded-loop` (commits 5c8a906, 5907444).
+- Feature: **Skill-Aware RF Co-Pilot** — 22 external skills from `C:\Users\PC\Documents\Skill AI` (xlsx/polars/pdf/docx/pptx/dask/geopandas/networkx/matplotlib/seaborn/aeon/timesfm/geomaster/infographics/…) + bundled `./skills/` fallback (29KB) + 6 builtin RF (`analyze-dt/rca/tilt/oss-kpi/gen-pptx/coverage`) = **28 total, default ON**.
+- Backend `server.ts`: `loadSkillsCatalog()` 5s cache (external→bundled priority, `skills_state.json` persist per-device), `selectRelevantSkills(q,limit=3)` keyword+phrase+RF-intent scoring (only enabled), `buildSkillContextBlock()` ~520 char/skill summarized, 5 endpoints `GET /api/skills`, `GET /api/skills/select`, `GET /api/skills/:id`, `POST /api/skills/toggle`, `POST /api/skills/reload`.
+- `/api/chat` **summarize-before-LLM**: agent pilih top-3 relevan sebelum ke LLM → `skillContextBlock` inject ke system prompt (Gemini live) + banner di fallback (`🧠 Skills aktif:`), toggle OFF → skill tidak pernah terpilih. E2E verified: `xlsx on→xlsx top`, `xlsx off→analyze-dt/gen-pptx`.
+- Frontend `src/App.tsx`: `fetch /api/skills` on mount, kategori dinamis (RF first + 12 external), search `name/desc/tags/cat`, toggle on/off persisten server-side (optimistic+revert), badge `{total} skills • {activeCount} active` + Reload.
+- Docs: `ROADMAP.md` §Skill-Aware `5c8a906` + `skills/_manifest.json`.
+- Verify: `tsc 0`, `vite 435.80KB gzip125.78KB`, `server.cjs 53.2KB`, `py compileall 0`, `no hardcoded secrets`. Branch `feat/v0.4-vault-grounded-loop` @ `5907444` — pushed 2026-09-08.
 
 All changes are verified and pushed.
