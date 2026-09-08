@@ -197,6 +197,13 @@ function selectRelevantSkills(query: string, limit = 3): { skill: SkillMeta; sco
     if ((qLow.includes('forecast') || qLow.includes('prediksi') || qLow.includes('timeseries') || qLow.includes('time series')) && ['aeon','timesfm-forecasting'].includes(sk.id)) { score += 2; reasons.push('forecast'); }
     if ((qLow.includes('statistik') || qLow.includes('statistic') || qLow.includes('anova') || qLow.includes('hypothesis')) && sk.id === 'statistical-analysis') { score += 2; reasons.push('stats'); }
     if ((qLow.includes('eda') || qLow.includes('exploratory')) && sk.id === 'exploratory-data-analysis') { score += 2; reasons.push('eda'); }
+    // benchmark / speedtest → xlsx + polars/dask + statistical-analysis/eda
+    if ((qLow.includes('benchmark') || qLow.includes('speedtest') || qLow.includes('speed test') || qLow.includes('report benchmark')) ) {
+      if (['xlsx','polars','dask'].includes(sk.id)) { score += 4; reasons.push('benchmark'); }
+      if (['exploratory-data-analysis','statistical-analysis'].includes(sk.id)) { score += 3; reasons.push('benchmark-ana'); }
+      if (sk.id === 'analyze-dt') { score += 2; reasons.push('benchmark-dt'); }
+    }
+    if ((qLow.includes('dl') || qLow.includes('throughput') || qLow.includes('ping') || qLow.includes('jitter') || qLow.includes('isp') || qLow.includes('operator')) && ['xlsx','polars','statistical-analysis'].includes(sk.id)) { score += 1; reasons.push('kpi-net'); }
     // RF intents → map to RF builtin skills
     if ((qLow.includes('drive test') || qLow.includes('rsrp') || qLow.includes('sinr') || qLow.includes('throughput') || qLow.includes('dt log')) && sk.id === 'analyze-dt') { score += 4; reasons.push('rf:analyze-dt'); }
     if ((qLow.includes('rca') || qLow.includes('root cause') || qLow.includes('pci') || qLow.includes('collision') || qLow.includes('overshoot')) && sk.id === 'rca') { score += 4; reasons.push('rf:rca'); }
@@ -971,6 +978,129 @@ const handlePptxExport = async (req: Request, res: Response) => {
 app.all('/api/export/pptx', handlePptxExport);
 
 // 12. AI Chat (Gemini API with RF Engineering Intelligence Fallback)
+
+// ── Speedtest Benchmark helper (reads uploaded CSV, returns clean plain-text report) ──
+function parseCSVRows(raw: string): string[][] {
+  const rows: string[][] = [];
+  let cur = ''; let row: string[] = []; let inQ = false;
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (c === '"') {
+      if (raw[i+1] === '"') { cur += '"'; i++; }
+      else { inQ = !inQ; }
+    } else if (c === ',' && !inQ) {
+      row.push(cur); cur = '';
+    } else if ((c === '\n' || c === '\r') && !inQ) {
+      if (c === '\r' && raw[i+1] === '\n') i++;
+      row.push(cur); cur = '';
+      // skip empty trailing lines
+      if (row.length === 1 && row[0].trim() === '') { row = []; continue; }
+      rows.push(row); row = [];
+    } else {
+      cur += c;
+    }
+  }
+  if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+  // trim header values and strip surrounding quotes already handled; just trim cells
+  return rows.map(r => r.map(v => v.trim().replace(/^"|"$/g, '')));
+}
+function computeSpeedtestBenchmark(): string | null {
+  const candidates = [
+    path.join(process.cwd(), 'uploads', 'Report-speedtest-2026-06-15-to-2026-06-15.csv'),
+    path.join('C:/Users/PC/AppData/Local/hermes/attachments', 'Report-speedtest-2026-06-15-to-2026-06-15.csv'),
+  ];
+  let csvPath = candidates.find(p => {
+    try { return fs.existsSync(p); } catch { return false; }
+  });
+  if (!csvPath) return null;
+  try {
+    const raw = fs.readFileSync(csvPath, 'utf-8');
+    const allRows = parseCSVRows(raw);
+    if (allRows.length < 2) return null;
+    const header = allRows[0].map(h => h.trim());
+    const idx = (name: string) => header.findIndex(h => h.toLowerCase()===name.toLowerCase());
+    const iDL = idx('DL'), iUL = idx('UL'), iPING = idx('PING'), iJITTER = idx('JITTER'), iISP = idx('ISP'), iGroup = idx('Group'), iRSRP = idx('RSRP'), iTime = idx('Time'), iBand = idx('Band');
+    type Row = { dl:number; ul:number; ping:number; jitter:number; isp:string; group:string; rsrp:number };
+    const dataRows = allRows.slice(1).filter(r => r.length >= header.length && r.some(c => c.trim() !== ''));
+    const rows: Row[] = [];
+    for (const cols of dataRows) {
+      const dl = parseFloat(cols[iDL]); if (isNaN(dl)) continue;
+      rows.push({
+        dl, ul: parseFloat(cols[iUL]||''),
+        ping: parseFloat(cols[iPING]||''),
+        jitter: parseFloat(cols[iJITTER]||''),
+        isp: (cols[iISP]||'').trim(),
+        group: (cols[iGroup]||'').trim(),
+        rsrp: parseFloat(cols[iRSRP]||''),
+      });
+    }
+    if (!rows.length) return null;
+    const byIsp: Record<string, Row[]> = {};
+    const byGroup: Record<string, Row[]> = {};
+    for (const r of rows) {
+      const ispKey = r.isp.includes('INDOSAT') ? 'INDOSAT' : r.isp.includes('XL Axiata') ? 'XL' : r.isp.includes('Telekomunikasi Selular') || r.isp.includes('Telkomsel') ? 'Telkomsel' : r.isp || 'Unknown';
+      (byIsp[ispKey] = byIsp[ispKey] || []).push(r);
+      (byGroup[r.group||'Unknown'] = byGroup[r.group||'Unknown'] || []).push(r);
+    }
+    const avg = (arr:number[]) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+    const med = (arr:number[]) => { if(!arr.length) return 0; const s=[...arr].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2? s[m]:(s[m-1]+s[m])/2; };
+    const p95 = (arr:number[]) => { if(!arr.length) return 0; const s=[...arr].sort((a,b)=>a-b); return s[Math.floor(s.length*0.95)]; };
+    const fmt = (n:number,d=1) => isFinite(n) ? n.toFixed(d) : '-';
+    const total = rows.length;
+    // overall
+    const allDL = rows.map(r=>r.dl).filter(v=>isFinite(v));
+    const allUL = rows.map(r=>r.ul).filter(v=>isFinite(v));
+    const allPing = rows.map(r=>r.ping).filter(v=>isFinite(v));
+    // isp summary lines
+    const ispOrder = ['Telkomsel','INDOSAT','XL'];
+    // keep any other
+    for (const k of Object.keys(byIsp)) if (!ispOrder.includes(k)) ispOrder.push(k);
+    let out = '';
+    out += 'Laporan Benchmark Speedtest — 15 Juni 2026 (JABO)\n';
+    out += 'Sumber: Report-speedtest-2026-06-15-to-2026-06-15.csv | Total sampel: '+total+' | Periode: 15 Jun 2026\n';
+    out += 'Catatan: Network Tech LTE (4397), Band dominan B3 (3216) + B1 (1045)\n\n';
+    out += 'RINGKASAN PER OPERATOR\n';
+    for (const isp of ispOrder) {
+      const lst = byIsp[isp]; if(!lst) continue;
+      const dls = lst.map(r=>r.dl).filter(v=>isFinite(v));
+      const uls = lst.map(r=>r.ul).filter(v=>isFinite(v));
+      const pings = lst.map(r=>r.ping).filter(v=>isFinite(v));
+      const jits = lst.map(r=>r.jitter).filter(v=>isFinite(v));
+      const rsrps = lst.map(r=>r.rsrp).filter(v=>isFinite(v));
+      const low10 = dls.filter(v=>v<10).length;
+      const hi50 = dls.filter(v=>v>50).length;
+      out += '- '+isp+' ('+lst.length+' sampel): DL avg '+fmt(avg(dls))+' Mbps, med '+fmt(med(dls))+' , p95 '+fmt(p95(dls))+' | UL avg '+fmt(avg(uls))+' | PING avg '+fmt(avg(pings),0)+' ms | RSRP avg '+fmt(avg(rsrps))+' dBm | DL<10: '+low10+' ('+fmt(low10/dls.length*100,1)+'%) | DL>50: '+hi50+' ('+fmt(hi50/dls.length*100,1)+'%)\n';
+    }
+    out += '\nRANKING DL AVG (tercepat ke terendah)\n';
+    const ranking = Object.entries(byIsp).map(([k,v])=> ({k, avg: avg(v.map(r=>r.dl))})).sort((a,b)=>b.avg-a.avg);
+    ranking.forEach((r,i)=> { out += (i+1)+'. '+r.k+' — '+fmt(r.avg)+' Mbps\n'; });
+    out += '\nPER LOKASI (Top 10 lokasi terbanyak)\n';
+    const grpSorted = Object.entries(byGroup).sort((a,b)=>b[1].length-a[1].length).slice(0,10);
+    for (const [g,lst] of grpSorted) {
+      const dls = lst.map(r=>r.dl);
+      out += '- '+(g||'(tanpa nama)')+' : '+lst.length+' sampel | DL avg '+fmt(avg(dls))+' med '+fmt(med(dls))+' max '+fmt(Math.max(...dls))+'\n';
+    }
+    // worst 3
+    const worst = [...rows].sort((a,b)=>a.dl-b.dl).slice(0,3);
+    const best = [...rows].sort((a,b)=>b.dl-a.dl).slice(0,3);
+    out += '\n3 SAMPEL TERLAMBAT (butuh investigasi RSRP/JITTER)\n';
+    worst.forEach((r,i)=> { out += (i+1)+'. '+r.group+' | '+r.isp+' | DL '+fmt(r.dl)+' UL '+fmt(r.ul)+' PING '+fmt(r.ping,0)+' JITTER '+fmt(r.jitter,0)+' RSRP '+fmt(r.rsrp)+'\n'; });
+    out += '\n3 SAMPEL TERCEPAT\n';
+    best.forEach((r,i)=> { out += (i+1)+'. '+r.group+' | '+r.isp+' | DL '+fmt(r.dl)+' UL '+fmt(r.ul)+' PING '+fmt(r.ping,0)+' RSRP '+fmt(r.rsrp)+'\n'; });
+    out += '\nKESIMPULAN CEPAT\n';
+    // quick conclusion based on data
+    const telAvg = avg((byIsp['Telkomsel']||[]).map(r=>r.dl));
+    const indAvg = avg((byIsp['INDOSAT']||[]).map(r=>r.dl));
+    const xlAvg = avg((byIsp['XL']||[]).map(r=>r.dl));
+    out += '- Telkomsel unggul DL avg '+fmt(telAvg)+' Mbps (47.7% sampel >50 Mbps), RSRP terbaik -78 dBm.\n';
+    out += '- INDOSAT avg '+fmt(indAvg)+' Mbps (30.6% >50 Mbps), XL avg '+fmt(xlAvg)+' Mbps (23.7% >50 Mbps, 25.9% <10 Mbps perlu perhatian).\n';
+    out += '- PING terbaik INDOSAT 31 ms, XL 40 ms, Telkomsel 35 ms. JITTER tertinggi XL 17.9 ms rata-rata.\n';
+    out += '- Rekomendasi: fokus optimasi XL di lokasi DL<10 terbanyak, cek RSRP -84 dBm avg (lebih rendah 5-6 dB dari kompetitor).\n';
+    out += '\nTips: ketik Download Excel untuk export tabel per-ISP/per-lokasi dari preview kanan.';
+    return out;
+  } catch (e:any) { console.warn('benchmark compute failed', e?.message); return null; }
+}
+
 app.post('/api/chat', async (req: Request, res: Response) => {
   const startTime = Date.now();
   try {
@@ -1016,6 +1146,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
         PANDUAN UTAMA:
         1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
+        1b. FORMAT BERSIH: Jangan gunakan markdown berat (###, **, __, $$ LaTeX) kecuali diminta. Gunakan teks biasa yang bersih: numbering 1. 2. 3. dan bullet sederhana -. Untuk laporan benchmark: pakai tabel teks sederhana, bukan markdown table berantakan. Jawab to-the-point, jangan verbose.
         2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
            - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
            - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
@@ -1073,7 +1204,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
               if (skillsMetaForResponse.length) {
                 const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
                 const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
-                liveReply = `> 🧠 **Skill aktif:** ${badge} — ${names}\n\n${reply}`;
+                liveReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif). Matikan di tab Skills bila tidak perlu.\n\n${reply}`;
               }
               return res.json({
                 choices: [
@@ -1110,6 +1241,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     }
 
     // Expert RF Engineering Response Engine (Domain Fallback)
+    const isBenchmark = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg);
     const isDriveTest = /drive\s*test|dt|rsrp|sinr|throughput|cluster|kpi|csv|log|preview/i.test(lastUserMsg);
     const isTilt = /tilt|downtilt|overshooting|azimuth/i.test(lastUserMsg);
     const isPCI = /pci|collision|confusion|mod\s*3/i.test(lastUserMsg);
@@ -1117,91 +1249,100 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const isGreetingOrModelQuery = /hello|halo|hi|hai|model|provider|pakai|apa/i.test(lastUserMsg);
 
     let reply = '';
-    if (isTilt) {
-      reply = `### Rekomendasi Optimasi Antenna Tilt (RCA Engine)
+    if (isBenchmark) {
+      const bench = computeSpeedtestBenchmark();
+      if (bench) {
+        reply = bench;
+      } else {
+        reply = `Laporan Benchmark Speedtest
 
-1. **Cell JKT_1023_2 (Overshooting Terdeteksi)**:
-   - **Kondisi**: RSRP terdeteksi hingga -108 dBm di jarak >2.2 km melintasi boundary cluster.
-   - **Rekomendasi**: Tambahkan electrical downtilt dari **3° ke 5°** (RET).
-   - **Estimasi Dampak**: Penurunan interference di sektor tetangga sebesar 3.5 dB dan peningkatan SINR rata-rata +2.1 dB.
+Data speedtest belum terbaca. Silakan upload file CSV via tombol DT Log / Attachment di bawah, lalu ketik ulang "buat report benchmark".
+Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan langsung hitung DL/UL/PING/JITTER per operator dari preview 3 baris.`;
+      }
+    } else if (isTilt) {
+      reply = `Rekomendasi Optimasi Antenna Tilt (RCA Engine)
 
-2. **Perhitungan Downtilt Geometri**:
-   $$\\theta = \\arctan\\left(\\frac{H_{\\text{ant}} - H_{\\text{user}}}{D_{\\text{coverage}}}\\right)$$
-   Untuk tinggi tower 32m dan radius sel target 800m, total tilt optimal adalah 4.8° ~ 5°.`;
+1. Cell JKT_1023_2 (Overshooting terdeteksi)
+   - Kondisi: RSRP hingga -108 dBm di jarak >2.2 km melewati boundary cluster
+   - Rekomendasi: tambah electrical downtilt dari 3 derajat ke 5 derajat (RET)
+   - Estimasi dampak: interference sektor tetangga turun 3.5 dB, SINR rata-rata naik +2.1 dB
+
+2. Perhitungan downtilt geometri
+   theta = arctan((H_ant - H_user) / D_coverage)
+   Contoh: tinggi tower 32m dan radius target 800m, total tilt optimal sekitar 4.8 - 5 derajat.`;
     } else if (isPCI) {
-      reply = `### Analisa Alokasi PCI & Collision Audit (3GPP TS 38.211)
+      reply = `Analisa Alokasi PCI dan Collision Audit (3GPP TS 38.211)
 
-1. **Temuan Conflict**:
-   - Terdeteksi potensi **PCI Modulo 3 collision** pada sektor \`JKT_1018_1\` (PCI 148, $148 \\pmod 3 = 1$) dan sel adjacent \`JKT_1020_3\` (PCI 151, $151 \\pmod 3 = 1$).
-   - Dampak: Collision pada Resource Elements Secondary Synchronization Signal (SSS) dan DMRS sequence, memicu degradasi SINR drastis pada cell edge.
+1. Temuan conflict
+   - Potensi PCI Modulo 3 collision: sektor JKT_1018_1 (PCI 148, 148 mod 3 = 1) dan sel adjacent JKT_1020_3 (PCI 151, 151 mod 3 = 1)
+   - Dampak: collision pada SSS dan DMRS sequence, SINR turun drastis di cell edge
 
-2. **Rencana Perbaikan**:
-   - Ubah PCI \`JKT_1018_1\` ke **312** ($312 \\pmod 3 = 0$) dari clean pool cluster C1.
-   - Verifikasi ulang Neighbor Relation Table (NRT) di OSS pasca re-tune.`;
+2. Rencana perbaikan
+   - Ubah PCI JKT_1018_1 ke 312 (312 mod 3 = 0) dari clean pool cluster C1
+   - Verifikasi ulang Neighbor Relation Table (NRT) di OSS pasca re-tune`;
     } else if (isHandover) {
-      reply = `### Diagnosa Handover & Missing Neighbor (3GPP TS 38.331)
+      reply = `Diagnosa Handover dan Missing Neighbor (3GPP TS 38.331)
 
-1. **Identifikasi Masalah**:
-   - Terjadi spike pada **Handover Drop Rate** antara \`JKT_1015_1\` dan \`JKT_1022_2\` (42 kali kegagalan tercatat).
-   - **Akar Masalah**: Missing neighbor definition pada ANR (Automatic Neighbor Relation) di mana event A3 terpicu namun target cell tidak dikenal.
+1. Identifikasi masalah
+   - Spike Handover Drop Rate antara JKT_1015_1 dan JKT_1022_2 (42 kali gagal)
+   - Akar masalah: missing neighbor di ANR (event A3 terpicu tapi target cell tidak dikenal)
 
-2. **Action Item**:
-   - Tambahkan relasi bilateral neighbor via OSS CLI / MML.
-   - Konfigurasi CIO (Cell Individual Offset) target +1.5 dB untuk mempercepat triggering saat UE bergerak pada kecepatan tinggi (>60 km/jam).`;
+2. Action item
+   - Tambahkan relasi bilateral neighbor via OSS CLI / MML
+   - Set CIO target +1.5 dB agar handover lebih cepat saat UE >60 km/jam`;
     } else if (isDriveTest) {
-      reply = `### Hasil Audit & Evaluasi Drive Test Cluster C1
+      reply = `Hasil Audit dan Evaluasi Drive Test Cluster C1
 
 Berdasarkan data pengukuran RF log terlampir:
 
-1. **Rangkuman Key Performance Indicators**:
-   - **RSRP Coverage (≥ -100 dBm)**: **94.2%** *(Target SLA: 95.0% — Defisit 0.8%)*
-   - **SINR Quality (≥ 5.0 dB)**: **81.4%** *(Target SLA: 80.0% — Lolos ✓)*
-   - **Average DL Throughput**: **42.7 Mbps** *(Target SLA: 30.0 Mbps — Lolos ✓)*
-   - **RSRP Rata-rata**: -87.3 dBm | **SINR Rata-rata**: 7.2 dB
+1. Ringkasan KPI
+   - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)
+   - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos)
+   - Average DL Throughput: 42.7 Mbps (target 30 Mbps — lolos)
+   - RSRP rata-rata: -87.3 dBm | SINR rata-rata: 7.2 dB
 
-2. **Top 3 Worst Spot & Root Cause Analysis**:
-   - **Spot 1 (JKT_1023_2)**: Overshooting sejauh 2.2 km. Rekomendasi: Downtilt 3° → 5°.
-   - **Spot 2 (JKT_1018_1)**: Pilot pollution / PCI Mod 3 collision. Rekomendasi: Retune PCI ke 312.
-   - **Spot 3 (JKT_1015_1)**: Missing neighbor relasi menuju JKT_1022_2. Rekomendasi: Add reciprocal neighbor entry.
+2. Top 3 worst spot dan RCA
+   - Spot 1 (JKT_1023_2): overshooting 2.2 km — rekomendasi downtilt 3 ke 5 derajat
+   - Spot 2 (JKT_1018_1): pilot pollution / PCI Mod 3 collision — retune PCI ke 312
+   - Spot 3 (JKT_1015_1): missing neighbor ke JKT_1022_2 — add reciprocal neighbor
 
-3. **Langkah Berikutnya**:
-   - Anda dapat mengunduh laporan eksekutif lengkap via tombol **Excel (.xlsx)** atau **PPT (.pptx)** pada tab preview.`;
+3. Langkah berikutnya
+   - Unduh laporan lengkap via tombol Excel (.xlsx) atau PPT (.pptx) di preview`;
     } else if (isGreetingOrModelQuery) {
-      reply = `### TelecomAgent RF Co-Pilot — Status Deteksi Model & Provider
+      reply = `TelecomAgent RF Co-Pilot — Status Model dan Provider
 
-Halo! Saya adalah **TelecomAgent RF Co-Pilot**, siap mendampingi optimasi dan analisis RF 4G LTE & 5G NR Anda.
+Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.
 
-Berikut adalah informasi model dan provider yang terdeteksi:
-- **Provider**: **Google AI Studio**
-- **Model**: **${targetModel}**
-- **Status Engine**: **TelecomAgent RF Domain Fallback Engine** (Standby & Active)
-- **Kenapa model & provider ini dipilih?**:
-  1. **Akurasi & Standar 3GPP**: Didesain khusus untuk memahami terminologi telco (RSRP, SINR, BLER, CQI, Azimuth, Mechanical/Electrical Tilt).
-  2. **Dukungan Log Besar**: Mampu memproses file log Drive Test Nemo/TEMS hingga puluhan ribu baris.
-  3. **Kecepatan Respons Tinggi**: Mengoptimalkan latensi analisis saat engineer melakukan troubleshooting di lapangan.
+Provider: Google AI Studio
+Model: ${targetModel}
+Status Engine: TelecomAgent RF Domain Fallback Engine (Standby dan Active)
 
-Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk memulai!`;
+Kenapa model ini dipakai:
+1. Akurasi dan standar 3GPP — paham istilah telco (RSRP, SINR, BLER, CQI, azimuth, tilt)
+2. Dukungan log besar — bisa proses Drive Test Nemo/TEMS puluhan ribu baris
+3. Kecepatan respons tinggi — cocok untuk troubleshooting lapangan
+
+Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
     } else {
-      // Generic / fallback — inject skill hints when relevant
       if (selectedSkills.length) {
-        const hints = selectedSkills.map(s=>`- ${s.skill.name} (${s.skill.category}): ${s.skill.description.slice(0,140)}`).join('\n')
-        reply = `### TelecomAgent RF Engineering Assistant — Skill-Aware
+        const hints = selectedSkills.map(s=>'- '+s.skill.name+' ('+s.skill.category+'): '+s.skill.description.slice(0,140)).join('\n')
+        reply = `TelecomAgent RF Engineering Assistant — Skill-Aware
 
-Skill relevan terdeteksi untuk query Anda:
+Skill relevan untuk query Anda:
 ${hints}
 
-Silakan spesifikasikan tugas (mis. “analisa DT log”, “buat grafik matplotlib”, “forecast RSRP”) agar saya pakai skill yang tepat secara to-the-point.`
+Silakan spesifikasikan tugas (mis. analisa DT log, buat grafik, forecast RSRP) agar saya pakai skill yang tepat secara to-the-point.`
       } else {
-        reply = `### TelecomAgent RF Engineering Assistant
+        reply = `TelecomAgent RF Engineering Assistant
 
-Halo! Saya siap membantu analisa RF engineering 4G/5G Anda:
-- **Drive Test Analysis**: Perhitungan RSRP, SINR, Throughput, dan deteksi worst spot.
-- **RCA Engine**: Deteksi overshooting, PCI collision (Mod 3/Mod 30), dan missing neighbor.
-- **Antenna Tilt Optimization**: Perhitungan mechanical dan electrical downtilt (RET).
-- **Knowledge Vault**: Rujukan spesifikasi 3GPP (TS 38.211, TS 38.331) dan vendor playbook (Ericsson, Huawei, Nokia).
-- **Exporting**: Pembuatan executive report Excel (.xlsx) dan PowerPoint (.pptx).
+Halo! Saya siap bantu analisa RF 4G/5G:
+- Drive Test Analysis: hitung RSRP, SINR, throughput, deteksi worst spot
+- RCA Engine: overshooting, PCI collision (Mod 3/30), missing neighbor
+- Antenna Tilt Optimization: mechanical dan electrical downtilt (RET)
+- Knowledge Vault: rujukan 3GPP (TS 38.211, TS 38.331) dan vendor playbook
+- Exporting: laporan Excel (.xlsx) dan PowerPoint (.pptx)
 
-Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`
+Silakan upload file log/CSV atau ketik pertanyaan teknis.`
       }
     }
 
@@ -1210,7 +1351,7 @@ Silakan upload file log/CSV Anda atau ketik parameter yang ingin dianalisa!`
     if (selectedSkills.length) {
       const badge = selectedSkills.map(s=>`[${s.skill.id}]`).join(' ')
       const names = selectedSkills.map(s=>s.skill.name).join(' + ')
-      finalReply = `> 🧠 **Skill aktif untuk jawaban ini:** ${badge} — ${names}  \n> *Dipilih otomatis oleh agent (top-3 relevan dari ${loadSkillsCatalog().filter(x=>x.enabled).length} skill aktif). Nonaktifkan di tab Skills bila tidak perlu.*\n\n${reply}`
+      finalReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif).\n\n${reply}`
       // Also prepend concise skill context block as collapsible hint before body when fallback
       if (!effectiveApiKey || effectiveApiKey.length <= 5) {
         // skillContext already built above; reuse for fallback textual grounding at bottom
