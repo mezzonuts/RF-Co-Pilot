@@ -375,6 +375,109 @@ Automatically parse TEMS, Nemo, or generic drive test CSV logs. Calculate covera
 
 let vaultNotes = [...INITIAL_VAULT_NOTES];
 
+// ── Vault Basic Knowledge loader (default app vault: ./vault) ──
+const VAULT_DIR = path.join(process.cwd(), 'vault');
+const VAULT_SOURCES_DIR = path.join(VAULT_DIR, 'sources');
+const VAULT_3GPP_DIR = path.join(VAULT_DIR, '3gpp');
+
+function parseVaultFrontmatter(raw: string): { fm: any; body: string } {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!m) return { fm: {}, body: raw };
+  const fmRaw = m[1];
+  const body = m[2] || '';
+  const fm: any = {};
+  for (const line of fmRaw.split(/\r?\n/)) {
+    const idx = line.indexOf(':');
+    if (idx === -1) continue;
+    const k = line.slice(0, idx).trim();
+    let v: any = line.slice(idx + 1).trim();
+    // strip quotes / brackets
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+    if (v.startsWith('[') && v.endsWith(']')) {
+      try { v = v.slice(1,-1).split(',').map((s:string)=> s.trim().replace(/^['"]|['"]$/g,'')) .filter(Boolean); } catch {}
+    }
+    fm[k] = v;
+  }
+  return { fm, body };
+}
+
+function loadVaultBasicKnowledge() {
+  try {
+    if (!fs.existsSync(VAULT_DIR)) {
+      console.log('[vault] no ./vault dir, skipping basic knowledge load');
+      return;
+    }
+    // Ensure README exists (docs)
+    const manifestPath = path.join(VAULT_DIR, 'manifest.json');
+    let manifest: any = null;
+    if (fs.existsSync(manifestPath)) {
+      try { manifest = JSON.parse(fs.readFileSync(manifestPath,'utf-8')); } catch {}
+    }
+    let loaded = 0;
+    let skipped = 0;
+    if (fs.existsSync(VAULT_SOURCES_DIR)) {
+      const files = fs.readdirSync(VAULT_SOURCES_DIR).filter(f => f.toLowerCase().endsWith('.md'));
+      for (const fname of files) {
+        const full = path.join(VAULT_SOURCES_DIR, fname);
+        try {
+          const raw = fs.readFileSync(full, 'utf-8');
+          const { fm, body } = parseVaultFrontmatter(raw);
+          const stem = fname.replace(/\.md$/i,'');
+          const vaultPath = `sources/${fname}`;
+          // dedup by path or name
+          const exists = vaultNotes.some(n => n.path === vaultPath || n.path === `3gpp/${fname}` || n.name === fname);
+          if (exists) { skipped++; continue; }
+          const title = (fm.title as string) || stem.replace(/_/g,' ').toUpperCase();
+          const categoryRaw = (fm.category as string) || '';
+          // normalize category: keep 3gpp umbrella for tree grouping
+          const category = categoryRaw.startsWith('0') || categoryRaw.toLowerCase().includes('3gpp') || fname.includes('_g00') ? '3gpp' : (categoryRaw || '3gpp');
+          const subcat = categoryRaw || (Array.isArray(fm.tags) ? (fm.tags as string[]).find(t=> t.startsWith('0')) : '') || '';
+          vaultNotes.push({
+            path: vaultPath,
+            name: fname,
+            category,
+            title,
+            frontmatter: { ...fm, subcat, loadedFrom: 'vault/sources', basic: true, manifest: manifest?.version || 'v1' },
+            body: body.slice(0, 40000), // cap for memory
+          });
+          loaded++;
+        } catch (e:any) {
+          console.warn('[vault] failed to load', fname, e?.message);
+        }
+      }
+    }
+    // Also index binary docs presence (no body) for completeness – lightweight entry so UI tree knows files exist
+    if (fs.existsSync(VAULT_3GPP_DIR)) {
+      const cats = fs.readdirSync(VAULT_3GPP_DIR, { withFileTypes: true }).filter(d=> d.isDirectory()).map(d=> d.name);
+      for (const cat of cats) {
+        const catDir = path.join(VAULT_3GPP_DIR, cat);
+        const docs = fs.readdirSync(catDir).filter(f=> /\.(docx|doc|xsd)$/i.test(f));
+        for (const doc of docs) {
+          const vpath = `3gpp/${cat}/${doc}`;
+          if (vaultNotes.some(n=> n.path===vpath)) continue;
+          // only add stub if no md wrapper exists (already covered)
+          const mdCounterpart = doc.replace(/\.(docx|doc)$/i,'.md').toLowerCase().replace(/-/g,'_');
+          if (vaultNotes.some(n=> n.name.toLowerCase()===mdCounterpart)) continue;
+          vaultNotes.push({
+            path: vpath,
+            name: doc,
+            category: '3gpp',
+            title: doc,
+            frontmatter: { category: cat, type: 'binary-doc', basic: true },
+            body: `[Binary 3GPP document – ${cat}/${doc} – buka dengan Word/LibreOffice. Wrapper markdown tersedia di vault/sources/${mdCounterpart} jika ada.]`,
+          });
+          loaded++;
+        }
+      }
+    }
+    console.log(`[vault] basic knowledge loaded: ${loaded} new notes (skipped ${skipped} dup) – total vaultNotes=${vaultNotes.length} – manifest=${manifest?.version || 'no-manifest'}`);
+  } catch (e:any) {
+    console.warn('[vault] loadVaultBasicKnowledge error', e?.message);
+  }
+}
+loadVaultBasicKnowledge();
+
+
 let memoryStore: {
   projects: Array<{
     id: string;

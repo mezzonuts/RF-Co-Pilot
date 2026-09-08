@@ -1,0 +1,20 @@
+{
+  "version": "v1.0-2026-09-08",
+  "created": "2026-09-08",
+  "description": "3GPP Knowledge Vault — 4G/5G Troubleshooting Basic Knowledge (default app vault)",
+  "total_specs": 24,
+  "total_files": 28,
+  "total_size": "140M",
+  "categories": {
+    "01_RAN_L2_L3": {"specs": ["36.300","36.211","36.331","36.104","38.300","38.211","38.213","38.331","38.104","38.321","38.322","38.323"], "files": 15},
+    "02_CORE_NAS_INTERFACES": {"specs": ["24.501","38.413","38.423","24.301","36.413"], "files": 5},
+    "03_PROCEDURES_FLOWS": {"specs": ["23.501","23.502","23.401"], "files": 3},
+    "04_VOICE_SERVICES": {"specs": ["24.229","23.216"], "files": 3},
+    "05_OAM_PM_KPIS": {"specs": ["28.552","32.425"], "files": 2}
+  },
+  "sources": "vault/sources/*.md (28 wrappers, frontmatter category+clause, 20k char extract)",
+  "binaries": "vault/3gpp/<category>/*.{docx,doc,xsd} (28 binaries, mirror D:/3gpp_pdf/3gpp)",
+  "loader": "server.ts loadVaultBasicKnowledge() — auto-load on startup, idempotent, capped 40k body",
+  "sync_script": "C:/Users/PC/AppData/Local/hermes/scripts/sync_3gpp.py (cron 0 0 1 * *) + scripts/download_3gpp.py",
+  "vault_origin": "D:/3gpp_pdf/3gpp + C:/Users/PC/Documents/Obsidian/Dika/wiki/sources"
+}

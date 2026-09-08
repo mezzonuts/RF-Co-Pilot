@@ -40,3 +40,22 @@ All changes are verified and pushed.
   - `uploads/Report-speedtest-*.csv` → `.gitignore` += `uploads/`.
 
 All changes verified & pushed to `feat/v0.4-vault-grounded-loop`.
+
+---
+
+- Commit 2026-09-08 (vault basic knowledge): **3GPP Knowledge Vault 4G/5G sebagai Basic Knowledge default aplikasi**.
+  - Repo `vault/` baru menjadi **default app vault** — auto-load saat `node dist/server.cjs` via `loadVaultBasicKnowledge()` di `server.ts` (idempotent, dedup by path/name, cap 40k body, baca `vault/sources/*.md` + manifest).
+  - Struktur Knowledge Vault 4G/5G Troubleshooting (5 kategori, 24 specs, 28 files, 140M):
+    - `vault/3gpp/01_RAN_L2_L3` 15 files: TS 36.300/211/331/104, 38.300/211/213/331/104/321/322/323
+    - `vault/3gpp/02_CORE_NAS_INTERFACES` 5 files: TS 24.501 (NAS 5GS Causes #7/#11/#15/#27/#31 & #26/#27/#28/#31/#38), 38.413 NGAP, 38.423 XnAP, 24.301 NAS EPS, 36.413 S1AP
+    - `vault/3gpp/03_PROCEDURES_FLOWS` 3 files: TS 23.501/23.502/23.401 (Registration, PDU Session, HO Xn/N2, EPS Fallback)
+    - `vault/3gpp/04_VOICE_SERVICES` 3 files: TS 24.229 IMS SIP 4xx/5xx/6xx, 23.216 SRVCC
+    - `vault/3gpp/05_OAM_PM_KPIS` 2 files: TS 28.552 (gNB RRC/UE Context/PDU/HO counters), 32.425 (LTE CDR)
+  - Wrapper injeksi: `vault/sources/*.md` 28 files (frontmatter type:source, category, clause, tags 3gpp, 20k char extract docx via python-docx; OLE .doc stub metadata) — langsung RAG/searchable, mirror `C:/Users/PC/Documents/Obsidian/Dika/wiki/sources` + `D:/3gpp_pdf/3gpp` (sync script).
+  - `vault/manifest.json` v1.0-2026-09-08 (total_specs 24, total_files 28, loader info) + `vault/README.md` + `vault/3gpp/README.md` + 5x `.gitkeep` (preserve kategori saat binaries di-ignore).
+  - `.gitignore` += `vault/3gpp/**/*.docx|doc|xsd` (keep wrappers ringan 384K; binaries 140M rehydrate via `scripts/download_3gpp.py` atau `sync_3gpp.py` — `C:/Users/PC/AppData/Local/hermes/scripts/sync_3gpp.py` cron monthly).
+  - `package.json` files += `vault`, `skills`, `scripts/download_3gpp.py` (npm publish include basic knowledge).
+  - `server.ts`: `INITIAL_VAULT_NOTES` (6 mock) + `loadVaultBasicKnowledge()` → `vaultNotes` total = `INITIAL + vault/sources` (verified: `DEFAULT_VAULT_WRAPPERS=28` on boot, `/api/vault/*` langsung serve tanpa upload ulang).
+  - Sync pipeline: `scripts/download_3gpp.py` (24 specs, 5 categories, clause map) ↔ `sync_3gpp.py` (Hermes cron) — idempotent SKIP, retry 3x, mirror vault/3gpp + wiki/3gpp.
+  - Build: `tsc --noEmit 0`, `vite 435.80KB`, `server.cjs 71.6KB` OK. Vault 384K (wrappers) committed; binaries stay local `D:/3gpp_pdf/3gpp` (+ vault/3gpp local copy, .gitignore'd).
+  - Pushed to `feat/v0.4-vault-grounded-loop` — app run dimanapun langsung punya basic knowledge 4G/5G tanpa perlu download ulang.
