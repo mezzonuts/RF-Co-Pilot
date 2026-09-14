@@ -1321,21 +1321,36 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       else if (baseUrl.includes('generativelanguage')) providerLower = 'google';
       else if (baseUrl.includes('api.openai')) providerLower = 'openai';
     }
+
     const isGoogle = providerLower === 'google';
     // resolve api key env-var per provider (dotenv .env.local already injected)
     const providerEnvKey = providerLower.toUpperCase().replace('-', '_') + '_API_KEY';
     const envKeyForProvider = process.env[providerEnvKey] || (providerLower === '9router' ? (process.env['9ROUTER_API_KEY'] || process.env['NINE_ROUTER_API_KEY'] || '') : '');
-    const effectiveApiKey = apiKey || envKeyForProvider || (isGoogle ? process.env.GEMINI_API_KEY || '' : '');
+    const effectiveApiKey = apiKey || envKeyForProvider || process.env['9ROUTER_API_KEY'] || process.env.GEMINI_API_KEY || '';
     // normalize model name — only force-default for google
-    let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
+        let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
     if (isGoogle) {
       if (!targetModel || targetModel.includes('3.8') || targetModel.includes('3.1') || targetModel.includes('gpt') || targetModel.includes('custom')) {
         targetModel = 'gemini-2.5-flash';
       }
-      if (!targetModel.startsWith('gemini-')) {
-        targetModel = 'gemini-2.5-flash';
-      }
     }
+    // PRIORITY: if 9Router is reachable, override provider+model
+    if (providerLower !== '9router' && baseUrl !== 'http://localhost:20128/v1') {
+      try {
+        const _chk = await fetch('http://localhost:20128/v1/models', { signal: AbortSignal.timeout(1500) });
+        if (_chk.ok) {
+          providerLower = '9router';
+          baseUrl = 'http://localhost:20128/v1';
+          if (targetModel.startsWith('gemini')) {
+            targetModel = 'ollama/gpt-oss:120b';
+            console.log('[chat] 9Router auto → 9router / ollama/gpt-oss:120b');
+          } else {
+            console.log('[chat] 9Router auto → 9router');
+          }
+        }
+      } catch {}
+    }
+    const isGoogleFinal = providerLower === 'google';
     console.log(`[chat] provider=${providerLower} base=${baseUrl||'(empty)'} keyLen=${String(effectiveApiKey||'').length} env9Len=${String(process.env['9ROUTER_API_KEY']||'').length} model=${targetModel} bodyKeyLen=${String(apiKey||'').length}`);
 
     // ── Skill-aware pre-LLM: agent selects most relevant enabled skills (to-the-point) ──
@@ -1407,7 +1422,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     // ── Live LLM call: Google AI Studio (Gemini) atau OpenRouter / 9Router / custom ──
     const doFetchLLM = (async () => {
-      const providerLower = String(provider || "google").toLowerCase();
+      // Use outer providerLower (already modified by 9Router auto-detect)
       const isGoogle = providerLower === "google" || providerLower === "gemini";
       const useGemini = isGoogle && effectiveApiKey && effectiveApiKey.length > 5;
       if (useGemini) {
@@ -1433,7 +1448,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       const headers: Record<string,string> = { "Content-Type": "application/json", ...(_k.length > 5 ? { Authorization: `Bearer ${_k}` } : {}) };
       if (providerLower === '9router') console.log(`[chat] 9router _k len=${_k.length} hex=${Buffer.from(_k).toString('hex').slice(0,40)} hasAuth=${!!(headers as any).Authorization} base=${base}`);
       // For 9router: working model is ollama/gpt-oss:120b (my-combo currently empty) — keep user model first, then working fallback
-      const orModels = isGoogle ? ["gemini-2.5-flash"] : Array.from(new Set([model].filter(Boolean))); // single model only — avoid 429 from fallback models
+      const orModels = (providerLower === "google") ? ["gemini-2.5-flash"] : Array.from(new Set([targetModel].filter(Boolean))); // single model only — avoid 429 from fallback models
       for (const currentModel of Array.from(new Set(orModels))) {
         try {
           const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
