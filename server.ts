@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+
 import express, { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -1318,9 +1321,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       else if (baseUrl.includes('api.openai')) providerLower = 'openai';
     }
     const isGoogle = providerLower === 'google';
-    // resolve api key env-var per provider
+    // resolve api key env-var per provider (dotenv .env.local already injected)
     const providerEnvKey = providerLower.toUpperCase().replace('-', '_') + '_API_KEY';
-    const effectiveApiKey = apiKey || process.env[providerEnvKey] || (isGoogle ? process.env.GEMINI_API_KEY || '' : '');
+    const envKeyForProvider = process.env[providerEnvKey] || (providerLower === '9router' ? (process.env['9ROUTER_API_KEY'] || process.env['NINE_ROUTER_API_KEY'] || '') : '');
+    const effectiveApiKey = apiKey || envKeyForProvider || (isGoogle ? process.env.GEMINI_API_KEY || '' : '');
     // normalize model name — only force-default for google
     let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
     if (isGoogle) {
@@ -1331,6 +1335,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         targetModel = 'gemini-2.5-flash';
       }
     }
+    console.log(`[chat] provider=${providerLower} base=${baseUrl||'(empty)'} keyLen=${String(effectiveApiKey||'').length} env9Len=${String(process.env['9ROUTER_API_KEY']||'').length} model=${targetModel} bodyKeyLen=${String(apiKey||'').length}`);
 
     // ── Skill-aware pre-LLM: agent selects most relevant enabled skills (to-the-point) ──
     // Runs for BOTH live Gemini and fallback — so response is always grounded & effective.
@@ -1355,17 +1360,18 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     }
 
     // ── System instruction (RAW-FIRST Pandas workflow) ──
+    const _providerLabel = providerLower === '9router' ? `9Router (via ${targetModel})` : providerLower === 'google' ? 'Google AI Studio' : providerLower === 'openrouter' ? 'OpenRouter' : providerLower === 'ollama' ? 'Ollama Local' : providerLower;
     let systemInstructionText = `You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei, Nokia).
-        Aktif Provider: Google AI Studio
+        Aktif Provider: ${_providerLabel}
         Aktif Model: ${targetModel}
-        Status Koneksi: Live API Key Verified
+        Status Koneksi: Live API Key Verified (provider=${providerLower}, baseUrl=${baseUrl || '(default)'})
 
         PANDUAN UTAMA:
         1. Jawab selalu dalam Bahasa Indonesia yang profesional, ramah, dan sangat teknis.
         1b. FORMAT BERSIH: Jangan gunakan markdown berat (###, **, __, $$ LaTeX) kecuali diminta. Gunakan teks biasa yang bersih: numbering 1. 2. 3. dan bullet sederhana -. Untuk laporan benchmark: pakai tabel teks sederhana, bukan markdown table berantakan. Jawab to-the-point, jangan verbose.
         2. JIKA USER MENYAPA ('say hello', 'halo', 'test', 'ping') ATAU MENANYAKAN MODEL & PROVIDER:
            - Sambut dengan hangat sebagai TelecomAgent RF Co-Pilot.
-           - Deteksi & sebutkan secara eksplisit Provider yang aktif: "Google AI Studio" (Gemini API).
+           - Deteksi & sebutkan secara eksplisit Provider yang aktif: "${_providerLabel}" (jangan jawab Google AI Studio jika provider bukan google).
            - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
            - Jelaskan alasannya (\"Bila kenapa / mengapa model ini\"):
              * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
@@ -1416,8 +1422,11 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       }
       // OpenRouter / 9Router / OpenAI-compatible endpoint
       const base = baseUrl || (isGoogle ? "https://generativelanguage.googleapis.com" : "http://localhost:20128/v1");
-      const headers = { "Content-Type": "application/json", ...(effectiveApiKey && effectiveApiKey.length > 5 ? { Authorization: `Bearer ${"***"}` } : {}) };
-      const orModels = isGoogle ? ["gemini-2.5-flash"] : [model, "openai/gpt-4o-mini", "deepseek/deepseek-chat"];
+      const _k = String(effectiveApiKey||'').trim();
+      const headers: Record<string,string> = { "Content-Type": "application/json", ...(_k.length > 5 ? { Authorization: `Bearer ${_k}` } : {}) };
+      if (providerLower === '9router') console.log(`[chat] 9router _k len=${_k.length} hex=${Buffer.from(_k).toString('hex').slice(0,40)} hasAuth=${!!(headers as any).Authorization} base=${base}`);
+      // For 9router: working model is ollama/gpt-oss:120b (my-combo currently empty) — keep user model first, then working fallback
+      const orModels = isGoogle ? ["gemini-2.5-flash"] : Array.from(new Set([model, "ollama/gpt-oss:120b", "openai/gpt-4o-mini", "deepseek/deepseek-chat"].filter(Boolean)));
       for (const currentModel of Array.from(new Set(orModels))) {
         try {
           const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
@@ -1429,9 +1438,13 @@ app.post('/api/chat', async (req: Request, res: Response) => {
               ...(useGemini ? {} : { system: systemInstructionText }),
             }),
           });
-          const data = await resp.json();
-          if (!data?.choices?.[0]?.message?.content) { console.warn(`Router ${currentModel} empty/failed:`, resp.status, JSON.stringify(data).slice(0,300)); continue; }
-          return { reply: sanitizePlainText(data.choices[0].message.content), currentModel, provider: provider || "9router", providerId: providerLower, isLive: true };
+          const raw = await resp.text();
+          let data:any; try { data = JSON.parse(raw); } catch { console.warn(`Router ${currentModel} non-json:`, resp.status, raw.slice(0,300)); continue; }
+          const _msg = data?.choices?.[0]?.message as any;
+          const _content: string = String(_msg?.content || _msg?.reasoning_content || _msg?.reasoning || "").trim();
+          console.log(`[chat] router resp model=${currentModel} status=${resp.status} hasContent=${!!_content} bodyHead=${raw.slice(0,220).replace(/\n/g,' ')}`);
+          if (!_content) { console.warn(`Router ${currentModel} empty/failed:`, resp.status, JSON.stringify(data).slice(0,400)); continue; }
+          return { reply: sanitizePlainText(_content), currentModel, provider: provider || "9router", providerId: providerLower, isLive: true };
         } catch (mErr:any) { console.warn(`Router ${currentModel} error:`, mErr?.message || mErr); }
       }
       return null; // semua gagal → fallback engine
@@ -1493,7 +1506,7 @@ Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan l
 
 Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.
 
-Provider: Google AI Studio
+Provider: ${_providerLabel}
 Model: ${targetModel}
 Status Engine: TelecomAgent RF Domain Fallback Engine (Standby dan Active)
 

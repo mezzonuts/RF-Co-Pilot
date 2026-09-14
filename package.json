@@ -25,7 +25,13 @@
     "type": "git",
     "url": "https://github.com/mezzonuts/RF-Co-Pilot.git"
   },
-  "keywords": ["telecom", "rf", "tauri", "react", "vite"],
+  "keywords": [
+    "telecom",
+    "rf",
+    "tauri",
+    "react",
+    "vite"
+  ],
   "license": "MIT",
   "scripts": {
     "dev": "tsx server.ts",
@@ -38,6 +44,7 @@
     "@google/genai": "^2.21.0",
     "@tauri-apps/api": "^2.11.1",
     "@types/leaflet": "^1.9.22",
+    "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "leaflet": "^1.9.4",
