@@ -1,10 +1,10 @@
 {
   "version": "v1.0-2026-09-08",
   "created": "2026-09-08",
-  "description": "3GPP Knowledge Vault \u2014 4G/5G Troubleshooting Basic Knowledge (default app vault)",
-  "total_specs": 24,
-  "total_files": 28,
-  "total_size": "140M",
+  "description": "3GPP Knowledge Vault — 4G/5G Troubleshooting Basic Knowledge (default app vault)",
+  "total_specs": 12,
+  "total_files": 15,
+  "total_size": "34.9M (docx only, .doc cleaned)",
   "categories": {
     "01_RAN_L2_L3": {
       "specs": [
@@ -24,43 +24,33 @@
       "files": 15
     },
     "02_CORE_NAS_INTERFACES": {
-      "specs": [
-        "24.501",
-        "38.413",
-        "38.423",
-        "24.301",
-        "36.413"
-      ],
-      "files": 5
+      "specs": [],
+      "files": 0,
+      "note": "OLE .doc stubs removed — awaiting docx re-download if needed"
     },
     "03_PROCEDURES_FLOWS": {
-      "specs": [
-        "23.501",
-        "23.502",
-        "23.401"
-      ],
-      "files": 3
+      "specs": [],
+      "files": 0,
+      "note": "OLE .doc stubs removed"
     },
     "04_VOICE_SERVICES": {
-      "specs": [
-        "24.229",
-        "23.216"
-      ],
-      "files": 3
+      "specs": [],
+      "files": 0,
+      "note": "OLE .doc stubs removed"
     },
     "05_OAM_PM_KPIS": {
-      "specs": [
-        "28.552",
-        "32.425"
-      ],
-      "files": 2
+      "specs": [],
+      "files": 0,
+      "note": "OLE .doc stubs removed"
     }
   },
-  "sources": "vault/sources/*.md (28 wrappers, frontmatter category+clause, 20k char extract)",
-  "binaries": "vault/3gpp/<category>/*.{docx,doc,xsd} (28 binaries, mirror D:/3gpp_pdf/3gpp)",
-  "loader": "server.ts loadVaultBasicKnowledge() \u2014 auto-load on startup, idempotent, capped 40k body",
+  "sources": "vault/sources/*.md (34 wrappers — 15 spec extracts + 1 ims/xml + 18 dataset_training, OLE stubs cleaned 2026-09-14)",
+  "binaries": "vault/3gpp/01_RAN_L2_L3/*.docx (15 binaries, mirror D:/3gpp_pdf/3gpp/01_RAN_L2_L3) — OLE .doc stubs removed (12 files, 2026-09-14)",
+  "loader": "server.ts loadVaultBasicKnowledge() — auto-load on startup, idempotent, capped 40k body",
   "sync_script": "C:/Users/PC/AppData/Local/hermes/scripts/sync_3gpp.py (cron 0 0 1 * *) + scripts/download_3gpp.py",
   "vault_origin": "D:/3gpp_pdf/3gpp + C:/Users/PC/Documents/Obsidian/Dika/wiki/sources",
   "dataset_training_files": 18,
-  "dataset_training_source": "D:/3gpp/dataset_training"
+  "dataset_training_source": "D:/3gpp/dataset_training",
+  "updated": "2026-09-14",
+  "cleaning_note": "2026-09-14: removed 12 OLE .doc binaries (vault/3gpp/*/*.doc) + 12 wrapper stubs with '[OLE .doc binary]' / '[extract error Package not found]' (vault/sources/23216_g00.md etc); vault now 34 clean wrappers only"
 }
