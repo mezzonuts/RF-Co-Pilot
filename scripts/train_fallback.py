@@ -47,8 +47,14 @@ def generate_train_jsonl(entries: list[dict]) -> None:
     count = 0
     with open(TRAIN_PATH, "w", encoding="utf-8") as f:
         for entry in entries:
-            prompt = entry["prompt"]
-            answer = entry["answer"]
+            prompt = entry.get("prompt", "")
+            answer = None
+            if entry.get("live") and entry["live"].get("answer"):
+                answer = entry["live"]["answer"]
+            elif entry.get("fallback") and entry["fallback"].get("answer"):
+                answer = entry["fallback"]["answer"]
+            if answer is None:
+                continue
             obj = {
                 "messages": [{"role": "user", "content": prompt}],
                 "completion": answer,

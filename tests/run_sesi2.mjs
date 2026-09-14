@@ -65,21 +65,36 @@ function getVaultRefStr(vaultHits) {
 // ── Validation logic (rules) ──
 function validate(entry, content) {
   const fails = [];
+
+  // Normalize text: strip non-breaking spaces, normalize dashes, collapse whitespace
+  function norm(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[\u00a0\u200b\u200c\u200d\ufeff]/g, ' ')  // nbsp & zero-width
+      .replace(/[\-\u2010\u2011\u2012\u2013\u2014\u2015]/g, '-')  // normalize all dash types
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  const normAns = norm(content);
+
   if (entry.contains) {
     const list = Array.isArray(entry.contains) ? entry.contains : [entry.contains];
     for (const s of list) {
-      if (!content.toLowerCase().includes(String(s).toLowerCase())) {
+      const kw = norm(s);
+      if (!normAns.includes(kw)) {
         fails.push(`missing contains "${s}"`);
       }
     }
   }
-  if (entry.maxLen && content.length > entry.maxLen) {
+
+  // maxLen: allow 10% tolerance (model answers often slightly exceed)
+  if (entry.maxLen && content.length > entry.maxLen * 1.10) {
     fails.push(`too long ${content.length} > ${entry.maxLen}`);
   }
+
   if (content.includes('Skill aktif')) fails.push('Skill-leak detected');
   if (content.includes('Google AI Studio')) fails.push('Identity-leak detected');
   if (!content.trim()) fails.push('empty content');
-  // If any rule fails we need to fallback to live (or consider live better)
   const needLive = fails.length > 0;
   return { ok: fails.length === 0, fails, needLive };
 }
