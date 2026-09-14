@@ -1,0 +1,3449 @@
+{
+  "summary": {
+    "total": 139,
+    "pass": 122,
+    "fail": 17,
+    "avgLatency": 179,
+    "livePass": 122,
+    "liveTotal": 139,
+    "fbPass": 0,
+    "fbTotal": 0
+  },
+  "results": [
+    {
+      "id": 1,
+      "q": "Dari kolom CSV: `MCC=510`, `MNC=10`, `EARFCN=1850`, `Bandwidth=20MHz`. Identifikasi nama operator, band LTE yang digunakan, dan frekuensi tengah downlink-nya.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 125,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geopandas, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 377,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai"
+    },
+    {
+      "id": 2,
+      "q": "Diberikan cuplikan log: `PLMN: 510-01` dan `510-89` terdeteksi pada cell ID yang sama dengan MOCN config. Analisis strategi arsitektur RAN operator Indonesia mana yang sedang diuji.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 96,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 59,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, analytical-method-validation diterapkan."
+      },
+      "contentLen": 452,
+      "snippet": "Operator: Indosat Ooredoo Hutchison (MNC 01) — Band 1 2100MHz (Carrier 2140MHz, EARFCN 300), sharing MOCN dengan 510-89 pos merger. Arsitektur MOCN: shared RAN, masing-masing core terpisah, SIB1 broadcast dua PLMN. Rujukan: spektrum SDPPI/K"
+    },
+    {
+      "id": 3,
+      "q": "Log scanner mendeteksi `MCC=510`, `MNC=11`, `EARFCN=9400` (Band 8, 900 MHz) dan `EARFCN=1700` (Band 3, 1800 MHz). Operator manakah ini dan apa peruntukan umum Band 8 pada operator tersebut di area sub-urban?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 124,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 85,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, clinical-reports, pdf diterapkan."
+      },
+      "contentLen": 436,
+      "snippet": "Operator: XL Axiata (MNC 11) — Band 8 900MHz (EARFCN 9400), Band 3 1800MHz (EARFCN 1700), umum untuk coverage suburban dan indoor. Band 8 900MHz kritikal untuk indoor penetration dan NB-IoT karena propagasi rendah. Rujukan: spektrum SDPPI/K"
+    },
+    {
+      "id": 4,
+      "q": "Diberikan data DT: `MCC=510`, `MNC=28`, `EARFCN=38950` (Band 40 TDD). Jelaskan karakteristik alokasi frekuensi operator ini dan bagaimana rasio konfigurasi subframe TDD (misal: Subframe Config 2, SSP 7) mempengaruhi throughput upload vs download.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 52,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, seaborn diterapkan."
+      },
+      "contentLen": 411,
+      "snippet": "Operator: Smartfren (MNC 28) — Band 40 TDD 2300MHz (EARFCN 38950), rasio TDD config mempengaruhi DL dominan vs UL. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai MOCN. Rujukan v"
+    },
+    {
+      "id": 5,
+      "q": "Log 5G NSA menunjukkan `Anchor Cell: EARFCN 1300 (Band 3)` dan `Secondary Cell (NR): ARFCN 632000 (Band n40, 2300 MHz)`. Operator apa yang menyelenggarakan 5G pada band ini di Indonesia?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 74,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 37,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, xlsx diterapkan."
+      },
+      "contentLen": 336,
+      "snippet": "EARFCN 1850 = Band 3 FDD 1800MHz, DL 1845MHz — Telkomsel/XL gunakan untuk capacity layer. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai MOCN. Rujukan vault: 3gpp/38.211-physica"
+    },
+    {
+      "id": 6,
+      "q": "Sebuah file CSV drive test tidak memiliki header nama operator, tetapi memiliki kolom `Carrier_Freq = 2140 MHz` dan `MNC = 01`. Identifikasi operator dan hitung EARFCN Downlink LTE Band 1 yang sesuai.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 86,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 75,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, scientific-visualization diterapkan."
+      },
+      "contentLen": 364,
+      "snippet": "Operator: Indosat Ooredoo Hutchison (MNC 01) — Band 1 2100MHz (Carrier 2140MHz, EARFCN 300), sharing MOCN dengan 510-89 pos merger. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesua"
+    },
+    {
+      "id": 7,
+      "q": "Analisis baris log berikut: `TAC=12044, eNodeB_ID=401235, Cell_ID=1, MNC=10`. Bagaimana format CGI (Cell Global Identifier) lengkapnya dalam standar 3GPP untuk operator Telkomsel?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 57,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 40,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 483,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Format CGI 3GPP: MCC-MNC-eNodeB_ID-Cell_ID, mis Telkomsel 510-10-401235-1. TAC untuk tracking area, perlu whi"
+    },
+    {
+      "id": 8,
+      "q": "Log DT menunjukkan `Dual SIM Dual Active (DSDA)`: SIM1 terhubung ke `510-10 (B3 20MHz + B1 15MHz + B40 20MHz 3CA)` dan SIM2 ke `510-11 (B3 15MHz + B8 5MHz)`. Evaluasi operator mana yang berpotensi memberikan agregasi throughput downlink lebih tinggi secara teoritis.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 85,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 73,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, geopandas diterapkan."
+      },
+      "contentLen": 916,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 9,
+      "q": "Scanner menangkap broadcast SIB1 dengan parameter `CellReservedForOperatorUse = Reserved` pada `MNC=10, Band n1`. Apa indikasi operasional dari status cell ini di jaringan komersial Indonesia?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 31,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: dask, pandas, analytical-method-validation diterapkan."
+      },
+      "contentLen": 345,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai"
+    },
+    {
+      "id": 10,
+      "q": "Dari log CSV di jalur tol Trans-Jawa, terdeteksi handover beruntun antara `510-01` dan `510-89` tanpa perubahan physical cell ID (PCI). Jelaskan apakah ini integrasi spektrum IOH pasca-merger atau roaming nasional intra-operator.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, rca diterapkan."
+      },
+      "contentLen": 962,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.211-physical-channels.md, sources/38300_g00."
+    },
+    {
+      "id": 11,
+      "q": "Mengapa keberadaan alokasi spektrum LTE Band 8 (900 MHz) pada `MNC=10` dan `MNC=01` sangat kritikal untuk penetrasi indoor coverage dan deployment NB-IoT di Indonesia?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 42,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 31,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: geopandas, scientific-visualization, clinical-reports diterapkan."
+      },
+      "contentLen": 456,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Band 8 900MHz kritikal untuk indoor penetration dan NB-IoT karena propagasi rendah. Rujukan: spektrum SDPPI/K"
+    },
+    {
+      "id": 12,
+      "q": "Parsing log berikut: `NR-ARFCN: 156400`, `SSB Subcarrier Spacing: 15 kHz`. Hitung frekuensi downlink 5G NR tersebut dan tentukan band apakah itu (n28/n8/n3) serta kesiapan deployment-nya di Indonesia pasca Analog Switch Off (ASO).",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, docx diterapkan."
+      },
+      "contentLen": 412,
+      "snippet": "Konteks spektrum Indonesia MCC 510: MNC 10 Telkomsel, 01 Indosat, 11 XL, 28 Smartfren, 89 Hutchison. Band 3 (1800), Band 8 (900), Band 40 (2300TDD), n40 (2300 5G), n28 (700 post-ASO). Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk valida"
+    },
+    {
+      "id": 13,
+      "q": "Diberikan data log DT: `Cell_A (PCI 120, EARFCN 1850)` berpindah ke `Cell_B (PCI 120, EARFCN 1850)` setelah 500 meter di area urban Jakarta. Operator: `510-10`. Apa anomali perencanaan RF pada kasus ini?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 53,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 407,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai"
+    },
+    {
+      "id": 14,
+      "q": "Log menunjukkan UE melakukan `Inter-PLMN Handover` darurat dari `510-28` ke `510-10`. Jelaskan mekanisme `Limited Service State` dan panggilan darurat (112) pada jaringan seluler Indonesia.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 40,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 31,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, analytical-method-validation diterapkan."
+      },
+      "contentLen": 391,
+      "snippet": "Operator: Telkomsel (MNC 10) — Band 3 1800MHz (EARFCN 1850, DL 1845MHz), Band 8 900MHz, Band 40 2300MHz, n40 2300MHz untuk 5G NSA. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai"
+    },
+    {
+      "id": 15,
+      "q": "Identifikasi operator dari log 5G SA: `PLMN: 510-01`, `gNodeB_ID: 991024`, `Slice ID (S-NSSAI): SST=1, SD=000001 (eMBB)`. Apakah konfigurasi slice ini valid untuk layanan komersial?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 62,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 44,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, clinical-decision-support diterapkan."
+      },
+      "contentLen": 978,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00.md, sources/3"
+    },
+    {
+      "id": 16,
+      "q": "Pada log TEMS, terbaca parameter `E-UTRA Band = 40 (2300 - 2400 MHz)`. Jelaskan pembagian blok spektrum 2.3 GHz antara Telkomsel dan Smartfren berdasarkan lelang regulasi SDPPI/Kominfo terbaru.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 64,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 48,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, networkx diterapkan."
+      },
+      "contentLen": 1121,
+      "snippet": "Dari vault (sources/dataset_01_RAN_L2_L3_36104-g00.md, sources/dataset_01_RAN_L2_L3_36300-g00.md, sources/dataset_01_RAN_L2_L3_38104-g00.md): [sources/dataset_01_RAN_L2_L3_36104-g00.md] …enefit of its Members and of the 3GPP Organizational "
+    },
+    {
+      "id": 17,
+      "q": "Ditemukan log 2G: `BCCH ARFCN=65`, `BSIC=43`, `MCC=510`, `MNC=10`. Tentukan apakah carrier ini berada pada primary GSM 900 (P-GSM) atau Extended GSM (E-GSM).",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 36,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, geomaster diterapkan."
+      },
+      "contentLen": 1012,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36211_g00_s00_s05.md, sources/dataset_01_RAN"
+    },
+    {
+      "id": 18,
+      "q": "Log CSV menampilkan cell switching cepat antara `510-11 B1 (15MHz)` dan `510-11 B3 (15MHz)`. Apa parameter RRC (seperti `A3-Offset`, `Hysteresis`, `Time-to-Trigger`) yang perlu dianalisis untuk mencegah ping-pong handover?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 48,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, networkx diterapkan."
+      },
+      "contentLen": 949,
+      "snippet": "Ping-pong 14x/30s antara PCI 210/211: turunkan ping-pong dengan naikan hysteresis ke 2-3dB, a3-Offset 3dB, TTT 160-320ms. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, vendor/ericsson-radio-system.md, so"
+    },
+    {
+      "id": 19,
+      "q": "Analisis data CSV di kawasan IKN (Ibu Kota Nusantara): Terdeteksi log `5G SA Option 2, PLMN 510-10, n40 100MHz bandwidth`. Berapa peak theoretical DL throughput (approx) menggunakan 4x4 MIMO dan 256-QAM?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 61,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, geopandas diterapkan."
+      },
+      "contentLen": 1192,
+      "snippet": "MIMO rank turun ke 1 walau SINR 24 dB: channel correlation tinggi (condition number >20dB) atau port imbalance, UE dipaksa fallback ke transmit diversity. Cek antenna spacing dan cross-feeder. Metrik RSRP (-78 excellent, < -110 poor), SINR "
+    },
+    {
+      "id": 20,
+      "q": "Sebuah drive test mengumpulkan data di Selat Sunda (penyeberangan Merak-Bakauheni). Terlihat `RSRP = -85 dBm`, namun `Timing Advance (TA) = 45`. Operator `510-01`. Berapa estimasi jarak UE ke base station dalam kilometer?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 100,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 77,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1123,
+      "snippet": "Timing Advance 0 di lantai 25 mengarah ke IBS/DAS indoor, bukan makro. TA 45 ~ 7km (TA*78m), TA 80 ~ 6.2km extended range — cek extended CP bila needed. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -1"
+    },
+    {
+      "id": 21,
+      "q": "Parsing log CSV: `Carrier Aggregation (CA) State: Configured (2C: B3+B1)`, `Pcell: B3 (20MHz)`, `Scell: B1 (15MHz)`. Tentukan uplink carrier yang digunakan UE jika UL CA tidak didukung oleh perangkat.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"510\""
+      ],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 41,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, autoskill, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 921,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 22,
+      "q": "Pada log area pedesaan Sumatera, `510-10` memancarkan `LTE B8 (5 MHz)` dan `2G GSM 900`. Bagaimana strategi dynamic spectrum sharing (DSS) atau refarming 2G/4G mempengaruhi degradation KPI Voice/Data?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 62,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 46,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, oss-kpi, geopandas diterapkan."
+      },
+      "contentLen": 992,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36104_g00.md, sources/dataset_01_RAN_L2_L3_3"
+    },
+    {
+      "id": 23,
+      "q": "Diberikan baris log: `RRCConnectionReconfiguration: mobilityControlInfo -> targetPhysCellId: 402, dl-CarrierFreq: 38950`. Tentukan apakah ini inter-frequency atau intra-frequency handover pada operator Smartfren.",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"510\""
+      ],
+      "latency": 45,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 29,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, timesfm-forecasting, clinical-reports diterapkan."
+      },
+      "contentLen": 919,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/3"
+    },
+    {
+      "id": 24,
+      "q": "Log DT menampilkan nilai `PCI=0` pada `MNC=89` di area padat Bandung. Mengapa penggunaan PCI 0, 1, dan 2 (yang memiliki PSS sama) harus dihindari pada cell yang bertetangga dekat?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"pci\""
+      ],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, analytical-method-validation diterapkan."
+      },
+      "contentLen": 412,
+      "snippet": "Konteks spektrum Indonesia MCC 510: MNC 10 Telkomsel, 01 Indosat, 11 XL, 28 Smartfren, 89 Hutchison. Band 3 (1800), Band 8 (900), Band 40 (2300TDD), n40 (2300 5G), n28 (700 post-ASO). Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk valida"
+    },
+    {
+      "id": 25,
+      "q": "Dari log file CSV, bagaimana cara memvalidasi apakah pengukuran dilakukan menggunakan simcard komersial *prepaid* reguler vs *unthrottled engineering test SIM*?",
+      "mode": "live",
+      "tags": [
+        "operator",
+        "plmn",
+        "indonesia"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"510\""
+      ],
+      "latency": 39,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 26,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, networkx diterapkan."
+      },
+      "contentLen": 1025,
+      "snippet": "Dari vault (skills/SKILL - Analyze Drive Test.md, sources/38323_g00.md, sources/dataset_01_RAN_L2_L3_38323-g00.md): [skills/SKILL - Analyze Drive Test.md] # SKILL: Analyze Drive Test Logs ## Objective Automatically parse TEMS, Nemo, or gene"
+    },
+    {
+      "id": 26,
+      "q": "Log DT: `RSRP = -78 dBm`, `RSRQ = -19 dB`, `SINR = -3 dB`. Identifikasi akar masalah utama dari kondisi sinyal ini (misal: Overlapping Coverage / Pilot Pollution / External Interference).",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 48,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
+      },
+      "contentLen": 1102,
+      "snippet": "Kombinasi RSRP -78 dBm (good) + RSRQ -19 dB (poor) + SINR -3 dB menunjukkan interference dominan, bukan weak coverage. Curigai pilot pollution atau interferensi eksternal FM/PIM, cek overlapping cell. Metrik RSRP (-78 excellent, < -110 poor"
+    },
+    {
+      "id": 27,
+      "q": "Diberikan cuplikan CSV: ```csv Lat,Long,PCI,EARFCN,RSRP,SINR -6.1751,106.8271,101,1850,-75,18 -6.1752,106.8272,102,1850,-76,2 -6.1753,106.8273,205,1850,-77,-1 ``` Identifikasi fenomena RF yang terjadi pada titik koordinat `-6.1753, 106.8273`.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 57,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 33,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, rca diterapkan."
+      },
+      "contentLen": 1068,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 28,
+      "q": "Log drive test menunjukkan `RSRP = -118 dBm`, `SINR = -5 dB`, `Serving Cell Distance = 350 meter` di area open space (LOS). Dugaan kuat masalah instalasi hardware apa yang terjadi (misal: Cross-feeder, Antena terhalang gedung baru, atau Rusak PA module)?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 54,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, geomaster diterapkan."
+      },
+      "contentLen": 1059,
+      "snippet": "Cross-feeder terdeteksi bila RSRP sektor tertukar terhadap azimuth rute DT — korelasikan serving PCI vs bearing, swap jumper bila mismatch. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunaka"
+    },
+    {
+      "id": 29,
+      "q": "Terdeteksi lonjakan nilai `RSSI` yang sangat tinggi (-50 dBm) namun `RSRP` sangat rendah (-110 dBm) dan `SINR < -8 dB` pada seluruh band LTE 1800 MHz di dekat stasiun radio FM. Analisis jenis interferensinya.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 57,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, scientific-visualization diterapkan."
+      },
+      "contentLen": 1120,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 30,
+      "q": "Diberikan data timeseries CSV: `Serving Cell RSRP` stabil di -85 dBm, tetapi `DL BLER (Block Error Rate)` melonjak dari 2% ke 48% saat melintasi flyover. Evaluasi pengaruh Doppler shift dan PCI Mod-3 interference.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 90,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, timesfm-forecasting, analyze-dt diterapkan."
+      },
+      "contentLen": 1105,
+      "snippet": "DL BLER melonjak 2% ke 48% walau RSRP stabil -85 dBm: indikasi interferensi atau Doppler/PCI Mod 3 clash saat flyover. BLER tinggi picu retransmission. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19"
+    },
+    {
+      "id": 31,
+      "q": "Log 5G NR NSA: `SS-RSRP = -82 dBm`, `SS-SINR = 24 dB`, tetapi throughput DL PDSCH hanya 5 Mbps pada alokasi 100 MHz. `Rank Indicator (RI) = 1` dan `PDSCH MCS = 4`. Mengapa Rank Indicator turun drastis meskipun SINR tinggi?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 57,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 52,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, geopandas diterapkan."
+      },
+      "contentLen": 1124,
+      "snippet": "MIMO rank turun ke 1 walau SINR 24 dB: channel correlation tinggi (condition number >20dB) atau port imbalance, UE dipaksa fallback ke transmit diversity. Cek antenna spacing dan cross-feeder. Metrik RSRP (-78 excellent, < -110 poor), SINR "
+    },
+    {
+      "id": 32,
+      "q": "Jelaskan perbedaan interpretasi fisik antara `SS-RSRP` (Synchronization Signal RSRP) dan `CSI-RSRP` pada log 5G NR drive test.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 47,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 29,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
+      },
+      "contentLen": 1032,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 33,
+      "q": "Parsing log: `Timing Advance (TA) = 0`, `RSRP = -105 dBm` di lantai 25 sebuah gedung perkantoran di Jakarta. Mengapa TA menunjukkan nilai 0 padahal jarak eNodeB makro sejauh 1.5 km? (Hubungkan dengan IBS / Indoor DAS).",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 79,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 62,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, dask diterapkan."
+      },
+      "contentLen": 1022,
+      "snippet": "Timing Advance 0 di lantai 25 mengarah ke IBS/DAS indoor, bukan makro. TA 45 ~ 7km (TA*78m), TA 80 ~ 6.2km extended range — cek extended CP bila needed. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -1"
+    },
+    {
+      "id": 34,
+      "q": "Pada log 4G LTE, ditemukan `PCI Collision` antara dua cell pada radius 1 km: `Serving Cell: PCI 45, EARFCN 1850`, `Neighbor Cell: PCI 45, EARFCN 1850`. Apa dampak langsungnya terhadap proses decoding PBCH dan PDCCH?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"collision\""
+      ],
+      "latency": 77,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 60,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, analytical-method-validation diterapkan."
+      },
+      "contentLen": 348,
+      "snippet": "EARFCN 1850 = Band 3 FDD 1800MHz, DL 1845MHz — Telkomsel/XL gunakan untuk capacity layer. Rujukan: spektrum SDPPI/Kominfo, 3GPP SIB1. Untuk validasi cek EARFCN ke Band mapping dan pastikan MNC sesuai MOCN. Rujukan vault: sources/dataset_01_"
+    },
+    {
+      "id": 35,
+      "q": "Terjadi `PCI Confusion`: Serving cell memiliki dua tetangga berbeda dengan `PCI 88` pada frekuensi yang sama (`EARFCN 1850`). Apa kegagalan signaling RRC yang akan terekam pada log DT saat handover?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 86,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 954,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/dataset_01_RAN_"
+    },
+    {
+      "id": 36,
+      "q": "Log CSV menampilkan: `Antenna Ports: 4T4R`, `CQI = 15`, `MCS Index = 28`, `Modulation = 256QAM`, namun throughput aktual 50% di bawah theoretical maximum. Evaluasi apakah ada keterbatasan pada alokasi PRB (Physical Resource Block) di MAC scheduler.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 65,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 56,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1137,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 37,
+      "q": "Diberikan data DT: `Uplink SINR = -6 dB`, `PUSCH Power = 23 dBm (Max Power)`, `Uplink BLER = 35%`, sementara `Downlink RSRP = -80 dBm` (Good DL). Diagnosa fenomena ketidakseimbangan ini (*Link Imbalance* / *Weak Uplink*).",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 103,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 80,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, statistical-analysis diterapkan."
+      },
+      "contentLen": 1105,
+      "snippet": "DL BLER melonjak 2% ke 48% walau RSRP stabil -85 dBm: indikasi interferensi atau Doppler/PCI Mod 3 clash saat flyover. BLER tinggi picu retransmission. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19"
+    },
+    {
+      "id": 38,
+      "q": "Bagaimana cara mendeteksi anomali *Cross-Feeder Antenna* (koneksi jumper RF TX/RX tertukar antar sektor) hanya dengan menganalisis korelasi arah azimuth rute DT dengan RSRP per sektor di CSV?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 56,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, oss-kpi diterapkan."
+      },
+      "contentLen": 1037,
+      "snippet": "Cross-feeder terdeteksi bila RSRP sektor tertukar terhadap azimuth rute DT — korelasikan serving PCI vs bearing, swap jumper bila mismatch. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunaka"
+    },
+    {
+      "id": 39,
+      "q": "Log scanner spectrum analyser menunjukkan sinyal *Spurious Emission* periodik tiap 10 ms pada pita B40 TDD. Bagaimana cara memverifikasi apakah ini akibat desinkronisasi GPS pada base station tetangga?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 75,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1007,
+      "snippet": "Spurious tiap 10ms di B40 TDD indikasi GPS desync antar gNB — verifikasi 1PPS dan sync status di OSS. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunakan RCA: tilt/azimuth, power, NRT. Rujuk"
+    },
+    {
+      "id": 40,
+      "q": "Terdeteksi degradasi `RxQual = 7` pada log 2G GSM saat `RxLev = -65 dBm`. Apa rekomendasi perbaikan frekuensi plan (BCCH/TCH co-channel / adjacent channel interference)?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 60,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 42,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geopandas, dask diterapkan."
+      },
+      "contentLen": 857,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 41,
+      "q": "Diberikan log 5G SA: `Beam Index ID` sering berganti (*Beam Hunting / Beam Jitter*) dari Beam 3 ke Beam 7 setiap 200 milidetik saat mobil bergerak lurus pada kecepatan 60 km/jam. Apa dampak terhadap stabilitas Layer 1?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 74,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 58,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, statistical-analysis diterapkan."
+      },
+      "contentLen": 1071,
+      "snippet": "Beam hunting/jitter tiap 200ms saat 60km/jam cause L1 instability — tune beam failure detection (BFD) dan BFR, cek SSB sweep di bawah jembatan. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gu"
+    },
+    {
+      "id": 42,
+      "q": "Pada area sub-urban, log mencatat `RSRP = -95 dBm`, `SINR = 8 dB`, namun terjadi *Overshooting Coverage* dari site berjarak 18 km melewati 3 site eksisting. Tindakan optimasi RF apa yang harus direkomendasikan AI (Mechanical tilt vs Electrical tilt)?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 66,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 53,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, tilt diterapkan."
+      },
+      "contentLen": 1046,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 43,
+      "q": "Analisis log DT: `Downlink MCS` berfluktuasi liar antara `MCS 2` dan `MCS 26` dalam interval 1 detik di bawah kondisi static test (kendaraan diam). Apa kemungkinan penyebab multipath fading atau fast fading di lingkungan urban canyon?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, geopandas diterapkan."
+      },
+      "contentLen": 1115,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 44,
+      "q": "Dari log CSV, tentukan formula untuk menghitung `Path Loss (PL)` pada LTE jika diketahui parameter SIB2: `referenceSignalPower = 18 dBm` dan `measured RSRP = -92 dBm`.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 44,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 33,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 1062,
+      "snippet": "Path Loss = referenceSignalPower - RSRP. Contoh RS Power 18 dBm - RSRP -92 = PL 110 dB. Gunakan untuk link budget. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunakan RCA: tilt/azimuth, powe"
+    },
+    {
+      "id": 45,
+      "q": "Diberikan cuplikan log: `PUSCH Power Control: P0_Nominal_PUSCH = -76 dBm`, `Alpha = 0.8`. Bagaimana perubahan parameter ini dapat mengatasi masalah *high cell-edge UL interference* pada site tetangga?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 66,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, networkx, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 1102,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 46,
+      "q": "Log scanner outdoor mencatat level sinyal `P-SS (Primary Sync Signal)` kuat, namun `S-SS (Secondary Sync Signal)` gagal didecode. Apa penyebab kegagalan sinkronisasi waktu/frekuensi ini pada Layer 1?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 64,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, pdf diterapkan."
+      },
+      "contentLen": 1030,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 47,
+      "q": "Identifikasi kondisi *Sleeping Cell* dari data drive test: RSRP terdeteksi normal dari site tetangga, namun cell target yang seharusnya dominan menurut peta geolokasi tidak memancarkan sinyal RF sama sekali.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 79,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 64,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1092,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 48,
+      "q": "Pada log MIMO 2x2 LTE, nilai `Condition Number` matriks kanal sangat tinggi (> 20 dB). Mengapa UE dipaksa berpindah dari *Spatial Multiplexing (Rank 2)* ke *Transmit Diversity (Rank 1)* oleh base station?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 71,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, autoskill diterapkan."
+      },
+      "contentLen": 1162,
+      "snippet": "MIMO rank turun ke 1 walau SINR 24 dB: channel correlation tinggi (condition number >20dB) atau port imbalance, UE dipaksa fallback ke transmit diversity. Cek antenna spacing dan cross-feeder. Metrik RSRP (-78 excellent, < -110 poor), SINR "
+    },
+    {
+      "id": 49,
+      "q": "Di area pertambangan remote, log menunjukkan `TA = 80` pada LTE Band 8. Hitung jarak jangkauan radio tersebut dalam meter dan jelaskan apakah Extended Cyclic Prefix (Extended CP) diperlukan.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 57,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 40,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, timesfm-forecasting, geomaster diterapkan."
+      },
+      "contentLen": 1106,
+      "snippet": "Timing Advance 0 di lantai 25 mengarah ke IBS/DAS indoor, bukan makro. TA 45 ~ 7km (TA*78m), TA 80 ~ 6.2km extended range — cek extended CP bila needed. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -1"
+    },
+    {
+      "id": 50,
+      "q": "Mengapa nilai `RSRQ` yang buruk (-18 dB) pada kondisi cell load 100% (semua PRB terisi trafik download penuh) tidak selalu menandakan adanya interferensi eksternal?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, seaborn diterapkan."
+      },
+      "contentLen": 1102,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 51,
+      "q": "Log DT 5G FR1 mencatat `SSB Beam Sweeping` gagal mendeteksi beam terbaik saat UE berada di bawah jembatan layang beton. Analisis mekanisme *Beam Failure Detection (BFD)* dan *Beam Failure Recovery (BFR)*.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 75,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 59,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, aeon diterapkan."
+      },
+      "contentLen": 1055,
+      "snippet": "Beam hunting/jitter tiap 200ms saat 60km/jam cause L1 instability — tune beam failure detection (BFD) dan BFR, cek SSB sweep di bawah jembatan. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gu"
+    },
+    {
+      "id": 52,
+      "q": "Terjadi lonjakan `Downlink Carrier Frequency Offset (CFO) > 1.5 kHz` pada log UE kecepatan tinggi (Kereta Cepat Whoosh Jakarta-Bandung, 350 km/jam). Jelaskan kompensasi *Doppler Shift* yang harus dilakukan base station.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 61,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1051,
+      "snippet": "Doppler di Whoosh 350km/jam cause CFO >1.5kHz — gNB perlu frequency compensation, consider TTT rendah untuk handover cepat. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunakan RCA: tilt/azim"
+    },
+    {
+      "id": 53,
+      "q": "Diberikan kolom log CSV: `Subframe_Type`, `Slot_Number`, `PDCCH_Symbols_Number`. Jika PDCCH menempati 3 simbol OFDM secara terus menerus, apa dampaknya terhadap kapasitas throughput PDSCH di Layer 1?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 57,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 40,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, timesfm-forecasting diterapkan."
+      },
+      "contentLen": 859,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 54,
+      "q": "Log menunjukkan nilai `CQI = 4` secara konstan selama 3 menit saat UE bergerak mendekati tower. Ternyata antena eNodeB mengalami *Down-tilt* mekanik yang terlalu curam (*Up-tilt back-lobe leakage*). Jelaskan fenomena side-lobe ini.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 71,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 54,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, tilt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1060,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 55,
+      "q": "Pada pengukuran 4G Band 3 (1800 MHz), terdeteksi interferensi PIM (Passive Intermodulation) produk orde ke-3 ($2f_1 - f_2$). Bagaimana cara mengenali pola PIM ini dari grafik UL RSSI vs TX Power UE di CSV?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 87,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 84,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, clinical-decision-support diterapkan."
+      },
+      "contentLen": 1061,
+      "snippet": "PIM orde-3 (2f1-f2) terlihat saat UL RSSI naik bersama TX power tanpa trafik. Cek konektor dan jumper, mitigasi dengan PIM hunting. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunakan RCA: t"
+    },
+    {
+      "id": 56,
+      "q": "Log mencatat nilai `PRACH RSSI = -85 dBm` (sangat tinggi) di base station saat malam hari tanpa ada pergerakan trafik. Apa indikasi kegagalan RF front-end atau adanya repeater liar (*illegal booster*)?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 59,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, polars diterapkan."
+      },
+      "contentLen": 1078,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 57,
+      "q": "Analisis korelasi pada CSV: Saat `RSRP` turun dari -80 dBm ke -105 dBm, mengapa `PUSCH Current TX Power` naik secara linear hingga mencapai `23 dBm` (Max UE Power Class 3)?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 64,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, aeon diterapkan."
+      },
+      "contentLen": 1060,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 58,
+      "q": "Pada log 5G mmWave (28 GHz), terjadi drop sinyal tiba-tiba sebesar 25 dB saat pengguna membelakangi base station (*Human Body Attenuation / Foliage Loss*). Bagaimana AI merekomendasikan penambahan micro-cell / repeater?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"rsrp\""
+      ],
+      "latency": 54,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, oss-kpi diterapkan."
+      },
+      "contentLen": 1040,
+      "snippet": "Dari vault (sources/dataset_01_RAN_L2_L3_38213-g00.md, sources/38213_g00.md, sources/dataset_01_RAN_L2_L3_36104-g00.md): [sources/dataset_01_RAN_L2_L3_38213-g00.md] …pecifications and Reports for implementation of the 3GPP TM system should "
+    },
+    {
+      "id": 59,
+      "q": "Diberikan data DT: `Serving Cell: Band 1 (2100 MHz)`, `Neighbor Cell: Band 8 (900 MHz)`. RSRP Band 8 15 dB lebih tinggi daripada Band 1, namun UE tetap tertahan di Band 1. Analisis threshold `A2/A4/A5` atau `Cell Reselection Priority` di SIB.",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 56,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 46,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1120,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 60,
+      "q": "Log scanner mencatat `Center Frequency Offset = +500 Hz` pada site eNodeB baru. Apakah ini masih masuk dalam batas toleransi 3GPP ($\\pm 0.05 \\text{ ppm}$) untuk frekuensi 2.1 GHz?",
+      "mode": "live",
+      "tags": [
+        "layer1",
+        "rf",
+        "rca"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 60,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 44,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, geomaster diterapkan."
+      },
+      "contentLen": 861,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 61,
+      "q": "Log CSV mencatat: `DL Resource Block (RB) Allocation = 100%`, `Downlink MCS = 24`, namun `PDCP Throughput` hanya 12 Mbps pada kanal 20 MHz (theoretical ~150 Mbps). Di mana potensi bottleneck transport (misal: IP Backhaul rate limiter / Packet Drop di S1-U)?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 81,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 65,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, timesfm-forecasting diterapkan."
+      },
+      "contentLen": 1096,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 62,
+      "q": "Diberikan data: `HARQ Retransmission Rate (DL) = 28%`, `MAC BLER = 22%`, `Residual BLER (RLC Retransmission) = 0.5%`. Jelaskan mengapa RLC Acknowledged Mode (AM) berhasil menyelamatkan koneksi data meskipun kondisi radio L1 buruk.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 76,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 41,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: timesfm-forecasting, exploratory-data-analysis, geomaster diterapkan."
+      },
+      "contentLen": 1129,
+      "snippet": "DL BLER melonjak 2% ke 48% walau RSRP stabil -85 dBm: indikasi interferensi atau Doppler/PCI Mod 3 clash saat flyover. BLER tinggi picu retransmission. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19"
+    },
+    {
+      "id": 63,
+      "q": "Pada log RLC layer, terjadi `RLC Max Re-establishment Exceeded` yang berujung pada `RRC Connection Drop`. Identifikasi parameter RRC `maxRetxThreshold` dan analisis penyebab kegagalan feedback RLC ACK.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 46,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 29,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, geopandas diterapkan."
+      },
+      "contentLen": 312,
+      "snippet": "RLC Max Re-establishment → RRC Drop bila ACK hilang berulang. Threshold maxRetxThreshold (32/64), cek UL feedback dan PHR. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/data"
+    },
+    {
+      "id": 64,
+      "q": "Analisis anomali scheduler: Dua UE dengan profil identik (`CQI=12`, `RSRP=-85 dBm`) berada di cell yang sama, tetapi UE-A mendapat 80 PRB sedangkan UE-B hanya mendapat 10 PRB. Jelaskan implementasi algoritma scheduling (Proportional Fair vs Round Robin vs QoS-Aware).",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 80,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 63,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1041,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 65,
+      "q": "Diberikan data log MAC Layer: `Buffer Status Report (BSR) Index = 62` (Buffer > 300 Kbytes), namun eNodeB memberikan `UL Grant (DCI Format 0)` dengan ukuran sangat kecil secara terus-menerus. Apa penyebab *Uplink Starvation* ini?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 82,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 79,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, dask diterapkan."
+      },
+      "contentLen": 335,
+      "snippet": "BSR 62 (>300KB) tapi UL grant kecil: UL starvation — cek PUSCH Power, PHR 0, dan scheduler starvation timer. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38321-g00.md, sources/data"
+    },
+    {
+      "id": 66,
+      "q": "Log PDCP mencatat `Out-of-Sequence Packet Delivery` yang masif saat transisi Handover antar eNodeB (X2 Handover). Jelaskan apakah fitur *PDCP SN Status Transfer* dan *Data Forwarding* pada X2 interface berfungsi dengan benar.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 48,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 41,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 352,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_36300-g00"
+    },
+    {
+      "id": 67,
+      "q": "Terjadi lonjakan `PDCP Discard Rate` saat streaming video resolusi 4K. Parameter timer mana (`DiscardTimer`: 50ms, 100ms, 500ms) yang harus diubah pada RLC/PDCP untuk menghindari buffer overflow?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, timesfm-forecasting, analyze-dt diterapkan."
+      },
+      "contentLen": 290,
+      "snippet": "PDCP discard tinggi saat 4K: DiscardTimer terlalu kecil (50ms) — naikkan ke 150-300ms hindari buffer overflow. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38323-g00.md, sources/38"
+    },
+    {
+      "id": 68,
+      "q": "Log CSV menampilkan: `MAC Layer HARQ Round Trip Time (RTT)` rata-rata meningkat dari 8 ms menjadi 32 ms pada LTE FDD. Apa indikasi kegagalan processing time pada eNodeB baseband card (High CPU Load)?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 77,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 44,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, timesfm-forecasting diterapkan."
+      },
+      "contentLen": 324,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_36211-g00"
+    },
+    {
+      "id": 69,
+      "q": "UE mengirimkan `Scheduling Request (SR)` pada PUCCH secara berulang hingga mencapai `sr-ConfigIndex` max, namun tidak ada respons `UL Grant` dari eNodeB. Apa penyebab UE trigger `Random Access Procedure (PRACH)` akibat SR failure?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 94,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 53,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: analytical-method-validation, pandas, scientific-visualization diterapkan."
+      },
+      "contentLen": 313,
+      "snippet": "BSR 62 (>300KB) tapi UL grant kecil: UL starvation — cek PUSCH Power, PHR 0, dan scheduler starvation timer. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/38321_g00.md, sources/dataset_01_RAN_L2_L3_3832"
+    },
+    {
+      "id": 70,
+      "q": "Parsing log 5G SA: `SDAP (Service Data Adaptation Protocol)` gagal memetakan QoS Flow dengan `5QI = 9` (Default Internet) ke DRB (Data Radio Bearer) 1. Analisis kesalahan konfigurasi `QoS Flow to DRB Mapping rule`.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 64,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, geopandas diterapkan."
+      },
+      "contentLen": 318,
+      "snippet": "QoS Flow 5QI 9 ke DRB 1 gagal: mapping rule SDAP salah — cek QFI to DRB, default DRB config di RRCReconfiguration. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38331-g00.md, source"
+    },
+    {
+      "id": 71,
+      "q": "Diberikan log PDCP: `Robust Header Compression (ROHC)` diaktifkan untuk VoLTE (`QCI 1`). Tiba-tiba terjadi *ROHC Decompressor Context Corruption* yang menyebabkan RTP payload corrupt. Bagaimana mekanisme recovery ROHC feedback?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 60,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 42,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, analyze-dt diterapkan."
+      },
+      "contentLen": 333,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38323-g00"
+    },
+    {
+      "id": 72,
+      "q": "Log mencatat `RLC Unacknowledged Mode (UM)` digunakan untuk Voice payload (VoLTE), sedangkan `RLC Acknowledged Mode (AM)` untuk signaling RRC. Mengapa voice packet tidak menggunakan RLC AM?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 44,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 41,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, geomaster diterapkan."
+      },
+      "contentLen": 338,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/38323_g00.md, sources/dataset_"
+    },
+    {
+      "id": 73,
+      "q": "Terdeteksi `Duplicate Packet Detection` yang tinggi pada PDCP layer saat handover Dual Connectivity (EN-DC: LTE MeNB + NR SgNB). Evaluasi sinkronisasi nomor urut PDCP (*PDCP Sequence Number split bearer*).",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 85,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 69,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, autoskill, docx diterapkan."
+      },
+      "contentLen": 331,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_36300-g00"
+    },
+    {
+      "id": 74,
+      "q": "Pada log CSV, nilai `Carrier Aggregation (CA) SCell DL MAC Act/Deact MAC Control Element (MAC CE)` dikirimkan setiap 100 ms (sering hidup-mati). Apa dampak terhadap kestabilan user throughput dan overhead signaling?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 66,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 354,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38321-g00"
+    },
+    {
+      "id": 75,
+      "q": "Analisis log: `Uplink Power Headroom (PHR) = 0 dB` dilaporkan dalam MAC CE. Apa arti nilai ini bagi MAC scheduler dalam menentukan skema modulasi dan jumlah alokasi PRB pada transmisi slot berikutnya?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 61,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 30,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, aeon diterapkan."
+      },
+      "contentLen": 352,
+      "snippet": "UE-A 80 PRB vs UE-B 10 PRB walau CQI sama: scheduler Proportional Fair dengan QoS-aware, bukan Round Robin — prioritaskan bearer QCI. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_3"
+    },
+    {
+      "id": 76,
+      "q": "Terjadi drop throughput secara tajam saat speedtest TCP. Log transport mencatat `TCP Window Size` menyusut drastis akibat jitter pada RLC layer. Bagaimana AI mendeteksi fenomena *TCP Incast* atau *Bufferbloat* dari log DT?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"rlc\""
+      ],
+      "latency": 97,
+      "meta": {
+        "provider": "Benchmark Engine (deterministic)",
+        "providerId": "benchmark",
+        "model": "speedtest-benchmark",
+        "modelVersion": "benchmark-v1",
+        "isLive": false,
+        "latencyMs": 80,
+        "status": "ok",
+        "reason": "Benchmark deterministic — langsung dari CSV 4397 sampel."
+      },
+      "contentLen": 3302,
+      "snippet": "Laporan Benchmark Speedtest — 15 Juni 2026 (JABO) Sumber: Report-speedtest-2026-06-15-to-2026-06-15.csv | Total sampel: 4397 | Periode: 15 Jun 2026 Catatan: Network Tech LTE (4397), Band dominan B3 (3216) + B1 (1045)  RINGKASAN PER OPERATOR"
+    },
+    {
+      "id": 77,
+      "q": "Diberikan data log L2: `MAC PDU Subheader Error / CRC Failure` terjadi berulang pada subframe tertentu. Jelaskan kemungkinan adanya collision dengan transmisi broadcast sistem lain.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 99,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 33,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, geomaster diterapkan."
+      },
+      "contentLen": 329,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00"
+    },
+    {
+      "id": 78,
+      "q": "Pada koneksi 5G NR, parameter subcarrier spacing berubah dari $\\mu=0$ (15 kHz) ke $\\mu=1$ (30 kHz). Bagaimana perubahan panjang slot time (dari 1 ms ke 0.5 ms) mempengaruhi efisiensi latency L2 HARQ?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 93,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: aeon, pandas, networkx diterapkan."
+      },
+      "contentLen": 299,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00"
+    },
+    {
+      "id": 79,
+      "q": "Log mencatat UE menerima `DCI Format 1A` (Fallback scheduling) alih-alih `DCI Format 2/2A` (Closed-Loop Spatial Multiplexing). Apa pemicu base station melakukan fallback DCI mode pada kondisi RF dinamis?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 61,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 43,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, polars diterapkan."
+      },
+      "contentLen": 318,
+      "snippet": "Fallback DCI 1A vs 2/2A: gNB turun ke fallback saat channel tidak reliable atau RI=1 — cek CQI/PMI report. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_36211-g00_s00-s05.md, source"
+    },
+    {
+      "id": 80,
+      "q": "Analisis kegagalan `Semi-Persistent Scheduling (SPS)` pada VoLTE: eNodeB gagal mengalokasikan resource berkala tiap 20 ms, memaksa UE menggunakan dynamic grant. Apa dampaknya terhadap kapasitas baterai UE dan efisiensi PDCCH?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 144,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 114,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, analytical-method-validation diterapkan."
+      },
+      "contentLen": 287,
+      "snippet": "SPS VoLTE gagal tiap 20ms → dynamic grant → PDCCH overhead + battery drain. Cek SPS-Config dan N1 PUCCH. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00.md, sources/dataset_"
+    },
+    {
+      "id": 81,
+      "q": "Terjadi anomali pada log CSV: `MAC Layer DL Throughput = 80 Mbps`, tetapi `Application Layer Throughput (Speedtest) = 0 Mbps`. Jelaskan skenario di mana enkripsi PDCP mismatch atau tunnel GTP-U putus di core network.",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"pdcp\""
+      ],
+      "latency": 77,
+      "meta": {
+        "provider": "Benchmark Engine (deterministic)",
+        "providerId": "benchmark",
+        "model": "speedtest-benchmark",
+        "modelVersion": "benchmark-v1",
+        "isLive": false,
+        "latencyMs": 59,
+        "status": "ok",
+        "reason": "Benchmark deterministic — langsung dari CSV 4397 sampel."
+      },
+      "contentLen": 3302,
+      "snippet": "Laporan Benchmark Speedtest — 15 Juni 2026 (JABO) Sumber: Report-speedtest-2026-06-15-to-2026-06-15.csv | Total sampel: 4397 | Periode: 15 Jun 2026 Catatan: Network Tech LTE (4397), Band dominan B3 (3216) + B1 (1045)  RINGKASAN PER OPERATOR"
+    },
+    {
+      "id": 82,
+      "q": "Diberikan data: `CQI Reporting Mode = Periodic (PUCCH)` vs `Aperiodic (PUSCH)`. Kapan MAC scheduler menginstruksikan Aperiodic CQI report dan bagaimana log DT mencerminkan perubahan akurasi scheduling?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 61,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 44,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, geomaster diterapkan."
+      },
+      "contentLen": 1102,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 83,
+      "q": "Log mencatat nilai `T-Reordering Timer` pada RLC AM terlalu rendah (10 ms), menyebabkan spurious retransmission pada RLC layer saat UE berada di cell edge. Berapa nilai optimal timer ini pada jaringan LTE?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 53,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 993,
+      "snippet": "Spurious tiap 10ms di B40 TDD indikasi GPS desync antar gNB — verifikasi 1PPS dan sync status di OSS. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB). Gunakan RCA: tilt/azimuth, power, NRT. Rujuk"
+    },
+    {
+      "id": 84,
+      "q": "Parsing log EN-DC: `Split Bearer PDCP Routing Ratio` diset 80% ke NR dan 20% ke LTE. Mengapa saat NR mengalami degradasi RF tiba-tiba, terjadi packet loss masif sebelum PDCP merealokasi 100% trafik ke LTE?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geopandas, autoskill diterapkan."
+      },
+      "contentLen": 320,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_36300-g00"
+    },
+    {
+      "id": 85,
+      "q": "Bagaimana cara memvalidasi dari log CSV bahwa suatu sesi download data terhambat oleh *Transport Block Size (TBS)* limitation di Layer 2 akibat alokasi agregasi CCE (Control Channel Element) yang tidak memadai?",
+      "mode": "live",
+      "tags": [
+        "layer2",
+        "mac-rlc-pdcp"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 88,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 71,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, networkx, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 337,
+      "snippet": "Layer 2: MAC scheduler, HARQ, RLC AM/UM, PDCP ROHC dan reordering. Bottleneck sering di S1-U backhaul atau MAC PRB, bukan RF. Rujukan: 3GPP TS 36.321/36.322, PDCP ROHC feedback recovery. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00"
+    },
+    {
+      "id": 86,
+      "q": "Log DT mencatat urutan pesan signaling: `RRCConnectionRequest` -> `RRCConnectionSetup` -> `RRCConnectionSetupComplete` -> `RRCConnectionRelease (cause: other / unspecified)` dalam 200 ms. Diagnosa penyebab *Immediate RRC Drop* ini (misal: Core Network TAC mismatch / Admission Control Failure).",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 55,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, networkx diterapkan."
+      },
+      "contentLen": 918,
+      "snippet": "Immediate RRC Drop 200ms pos SetupComplete → admission control atau TAC mismatch di MME — cek cause other/unspecified dan TAC whitelist. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/36331_g00.md"
+    },
+    {
+      "id": 87,
+      "q": "Diberikan cuplikan log RRC: ```text 10:14:02.100 UE -> eNB: MeasurementReport (Event A3, Target PCI=180, RSRP Target > RSRP Serving + 3dB) 10:14:02.350 UE -> eNB: MeasurementReport (Event A3, Target PCI=180) 10:14:02.600 UE -> eNB: MeasurementReport (Event A3, Target PCI=180) 10:14:03.100 Radio Link Failure (RLF) on Serving Cell. No RRCConnectionReconfiguration received. ``` Identifikasi jenis masalah handover: *Too Late Handover*, *Too Early Handover*, atau *Handover to Wrong Cell*.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 110,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 105,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, geopandas diterapkan."
+      },
+      "contentLen": 1089,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 88,
+      "q": "UE mengalami *Handover Ping-Pong* antara Site A (PCI 210) dan Site B (PCI 211) sebanyak 14 kali dalam 30 detik. Parameter RRC apa yang harus dimodifikasi (`a3-Offset`, `hysteresis`, `timeToTrigger`) dan berapa nilai rekomendasi standarnya?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 66,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, polars diterapkan."
+      },
+      "contentLen": 1004,
+      "snippet": "Ping-pong 14x/30s antara PCI 210/211: turunkan ping-pong dengan naikan hysteresis ke 2-3dB, a3-Offset 3dB, TTT 160-320ms. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38331-g00.md, sources/dataset_01_RA"
+    },
+    {
+      "id": 89,
+      "q": "Log NAS layer mencatat pesan `Attach Reject` dengan `EMM Cause = 15 (No Suitable Cells In Tracking Area)`. Apa interpretasi komersial dan operasional dari reject cause ini bagi pelanggan di lapangan?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, clinical-reports diterapkan."
+      },
+      "contentLen": 946,
+      "snippet": "EMM Cause 15 No Suitable Cells In Tracking Area: cell barred atau TAC tidak di HSS — UE pindah PLMN, cek roaming/core. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38331-g00.md, sources/dataset_01_RAN_L"
+    },
+    {
+      "id": 90,
+      "q": "Analisis log signaling: UE mengirim `RRCConnectionReestablishmentRequest` dengan penyebab `ReestablishmentCause: otherFailure`. Mengapa eNodeB target membalas dengan `RRCConnectionReestablishmentReject`?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 55,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 38,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, networkx diterapkan."
+      },
+      "contentLen": 893,
+      "snippet": "ReestablishmentReject: target eNB tidak punya UE context (X2 prep gagal) — perlu S1 context fetch atau dianggap drop. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36331_g00.md, sources/38321_g00.md, sources/dataset_01_RAN_L"
+    },
+    {
+      "id": 91,
+      "q": "Pada log DT 4G-to-2G Circuit Switched Fallback (CSFB), terjadi call setup delay selama 12 detik. Urutan signaling menunjukkan UE melakukan CSFB via *RRC Release with Redirection* alih-alih *Handover Command (NACC)*. Jelaskan optimasi yang diperlukan.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 94,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 77,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, autoskill, aeon diterapkan."
+      },
+      "contentLen": 957,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/d"
+    },
+    {
+      "id": 92,
+      "q": "Log DT mencatat `Event A2` (Serving becomes worse than threshold) ter-trigger pada `RSRP = -108 dBm`, namun `Event B2` (Inter-RAT neighbor becomes better than threshold) tidak pernah ter-trigger meskipun sinyal 2G sangat kuat (-60 dBm). Mengapa handover ke 2G gagal?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 120,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 73,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1089,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 93,
+      "q": "Parsing pesan RRC `MeasurementReport`: - Serving Cell: PCI 50, RSRP -102 dBm. - Neighbor Cell: PCI 51, RSRP -94 dBm, CarrierFreq EARFCN 1850. Jelaskan bagaimana base station memutuskan eksekusi Handover Command (Intra-Freq LTE) berdasarkan isi IE (Information Element) laporan tersebut.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 78,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, analyze-dt diterapkan."
+      },
+      "contentLen": 1088,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 94,
+      "q": "Log NAS mencatat `Service Reject` dengan `EMM Cause = 19 (ESM failure)`. Di mana letak kegagalan pada core network (MME / HSS / PGW) saat UE mencoba mengaktifkan default EPS bearer?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 68,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 51,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, networkx diterapkan."
+      },
+      "contentLen": 961,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_04_VOICE_SERVICES_23126-g00.md, sour"
+    },
+    {
+      "id": 95,
+      "q": "Diberikan data signaling: UE menerima `RRCConnectionReconfiguration` yang menyertakan IE `mobilityControlInfo`, namun UE gagal mengunci frekuensi target dan mengirim `RRCConnectionReestablishmentRequest` ke cell lama. Diagnosa kasus *Handover Execution Failure*.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 54,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 43,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, analytical-method-validation diterapkan."
+      },
+      "contentLen": 993,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/d"
+    },
+    {
+      "id": 96,
+      "q": "Terjadi kegagalan koneksi 5G NSA: Pesan signaling `SgNB Addition Request` dikirim oleh eNodeB ke gNodeB via X2-C, namun gNodeB membalas dengan `SgNB Addition Reject (Cause: Radio Resource Unavailable)`. Analisis akar masalah pada kapasitas gNodeB.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 65,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 62,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: autoskill, pandas, clinical-decision-support diterapkan."
+      },
+      "contentLen": 921,
+      "snippet": "SgNB Addition Reject Radio Resource Unavailable: gNB penuh PRB/license atau X2-C mismatch — cek NSA capacity dan IODT inter-vendor. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: vendor/huawei-singleran.md, 3gpp/38.331-rrc-protocol.m"
+    },
+    {
+      "id": 97,
+      "q": "Log mencatat urutan: UE mengalami RLF, lalu mengirim `RRCConnectionReestablishmentRequest` ke cell baru (PCI 99) dalam waktu 400 ms dan berhasil diterima (`RRCConnectionReestablishment`). Apakah event ini dihitung sebagai *Call Drop* atau *Successful Re-establishment* menurut standar KPI 3GPP?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 5022,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 205,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, oss-kpi, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 913,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36331_g00.md, sources/38331_g00.md, sources/"
+    },
+    {
+      "id": 98,
+      "q": "Pada log RRC SIB broadcasting, parameter `q-RxLevMin` diset ke `-128 dBm` pada area pegunungan. Mengapa nilai threshold yang terlalu longgar ini menyebabkan fenomena *Ghost Coverage / Unreachable Cell Edge*?",
+      "mode": "live",
+      "ok": false,
+      "fails": [
+        "TypeError: fetch failed"
+      ],
+      "latency": 4754,
+      "meta": null,
+      "content": ""
+    },
+    {
+      "id": 99,
+      "q": "UE mengirim `Tracking Area Update (TAU) Request` saat melintasi batas provinsi di Indonesia, namun MME membalas `TAU Reject (Cause 9: UE identity cannot be derived by the network)`. Bagaimana UE merespons pesan ini (re-attach sequence)?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 4839,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 131,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: clinical-decision-support, docx, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 966,
+      "snippet": "TAU Reject Cause 9 UE identity cannot be derived: MME tidak kenal GUTI — UE lakukan re-attach dengan IMSI. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38331-g00.md, sources/dataset_01_RAN_L2_L3_36331-g"
+    },
+    {
+      "id": 100,
+      "q": "Analisis pesan `RRCConnectionSetupComplete`: Parameter `selectedPLMN-Identity = 2` tercatat. Bagaimana eNodeB memetakan nomor indeks ini ke daftar PLMN yang dibroadcast pada SIB1 (MOCN multi-operator scenario)?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 214,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 120,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, pdf diterapkan."
+      },
+      "contentLen": 639,
+      "snippet": "Konteks spektrum Indonesia MCC 510: MNC 10 Telkomsel, 01 Indosat, 11 XL, 28 Smartfren, 89 Hutchison. Band 3 (1800), Band 8 (900), Band 40 (2300TDD), n40 (2300 5G), n28 (700 post-ASO). Format CGI 3GPP: MCC-MNC-eNodeB_ID-Cell_ID, mis Telkomse"
+    },
+    {
+      "id": 101,
+      "q": "Log DT menunjukkan `Event A5` terkonfigurasi dengan threshold: `Threshold1 = -105 dBm`, `Threshold2 = -95 dBm`. Jelaskan skenario penggunaan Event A5 dibandingkan Event A3 pada inter-frequency load balancing.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"handover\""
+      ],
+      "latency": 162,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 126,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, seaborn diterapkan."
+      },
+      "contentLen": 990,
+      "snippet": "Dari vault (3gpp/38.331-rrc-protocol.md, sources/38331_g00.md, sources/dataset_01_RAN_L2_L3_38331-g00.md): [3gpp/38.331-rrc-protocol.md] # 3GPP TS 38.331: Radio Resource Control (RRC) ## 1. Measurement Reporting Events - Event A1: Serving b"
+    },
+    {
+      "id": 102,
+      "q": "Terdeteksi signaling storm pada log DT: UE bolak-balik melakukan transisi `RRC_IDLE` ke `RRC_CONNECTED` setiap 5 detik akibat trafik background aplikasi Android. Parameter timer RRC mana (`t300`, `t302`, `RRC Inactivity Timer`) yang harus dituning di eNodeB?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 181,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 105,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, aeon diterapkan."
+      },
+      "contentLen": 915,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/36331_g00.md, s"
+    },
+    {
+      "id": 103,
+      "q": "Log menunjukkan panggilan VoLTE gagal dengan SIP signaling `SIP/2.0 488 Not Acceptable Here` setelah pesan RRC `Dedicated Bearer Activation (QCI 1)` gagal disetup. Analisis korelasi antara L3 RRC dan L7 SIP.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 71,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, clinical-reports, geopandas diterapkan."
+      },
+      "contentLen": 945,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/dataset_04_VOIC"
+    },
+    {
+      "id": 104,
+      "q": "Parsing pesan `SecurityModeCommand` pada log NAS: Terjadi `Integrity Check Failure` di sisi UE. Apa penyebab kesalahan sinkronisasi algoritma enkripsi (EEA/EIA) antara SIM card/UE dan Core Network (MME/AMF)?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 68,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 52,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, docx diterapkan."
+      },
+      "contentLen": 909,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36331_g00.md, sources/38300_g00.md, sources/"
+    },
+    {
+      "id": 105,
+      "q": "Diberikan log 5G SA: UE mengirim `Registration Request` dengan `5G-GUTI` lama yang tidak dikenali AMF baru, memicu AMF meminta `Identity Request (SUCI/SUPI)`. Evaluasi apakah proteksi privasi IMSI Concealment berjalan sesuai standar 3GPP Rel-15.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"rrc\""
+      ],
+      "latency": 79,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, clinical-decision-support diterapkan."
+      },
+      "contentLen": 824,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 106,
+      "q": "Terjadi kasus *Too Early Handover*: UE berpindah dari Cell A ke Cell B melalui Event A3, namun 150 ms kemudian mengalami RLF di Cell B dan melakukan re-establishment kembali ke Cell A. Bagaimana cara menghitung persentase Too Early HO dari log CSV?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 115,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 96,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, xlsx diterapkan."
+      },
+      "contentLen": 957,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/d"
+    },
+    {
+      "id": 107,
+      "q": "Pada log DT jalur kereta api, terdeteksi parameter `Time-to-Trigger (TTT) = 640 ms` pada Event A3. Mengapa nilai TTT ini terlalu lambat untuk mobilitas kecepatan tinggi dan menyebabkan *Late Handover Drop*?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 86,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 46,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, pptx, aeon diterapkan."
+      },
+      "contentLen": 355,
+      "snippet": "Handover & Neighbor (TS 38.331, ANR)  Event A3: neighbor jadi offset lebih baik dari serving. Jika NRT kosong = missing neighbor -> Handover Failure, drop. Fix: tambah relasi bilateral, set CIO +1.5 dB untuk UE cepat, verifikasi X2/Xn.  Ruj"
+    },
+    {
+      "id": 108,
+      "q": "UE menerima pesan `RRCConnectionRelease` dengan `redirectedCarrierInfo` mengarah ke frekuensi UTRAN (3G). Karena jaringan 3G sudah di-shutdown di seluruh Indonesia, apa dampak terhadap waktu UE mencari sinyal (*Out of Service duration*)?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"rrc\""
+      ],
+      "latency": 98,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 55,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: dask, polars, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 964,
+      "snippet": "Menarik — saya temukan di vault: [sources/dataset_04_VOICE_SERVICES_23126-g00.md] 3GPP TS 23.216 V16.0.0 (2019-03) Technical Specification 3rd Generation Partnership Project; Technical Specification Group Services and System Aspects; Single"
+    },
+    {
+      "id": 109,
+      "q": "Diberikan cuplikan log: `Paging` message dengan `ue-Identity: s-TMSI` diterima UE saat idle, namun UE tidak mengirim `RRCConnectionRequest` balasan. Analisis apakah UE berada dalam kondisi blind spot RF atau kegagalan modul baseband UE.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 68,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 52,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, polars, docx diterapkan."
+      },
+      "contentLen": 932,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38331-g00.md, sources/3"
+    },
+    {
+      "id": 110,
+      "q": "Analisis kegagalan `EPS Fallback` pada 5G SA: Saat menerima panggilan masuk Voice, gNodeB mengirim `RRCRelease with redirection to LTE`, namun UE membutuhkan waktu 8 detik untuk camp on di LTE. Di mana titik perlambatan signaling Layer 3?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 67,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: scientific-brainstorming, scientific-visualization, autoskill diterapkan."
+      },
+      "contentLen": 961,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_04_VOICE_SERVICES_23126-g00.md, sour"
+    },
+    {
+      "id": 111,
+      "q": "Pada log LTE, terdeteksi parameter `cellReselectionPriority` yang identik (nilai 6) untuk Band 3 (1800) dan Band 1 (2100). Apa dampak konfigurasi ini terhadap perilaku UE saat berada dalam kondisi RRC_IDLE?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 37,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 35,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, dask diterapkan."
+      },
+      "contentLen": 951,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/38331_g00.md, sources/dataset_01_RAN_L2_L3_3"
+    },
+    {
+      "id": 112,
+      "q": "Log NAS mencatat `Detach Request (Type: Re-attach required, Cause: Network Failure)`. Mengapa HSS/UDM mengirimkan instruksi ini ke ribuan pelanggan secara serentak (Core Network Incident)?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 62,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, networkx, geomaster diterapkan."
+      },
+      "contentLen": 867,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36300_g00.md, sources/36331_g00.md, sources/"
+    },
+    {
+      "id": 113,
+      "q": "Parsing log RRC: `SIB3` parameter `s-IntraSearch = 62 dB` ($31 \\times 2 \\text{ dB}$). Hitung nilai RSRP threshold di mana UE mulai melakukan pencarian neighbor cell intra-frequency.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 60,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 45,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1084,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 114,
+      "q": "Diberikan kasus: UE terhubung ke Cell Macro, mendeteksi sinyal Small Cell (Pico) yang kuat di mall, namun tidak pernah melakukan handover karena Small Cell memiliki `TAC` berbeda yang belum di-whitelist di MME (*Handover Blacklisting / TAC Restriction*).",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 85,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 53,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: exploratory-data-analysis, analytical-method-validation, networkx diterapkan."
+      },
+      "contentLen": 528,
+      "snippet": "Diagnosa Handover dan Missing Neighbor (3GPP TS 38.331)  1. Identifikasi masalah    - Spike Handover Drop Rate antara JKT_1015_1 dan JKT_1022_2 (42 kali gagal)    - Akar masalah: missing neighbor di ANR (event A3 terpicu tapi target cell ti"
+    },
+    {
+      "id": 115,
+      "q": "Log 5G NSA menunjukkan `X2 Setup Failure` antara eNodeB eksisting (Vendor X) dan gNodeB baru (Vendor Y). Bagaimana menganalisis mismatch parameter interoperabilitas IODT (*Inter-Vendor Interoperability*) dari signaling trace?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 107,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 90,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, clinical-reports, matplotlib diterapkan."
+      },
+      "contentLen": 935,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: vendor/huawei-singleran.md, vendor/ericsson-radio-sy"
+    },
+    {
+      "id": 116,
+      "q": "Terjadi *Handover to Wrong Cell*: UE terhubung ke Cell A, melaporkan Cell B dan Cell C. eNodeB menginstruksikan HO ke Cell C, namun UE seketika mengalami RLF di Cell C karena sinyal aslinya terhalang gedung. Bagaimana membedakan kasus ini di log L3?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 89,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 65,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, analytical-method-validation diterapkan."
+      },
+      "contentLen": 909,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36300-g00.md, sources/3"
+    },
+    {
+      "id": 117,
+      "q": "UE mengirim `RRCConnectionReconfigurationComplete` untuk mengaktifkan carrier aggregation, namun 50 ms kemudian UE mengirim `MeasurementReport (Event A6: SCell becomes better than PSCell)`. Evaluasi kestabilan Secondary Cell tersebut.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"rrc\""
+      ],
+      "latency": 63,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 31,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, aeon diterapkan."
+      },
+      "contentLen": 988,
+      "snippet": "Menarik — saya temukan di vault: [sources/dataset_01_RAN_L2_L3_36331-g00.md] …ers' Publications Offices. 3GPP Postal address 3GPP support office address 650 Route des Lucioles - Sophia Antipolis Valbonne - FRANCE Tel.: +33 4 92 94 42 00 Fax"
+    },
+    {
+      "id": 118,
+      "q": "Log NAS mencatat `P-TMSI Reallocation Command` gagal direspon pada jaringan 2G. Apa penyebab time-out pada timer `T3350` di SGSN?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 56,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 39,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, pdf, analytical-method-validation diterapkan."
+      },
+      "contentLen": 951,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/36331_g00.md, sources/dataset_01_RAN_L2_L3_3"
+    },
+    {
+      "id": 119,
+      "q": "Analisis pesan `UECapabilityInformation`: UE melaporkan dukungan `E-UTRA NR Dual Connectivity (EN-DC)` band combination `DC_1A_n40A` tetapi tidak mendukung `DC_3A_n40A`. Apa pengaruhnya jika eNodeB anchor berada di Band 3?",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 69,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 43,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, autoskill, dask diterapkan."
+      },
+      "contentLen": 1011,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/d"
+    },
+    {
+      "id": 120,
+      "q": "Dari log CSV, buat logika IF-THEN deterministik untuk mengklasifikasikan 4 kategori kegagalan mobilitas RRC: *Downlink Interference Drop*, *Uplink Coverage Drop*, *Missing Neighbor Drop*, dan *Core Network Drop*.",
+      "mode": "live",
+      "tags": [
+        "layer3",
+        "rrc-nas"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 70,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 62,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, geomaster, networkx diterapkan."
+      },
+      "contentLen": 998,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: 3gpp/38.331-rrc-protocol.md, sources/dataset_01_RAN_"
+    },
+    {
+      "id": 121,
+      "q": "Diberikan baris log CSV berikut: ```csv Timestamp,RSRP,RSRQ,SINR,DL_Throughput,UL_Throughput,Events 14:20:01,-82,-9,18,65.2,12.1,None 14:20:02,-83,-10,17,64.8,11.9,None 14:20:03,-84,-10,18,0.2,0.1,Ping_Timeout 14:20:04,-84,-9,18,0.0,0.0,None ``` Kondisi RF (RSRP/SINR) prima, namun throughput drop ke 0 Mbps dan terjadi Ping Timeout. Analisis 3 kemungkinan penyebab di luar Layer 1 (misal: S1 Link Drop, DNS failure, Core user plane stall).",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 94,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 77,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, analyze-dt diterapkan."
+      },
+      "contentLen": 1127,
+      "snippet": "Kombinasi RSRP -78 dBm (good) + RSRQ -19 dB (poor) + SINR -3 dB menunjukkan interference dominan, bukan weak coverage. Curigai pilot pollution atau interferensi eksternal FM/PIM, cek overlapping cell. Metrik RSRP (-78 excellent, < -110 poor"
+    },
+    {
+      "id": 122,
+      "q": "Diberikan data drive test CSV rute sepanjang 10 km: Ditemukan 15 kali `Call Drop` VoLTE pada titik dengan `RSRP > -85 dBm` dan `SINR > 15 dB`. Namun seluruh drop terjadi tepat 50 meter sebelum persimpangan rel kereta. Analisis interferensi non-seluler atau cross-talk signaling.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 113,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, geopandas diterapkan."
+      },
+      "contentLen": 1117,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 123,
+      "q": "Parsing log throughput berikut: - RSRP: -98 dBm - SINR: 4 dB - Allocated PRB: 100 PRBs (Bandwidth 20 MHz) - DL BLER: 4% - DL Throughput: 1.8 Mbps Mengapa throughput sangat rendah meskipun mendapat alokasi 100 PRB penuh dan BLER normal? (Periksa nilai Downlink MCS dan Rank Indicator).",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 126,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 91,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
+      },
+      "contentLen": 1140,
+      "snippet": "DL BLER melonjak 2% ke 48% walau RSRP stabil -85 dBm: indikasi interferensi atau Doppler/PCI Mod 3 clash saat flyover. BLER tinggi picu retransmission. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19"
+    },
+    {
+      "id": 124,
+      "q": "Log DT menampilkan area *Black-hole / Blind Spot*: RSRP turun bertahap dari -90 dBm -> -105 dBm -> -122 dBm -> Call Drop, tanpa ada satu pun neighbor cell yang terdeteksi di log measurement report. Apa tindakan optimasi RF yang mutlak diperlukan?",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 64,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 47,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1046,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 125,
+      "q": "Diberikan matriks CSV dari 1,000 baris log: Tentukan formula korelasi Pearson antara parameter `SINR` dan `User DL Throughput`, serta jelaskan kondisi di mana korelasi tersebut bernilai mendekati nol.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 65,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 48,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, timesfm-forecasting diterapkan."
+      },
+      "contentLen": 1103,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 126,
+      "q": "Terjadi anomali KPI `Accessibility Failure`: `RRC Setup Success Rate = 99.8%`, tetapi `ERAB Setup Success Rate = 72.4%`. Di network element mana investigasi log harus diarahkan (eNodeB, MME, SGW, atau PCRF)?",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"kpi\""
+      ],
+      "latency": 54,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 37,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, networkx, oss-kpi diterapkan."
+      },
+      "contentLen": 982,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36331-g00.md, sources/d"
+    },
+    {
+      "id": 127,
+      "q": "Log CSV mencatat nilai `HTTP Latency / TTFB (Time to First Byte)` sebesar 850 ms pada koneksi 4G LTE, padahal `ICMP Ping RTT` hanya 28 ms. Mengapa terjadi disparitas latency yang masif antara Layer 3/4 dan Layer 7?",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 71,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 54,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, geomaster diterapkan."
+      },
+      "contentLen": 395,
+      "snippet": "KPI E2E RCA: korelasikan RF (RSRP/SINR) dengan transport (MCS/RI/PRB), core (ERAB success) dan app (TTFB vs ping). Black-hole, pilot pollution, congestion adalah akar umum di Indonesia. KPI target: RSRP >=-100 95%, SINR >=5 80%, accessibili"
+    },
+    {
+      "id": 128,
+      "q": "Diberikan cuplikan data Drive Test: ```csv PCI_1,RSRP_1,PCI_2,RSRP_2,PCI_3,RSRP_3,PCI_4,RSRP_4 110,-88,111,-89,112,-90,204,-91 ``` Terdeteksi 4 cell dengan kekuatan sinyal hampir seragam pada satu titik. Identifikasi fenomena *Pilot Pollution* dan hitung penurunan estimasi SINR akibat interferensi energi kolektif ini.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 72,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 49,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, rca diterapkan."
+      },
+      "contentLen": 1092,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 129,
+      "q": "Pada log pengujian stationary di kawasan industri Cikarang, ditemukan throughput download rata-rata siang hari (13:00) hanya 3 Mbps, sedangkan malam hari (02:00) mencapai 75 Mbps pada cell yang sama dengan RSRP identik (-80 dBm). Tentukan akar masalahnya (Cell Congestion / High PRB Utilization).",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 74,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 46,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, exploratory-data-analysis diterapkan."
+      },
+      "contentLen": 1075,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 130,
+      "q": "Log drive test mencatat parameter `CQI = 15` dan `SINR = 25 dB`, tetapi modulasi downstream tertinggi yang dicapai UE hanya `64-QAM`, bukan `256-QAM`. Periksa kapabilitas UE (UE Category) atau parameter eNodeB `256QAM_Enabled` di SIB/RRC.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"throughput\""
+      ],
+      "latency": 67,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 50,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, analytical-method-validation diterapkan."
+      },
+      "contentLen": 1068,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 131,
+      "q": "Terjadi lonjakan `Retainability KPI Failure (Drop Call Rate)` saat UE bergerak pada kecepatan 100 km/jam di jalan tol Cipali. Mayoritas drop tercatat dengan penyebab `Cause: Handover Execution Timeout`. Rekomendasikan optimasi azimuth antena dan tilt untuk cell tepi jalan tol.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 125,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 119,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: oss-kpi, pandas, rca diterapkan."
+      },
+      "contentLen": 3330,
+      "snippet": "Laporan Benchmark Speedtest — 15 Juni 2026 (JABO) Sumber: Report-speedtest-2026-06-15-to-2026-06-15.csv | Total sampel: 4397 | Periode: 15 Jun 2026 Catatan: Network Tech LTE (4397), Band dominan B3 (3216) + B1 (1045)  RINGKASAN PER OPERATOR"
+    },
+    {
+      "id": 132,
+      "q": "Diberikan data log CSV: `FTP Download` multi-thread mencapai 90 Mbps, tetapi `FTP Upload` single-thread hanya mandek di 50 Kbps (`SINR UL = -8 dB`, `PHR = 0 dB`). Jelaskan degradasi user experience pada aplikasi interaktif dua arah (seperti video call Zoom/Teams).",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 133,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 54,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, xlsx diterapkan."
+      },
+      "contentLen": 790,
+      "snippet": "Ringkasan konteks — Vault 42 notes (3gpp 35, skills 3, vendor 2, General 2) — Percakapan terakhir: user: Diberikan data log CSV: FTP Download multi-thread mencapai 90 Mbps, tetapi FTP Upload  — Top vault: sources/dataset_01_RAN_L2_L3_36104-"
+    },
+    {
+      "id": 133,
+      "q": "Analisis log CSV drive test: Nilai `VoLTE MOS (Mean Opinion Score)` drop dari 4.2 ke 1.8 saat UE berpindah dari Band 3 ke Band 8. Log mencatat adanya `RTP Packet Jitter > 80 ms` dan `Packet Loss = 12%` di Band 8. Mengapa alokasi bandwidth 5 MHz Band 8 rentan terhadap penurunan kualitas suara?",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 93,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 76,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, scientific-brainstorming diterapkan."
+      },
+      "contentLen": 338,
+      "snippet": "VoLTE MOS 4.2→1.8 saat B3→B8: B8 5MHz sempit → jitter >80ms + loss 12% — B8 rentan congestion, prefer B3 untuk voice atau robust scheduling. KPI target: RSRP >=-100 95%, SINR >=5 80%, accessibility >98%. Rujukan vault: skills/SKILL - Analyz"
+    },
+    {
+      "id": 134,
+      "q": "Pada pengujian 5G NSA di Surabaya, KPI `End-to-End DL Throughput` tercatat lebih rendah daripada 4G Standalone di lokasi yang sama. Log menunjukkan UE terkunci pada anchor 4G B8 (5 MHz) yang mengalami kongesti parah pada uplink control channel. Diagnosa masalah anchor selection.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 73,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 56,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, oss-kpi diterapkan."
+      },
+      "contentLen": 390,
+      "snippet": "KPI E2E RCA: korelasikan RF (RSRP/SINR) dengan transport (MCS/RI/PRB), core (ERAB success) dan app (TTFB vs ping). Black-hole, pilot pollution, congestion adalah akar umum di Indonesia. KPI target: RSRP >=-100 95%, SINR >=5 80%, accessibili"
+    },
+    {
+      "id": 135,
+      "q": "Diberikan log data DT: Terjadi `Call Setup Time (CST)` selama 7.5 detik pada panggilan VoLTE-to-VoLTE. Log SIP menunjukkan keterlambatan transmisi pesan `SIP 180 Ringing` dari sisi Terminating Network. Tentukan apakah delay berada di Origination RAN, IMS Core, atau Terminating RAN.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 75,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 48,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, networkx, geomaster diterapkan."
+      },
+      "contentLen": 1013,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_36300-g00.md, sources/d"
+    },
+    {
+      "id": 136,
+      "q": "Parsing CSV: ```csv Time,Event,Serving_PCI,Target_PCI,HO_Duration_ms 08:12:10,HO_Attempt,42,105,NaN 08:12:12,HO_Failure,42,105,2000 08:12:12,Reestablishment,42,NaN,300 ``` Hitung `Handover Interruption Time` dan evaluasi dampaknya terhadap real-time video streaming buffer.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"throughput\""
+      ],
+      "latency": 51,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 35,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, geopandas diterapkan."
+      },
+      "contentLen": 909,
+      "snippet": "Layer 3 RRC/NAS: RRC setup, mobility A1-A5/B1-B2, NAS attach/TAU, handover X2/S1. RCA via IE-laden MeasurementReport dan cause codes. Standar: TS 38.331 RRC, TS 24.301 NAS. Rujukan vault: sources/dataset_01_RAN_L2_L3_38300-g00.md, sources/3"
+    },
+    {
+      "id": 137,
+      "q": "Log mencatat anomali: `Attach Success Rate = 100%`, namun `Dedicated Bearer Activation Success Rate (QCI 1)` untuk VoLTE = 0% di area kota tertentu. Analisis apakah ada lisensi fitur VoLTE yang belum aktif di eNodeB cluster tersebut.",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 80,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 63,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, scientific-brainstorming, scientific-visualization diterapkan."
+      },
+      "contentLen": 891,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% (target 80.0% — lolos"
+    },
+    {
+      "id": 138,
+      "q": "Pada log CSV, bagaimana cara mengidentifikasi secara otomatis segmen jalan yang mengalami *Coverage Hole* (RSRP < -110 dBm dan SINR < -3 dB sepanjang minimal 200 meter berkelanjutan)?",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": true,
+      "fails": [],
+      "latency": 74,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 39,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
+      },
+      "contentLen": 1068,
+      "snippet": "Analisa L1 RF: cek RSRP/RSRQ/SINR korelasi, identifikasi pilot pollution, PCI collision Mod 3, overshooting via tilt, dan interferensi PIM/spurious. Metrik RSRP (-78 excellent, < -110 poor), SINR (>15 excellent, <0 poor), RSRQ (-3 ke -19 dB"
+    },
+    {
+      "id": 139,
+      "q": "Ter",
+      "mode": "live",
+      "tags": [
+        "kpi",
+        "dt",
+        "e2e"
+      ],
+      "ok": false,
+      "fails": [
+        "missing contains \"throughput\""
+      ],
+      "latency": 28,
+      "meta": {
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 10,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, analytical-method-validation diterapkan."
+      },
+      "contentLen": 625,
+      "snippet": "Halo! Saya siap bantu analisa RF 4G/5G — beberapa yang bisa saya lakukan: - pandas (data-analysis): Pandas data analysis skill for Python, optimized for telecommunications, drive test, KPI/QoS, CSV/Excel processing, data - aeon (ml-time-ser"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "summary": {
     "total": 100,
-    "pass": 61,
-    "fail": 39,
-    "avgLatency": 1977,
-    "livePass": 30,
+    "pass": 38,
+    "fail": 62,
+    "avgLatency": 195,
+    "livePass": 7,
     "liveTotal": 68,
     "fbPass": 31,
     "fbTotal": 32
@@ -19,14 +19,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 296,
+      "latency": 581,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 237,
+        "latencyMs": 534,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas diterapkan."
       },
@@ -43,14 +43,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 259,
+      "latency": 343,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 146,
+        "latencyMs": 300,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas diterapkan."
       },
@@ -66,14 +66,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 315,
+      "latency": 548,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 205,
+        "latencyMs": 516,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, autoskill diterapkan."
       },
@@ -92,14 +92,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 26,
+      "latency": 32,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 21,
+        "latencyMs": 16,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, statistical-analysis, clinical-decision-support diterapkan."
       },
@@ -115,14 +115,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 66,
+      "latency": 197,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 40,
+        "latencyMs": 179,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analytical-method-validation, analyze-dt diterapkan."
       },
@@ -139,14 +139,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 92,
+      "latency": 105,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 84,
+        "latencyMs": 88,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -165,14 +165,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 27,
+      "latency": 41,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 23,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -189,14 +189,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 73,
+      "latency": 212,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 55,
+        "latencyMs": 210,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -215,14 +215,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 43,
+      "latency": 24,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 25,
+        "latencyMs": 20,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -241,14 +241,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 43,
+      "latency": 41,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 26,
+        "latencyMs": 25,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -265,14 +265,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 515,
+      "latency": 809,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 497,
+        "latencyMs": 793,
         "status": "fallback",
         "reason": "Fallback + skill-aware: rca, pandas, analyze-dt diterapkan."
       },
@@ -291,7 +291,7 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 40,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
@@ -315,14 +315,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 239,
+      "latency": 125,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 222,
+        "latencyMs": 107,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-reports, analyze-dt diterapkan."
       },
@@ -341,14 +341,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 44,
+      "latency": 48,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 13,
+        "latencyMs": 31,
         "status": "fallback",
         "reason": "Fallback + skill-aware: rca, pandas, analyze-dt diterapkan."
       },
@@ -365,14 +365,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 225,
+      "latency": 332,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 222,
+        "latencyMs": 329,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, tilt, clinical-reports diterapkan."
       },
@@ -390,14 +390,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 39,
+      "latency": 38,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 22,
+        "latencyMs": 20,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -440,14 +440,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 54,
+      "latency": 70,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 38,
+        "latencyMs": 54,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-reports, analyze-dt diterapkan."
       },
@@ -464,14 +464,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 414,
+      "latency": 354,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 398,
+        "latencyMs": 348,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, rca, geomaster diterapkan."
       },
@@ -489,14 +489,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 40,
+      "latency": 42,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 22,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-reports, analyze-dt diterapkan."
       },
@@ -522,7 +522,7 @@
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 26,
+        "latencyMs": 25,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-reports, dask diterapkan."
       },
@@ -538,14 +538,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 342,
+      "latency": 162,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 324,
+        "latencyMs": 144,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -563,14 +563,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 40,
+      "latency": 42,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 25,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -588,14 +588,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 26,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 23,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: oss-kpi, pandas, analyze-dt diterapkan."
       },
@@ -613,14 +613,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 45,
+      "latency": 44,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 28,
+        "latencyMs": 26,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, xlsx diterapkan."
       },
@@ -636,14 +636,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 149,
+      "latency": 79,
       "meta": {
         "provider": "Benchmark Engine (deterministic)",
         "providerId": "benchmark",
         "model": "speedtest-benchmark",
         "modelVersion": "benchmark-v1",
         "isLive": false,
-        "latencyMs": 134,
+        "latencyMs": 77,
         "status": "ok",
         "reason": "Benchmark deterministic — langsung dari CSV 4397 sampel."
       },
@@ -659,14 +659,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 125,
+      "latency": 93,
       "meta": {
         "provider": "Benchmark Engine (deterministic)",
         "providerId": "benchmark",
         "model": "speedtest-benchmark",
         "modelVersion": "benchmark-v1",
         "isLive": false,
-        "latencyMs": 108,
+        "latencyMs": 75,
         "status": "ok",
         "reason": "Benchmark deterministic — langsung dari CSV 4397 sampel."
       },
@@ -682,14 +682,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 132,
+      "latency": 98,
       "meta": {
         "provider": "Benchmark Engine (live-summary)",
         "providerId": "benchmark",
         "model": "speedtest-benchmark",
         "modelVersion": "benchmark-v1",
         "isLive": true,
-        "latencyMs": 115,
+        "latencyMs": 95,
         "status": "ok",
         "reason": "Benchmark summary treated as live"
       },
@@ -706,14 +706,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 17,
+      "latency": 37,
       "meta": {
         "provider": "Deterministic DriveTest Engine",
         "providerId": "drivetest",
         "model": "pandas-fallback",
         "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 11,
+        "latencyMs": 20,
         "status": "ok",
         "reason": "Deterministic pandas fallback for Drive Test"
       },
@@ -738,7 +738,7 @@
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 28,
+        "latencyMs": 26,
         "status": "fallback",
         "reason": "Fallback + skill-aware: oss-kpi, pandas, pptx diterapkan."
       },
@@ -754,14 +754,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 197,
+      "latency": 1178,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 181,
+        "latencyMs": 1161,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, dask, xlsx diterapkan."
       },
@@ -779,14 +779,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 121,
+      "latency": 103,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 104,
+        "latencyMs": 99,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, xlsx diterapkan."
       },
@@ -802,14 +802,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 228,
+      "latency": 708,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 210,
+        "latencyMs": 691,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, polars, pptx diterapkan."
       },
@@ -827,14 +827,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 58,
+      "latency": 27,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 40,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, polars, statistical-analysis diterapkan."
       },
@@ -852,14 +852,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 115,
+      "latency": 124,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 98,
+        "latencyMs": 108,
         "status": "fallback",
         "reason": "Fallback + skill-aware: dask, polars, xlsx diterapkan."
       },
@@ -875,14 +875,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 77,
+      "latency": 1378,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 59,
+        "latencyMs": 1361,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, aeon, autoskill diterapkan."
       },
@@ -900,14 +900,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 43,
+      "latency": 46,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 26,
+        "latencyMs": 30,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, infographics, networkx diterapkan."
       },
@@ -923,14 +923,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 218,
+      "latency": 160,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 201,
+        "latencyMs": 143,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-decision-support, docx diterapkan."
       },
@@ -948,14 +948,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 40,
+      "latency": 23,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 23,
+        "latencyMs": 19,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, infographics, networkx diterapkan."
       },
@@ -973,7 +973,7 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 34,
+      "latency": 41,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
@@ -998,14 +998,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 43,
+      "latency": 33,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 26,
+        "latencyMs": 16,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, aeon diterapkan."
       },
@@ -1021,14 +1021,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 791,
+      "latency": 1765,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 775,
+        "latencyMs": 1749,
         "status": "fallback",
         "reason": "Fallback + skill-aware: networkx, pandas, geomaster diterapkan."
       },
@@ -1046,14 +1046,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 28,
+      "latency": 88,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 24,
+        "latencyMs": 85,
         "status": "fallback",
         "reason": "Fallback + skill-aware: tilt, pandas, coverage diterapkan."
       },
@@ -1071,14 +1071,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 81,
+      "latency": 77,
       "meta": {
         "provider": "Benchmark Engine (deterministic)",
         "providerId": "benchmark",
         "model": "speedtest-benchmark",
         "modelVersion": "benchmark-v1",
         "isLive": false,
-        "latencyMs": 65,
+        "latencyMs": 73,
         "status": "ok",
         "reason": "Benchmark deterministic — langsung dari CSV 4397 sampel."
       },
@@ -1096,14 +1096,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 17,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 24,
+        "latencyMs": 13,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas diterapkan."
       },
@@ -1121,14 +1121,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 45,
+      "latency": 28,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 27,
+        "latencyMs": 23,
         "status": "fallback",
         "reason": "Fallback + skill-aware: tilt, rca, pandas diterapkan."
       },
@@ -1144,14 +1144,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 86,
+      "latency": 1281,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 69,
+        "latencyMs": 1265,
         "status": "fallback",
         "reason": "Fallback + skill-aware: rca, pandas, pptx diterapkan."
       },
@@ -1169,14 +1169,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 44,
+      "latency": 42,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 27,
+        "latencyMs": 26,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, rca, clinical-reports diterapkan."
       },
@@ -1194,14 +1194,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 43,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 24,
+        "latencyMs": 27,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt diterapkan."
       },
@@ -1219,14 +1219,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 57,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 25,
+        "latencyMs": 41,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, tilt, coverage diterapkan."
       },
@@ -1244,14 +1244,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 90,
+      "latency": 45,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 77,
+        "latencyMs": 28,
         "status": "fallback",
         "reason": "Fallback + skill-aware: tilt, pandas, coverage diterapkan."
       },
@@ -1269,14 +1269,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 45,
+      "latency": 42,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 27,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, seaborn diterapkan."
       },
@@ -1292,14 +1292,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 59,
+      "latency": 402,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 41,
+        "latencyMs": 385,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, rca, autoskill diterapkan."
       },
@@ -1317,14 +1317,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 45,
+      "latency": 48,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 30,
+        "latencyMs": 31,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
@@ -1342,14 +1342,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 47,
+      "latency": 43,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 29,
+        "latencyMs": 28,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, rca diterapkan."
       },
@@ -1365,14 +1365,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 199,
+      "latency": 356,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 184,
+        "latencyMs": 340,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analytical-method-validation, analyze-dt diterapkan."
       },
@@ -1390,7 +1390,7 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 40,
+      "latency": 41,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
@@ -1415,14 +1415,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 41,
+      "latency": 42,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 25,
+        "latencyMs": 24,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, networkx, clinical-reports diterapkan."
       },
@@ -1440,14 +1440,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 29,
+      "latency": 30,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 13,
+        "latencyMs": 12,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analytical-method-validation, geomaster diterapkan."
       },
@@ -1463,14 +1463,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 140,
+      "latency": 430,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 137,
+        "latencyMs": 414,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, dask, geomaster diterapkan."
       },
@@ -1488,14 +1488,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 41,
+      "latency": 39,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 24,
+        "latencyMs": 22,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
@@ -1513,14 +1513,14 @@
       "fails": [
         "isLive expected true got false"
       ],
-      "latency": 42,
+      "latency": 41,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 25,
+        "latencyMs": 26,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, networkx, analyze-dt diterapkan."
       },
@@ -1534,21 +1534,23 @@
       "tags": [
         "vault-miss"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 9085,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 28,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 9068,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, clinical-reports"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 12,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
-      "contentLen": 1334,
-      "snippet": "URLLC (Ultra‑Reliable Low‑Latency Communications) adalah salah satu pilar layanan 5G NR yang dirancang khusus untuk aplikasi yang menuntut latensi sangat rendah (biasanya ≤ 1 ms) dan keandalan sangat tinggi (probabilitas"
+      "contentLen": 728,
+      "snippet": "Dari vault (sources/38300_g00.md, sources/dataset_01_RAN_L2_L3_38300-g00.md): [sources/38300_g00.md] …nterface 39 9 Mobility and State Transitions 39 9.1 Overview 39 9.2 Intra-NR 40 9.2.1 Mobility in RRC_IDLE 40 9.2.1.1 "
     },
     {
       "id": 64,
@@ -1557,21 +1559,23 @@
       "tags": [
         "vault-miss"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 4771,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 42,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4768,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, clinical-reports"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 26,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
-      "contentLen": 1183,
-      "snippet": "RedCap device (Reduced‑Capability device) adalah kelas perangkat User‑Equipment (UE) yang diperkenalkan dalam 3GPP Release 17 untuk memenuhi kebutuhan aplikasi IoT, wearables, sensor, dan mesin‑to‑machine (M2M) yang meme"
+      "contentLen": 315,
+      "snippet": "Untuk pertanyaan \"Apa itu RedCap device?\" belum ada di vault 3GPP 54 notes. Coba tanya lebih spesifik (mis. RSRP, PCI, tilt) atau tambah experience knowledge di vault/experience/ — nanti saya bisa summarize otomatis. Sem"
     },
     {
       "id": 65,
@@ -1582,14 +1586,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 301,
+      "latency": 435,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 298,
+        "latencyMs": 415,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, clinical-reports, dask diterapkan."
       },
@@ -1603,21 +1607,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5009,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 56,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4992,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, dask, pdf"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 38,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, dask, pdf diterapkan."
       },
-      "contentLen": 582,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.  Provider yang aktif: 9Router (via ollama/gpt-oss:120b)   Model yang aktif: ollama/gpt-oss:120b  Mengapa model ini dipilih:   1. Kecepatan & latensi rendah – inferensi ultra‑rendah se"
+      "contentLen": 615,
+      "snippet": "TelecomAgent RF Co-Pilot — Status Model dan Provider  Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.  Provider: 9Router (via ollama/gpt-oss:120b) Model: ollama/gpt-oss:120b Status Engine: T"
     },
     {
       "id": 67,
@@ -1626,21 +1632,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5351,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 46,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 5335,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, statistical-analysis, clinical-decision-support"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 28,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, statistical-analysis, clinical-decision-support diterapkan."
       },
-      "contentLen": 748,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.    Provider yang aktif: 9Router (via ollama/gpt-oss:120b)   Model yang aktif: ollama/gpt-oss:120b  Mengapa model ini dipilih:   1. Kecepatan & Latensi – ollama/gpt-oss:120b pada infra"
+      "contentLen": 615,
+      "snippet": "TelecomAgent RF Co-Pilot — Status Model dan Provider  Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.  Provider: 9Router (via ollama/gpt-oss:120b) Model: ollama/gpt-oss:120b Status Engine: T"
     },
     {
       "id": 68,
@@ -1649,21 +1657,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 9810,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 40,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 9795,
-        "status": "connected",
-        "reason": "Live model + skill-aware: oss-kpi, pandas, geomaster"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 23,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: oss-kpi, pandas, geomaster diterapkan."
       },
-      "contentLen": 1423,
-      "snippet": "Halo, selamat datang! Saya TelecomAgent RF Co‑Pilot.    Provider yang aktif: 9Router (via ollama/gpt-oss:120b)   Model yang aktif: ollama/gpt-oss:120b  Mengapa dipilih model ollama/gpt-oss:120b?    1. Kecepatan & latensi"
+      "contentLen": 615,
+      "snippet": "TelecomAgent RF Co-Pilot — Status Model dan Provider  Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.  Provider: 9Router (via ollama/gpt-oss:120b) Model: ollama/gpt-oss:120b Status Engine: T"
     },
     {
       "id": 69,
@@ -1672,21 +1682,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 10799,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 41,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 10782,
-        "status": "connected",
-        "reason": "Live model + skill-aware: oss-kpi, pandas, dask"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 25,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: oss-kpi, pandas, dask diterapkan."
       },
-      "contentLen": 561,
-      "snippet": "Halo, selamat datang di TelecomAgent RF Co‑Pilot.   Provider yang aktif: 9Router (via ollama/gpt-oss:120b)   Model yang aktif: ollama/gpt-oss:120b  Mengapa model ini dipilih   1. Latensi ultra‑rendah – inferensi di dalam"
+      "contentLen": 582,
+      "snippet": "Halo! Saya siap bantu analisa RF 4G/5G — beberapa yang bisa saya lakukan: - OSS KPI Weekly Report (kpi): Aggregate Ericsson/Huawei/Nokia counters, trending per cell, flag degradation >5%. - pandas (data-analysis): Pandas"
     },
     {
       "id": 70,
@@ -1697,14 +1709,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 575,
+      "latency": 354,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 574,
+        "latencyMs": 342,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, docx, timesfm-forecasting diterapkan."
       },
@@ -1718,21 +1730,24 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 8850,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false",
+        "missing contains \"20128\""
+      ],
+      "latency": 40,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 8832,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 22,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas diterapkan."
       },
-      "contentLen": 57,
-      "snippet": "Base URL untuk 9Router adalah:  http://localhost:20128/v1"
+      "contentLen": 320,
+      "snippet": "Halo! Saya siap bantu analisa RF 4G/5G — beberapa yang bisa saya lakukan: - pandas (data-analysis): Pandas data analysis skill for Python, optimized for telecommunications, drive test, KPI/QoS, CSV/Excel processing, data"
     },
     {
       "id": 72,
@@ -1741,21 +1756,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5575,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 40,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 5558,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, aeon, analytical-method-validation"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 24,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, aeon, analytical-method-validation diterapkan."
       },
-      "contentLen": 451,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.  Provider aktif: 9Router (via ollama/gpt-oss:120b)   Model aktif: ollama/gpt-oss:120b  Saat ini koneksi ke 9Router terdeteksi Live dan API Key telah terverifikasi oleh sistem. Artinya"
+      "contentLen": 685,
+      "snippet": "Menarik — saya temukan di vault: [sources/38331_g00.md] …tem information acquisition 32 5.2.2.1 General UE requirements 32 5.2.2.2 SIB validity and need to (re)-acquire SIB 32 5.2.2.2.1 SIB validity 32 5.2.2.2.2 SI chang"
     },
     {
       "id": 73,
@@ -1764,21 +1781,24 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 4285,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false",
+        "missing contains \"latensi\""
+      ],
+      "latency": 42,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4266,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, exploratory-data-analysis, clinical-decision-support"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 24,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, exploratory-data-analysis, clinical-decision-support diterapkan."
       },
-      "contentLen": 1201,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.   Provider aktif: 9Router (via ollama/gpt-oss:120b)   Model aktif: ollama/gpt-oss:120b  Mengapa model ini dipilih untuk pekerjaan RF?  1. Latensi ultra‑rendah – Model ollama/gpt-oss:1"
+      "contentLen": 615,
+      "snippet": "TelecomAgent RF Co-Pilot — Status Model dan Provider  Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.  Provider: 9Router (via ollama/gpt-oss:120b) Model: ollama/gpt-oss:120b Status Engine: T"
     },
     {
       "id": 74,
@@ -1787,21 +1807,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5171,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 41,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 5153,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 24,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas diterapkan."
       },
-      "contentLen": 1827,
-      "snippet": "The user asks: \"jelaskan konteks window 128k\". Likely they refer to RF context? Could be about LTE/NR window size for measurement reporting? Or maybe about \"window 128k\" in context of 5G NR, maybe referring to \"RLC UM wi"
+      "contentLen": 321,
+      "snippet": "Untuk pertanyaan \"jelaskan konteks window 128k\" belum ada di vault 3GPP 54 notes. Coba tanya lebih spesifik (mis. RSRP, PCI, tilt) atau tambah experience knowledge di vault/experience/ — nanti saya bisa summarize otomati"
     },
     {
       "id": 75,
@@ -1810,21 +1832,23 @@
       "tags": [
         "model-query"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5179,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 41,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 5162,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, clinical-decision-support, dask"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 23,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, clinical-decision-support, dask diterapkan."
       },
-      "contentLen": 474,
-      "snippet": "Koneksi saat ini live – API Key telah ter‑verifikasi dan dapat diakses melalui endpoint:  - Provider: 9Router (via ollama/gpt-oss:120b)   - Model: ollama/gpt-oss:120b   - Base URL: http://localhost:20128/v1    Artinya la"
+      "contentLen": 870,
+      "snippet": "Menarik — saya temukan di vault: [sources/36331_g00.md] …r ACDC 115 5.3.3.14 Access Barring check for NB-IoT 116 5.3.3.15 Failure to deliver NAS information in RRCConnectionSetupComplete message 118 5.3.3.16 Integrity ch"
     },
     {
       "id": 76,
@@ -1836,19 +1860,19 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 5269,
+      "latency": 36,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
+        "provider": "Deterministic DriveTest Engine",
+        "providerId": "drivetest",
+        "model": "pandas-fallback",
+        "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 5251,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, exploratory-data-analysis"
+        "latencyMs": 20,
+        "status": "ok",
+        "reason": "Deterministic pandas fallback for Drive Test"
       },
-      "contentLen": 1365,
-      "snippet": "Halo, selamat datang di TelecomAgent RF Co‑Pilot.   Provider aktif: 9Router (via ollama/gpt-oss:120b)   Model aktif: ollama/gpt-oss:120b    Model ini dipilih karena: - Latensi inferensi sangat rendah, cocok untuk analisi"
+      "contentLen": 172,
+      "snippet": "Analisa Drive Test dengan Pandas (df.shape, df.describe, df.nunique, korelasi RSRP vs SINR, outlier detection) — RAW-FIRST workflow: inspeksi raw dulu sebelum agregasi KPI."
     },
     {
       "id": 77,
@@ -1857,21 +1881,23 @@
       "tags": [
         "dt"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 5700,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 39,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 5682,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, oss-kpi"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 23,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, oss-kpi diterapkan."
       },
-      "contentLen": 1063,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.  Untuk menghitung KPI RSRP, SINR, dan Throughput dari file CSV, saya memerlukan data mentahnya. Silakan unggah file CSV (atau ZIP berisi CSV) yang berisi log drive‑test/OSS.    Setela"
+      "contentLen": 928,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 78,
@@ -1884,14 +1910,14 @@
       "fails": [
         "isLive expected false got true"
       ],
-      "latency": 382,
+      "latency": 403,
       "meta": {
         "provider": "Deterministic DriveTest Engine",
         "providerId": "drivetest",
         "model": "pandas-fallback",
         "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 364,
+        "latencyMs": 402,
         "status": "ok",
         "reason": "Deterministic pandas fallback for Drive Test"
       },
@@ -1907,19 +1933,19 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 6010,
+      "latency": 38,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
+        "provider": "Deterministic DriveTest Engine",
+        "providerId": "drivetest",
+        "model": "pandas-fallback",
+        "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 5992,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, geomaster, matplotlib"
+        "latencyMs": 12,
+        "status": "ok",
+        "reason": "Deterministic pandas fallback for Drive Test"
       },
-      "contentLen": 856,
-      "snippet": "Berikut hasil inspeksi cepat pada file log yang Anda unggah menggunakan pandas:  1. Dimensi DataFrame (df.shape)  (  8 542 ,  27 )  Artinya terdapat 8 542 baris (record) dan 27 kolom (fitur).  2. Statistik Deskriptif (df"
+      "contentLen": 172,
+      "snippet": "Analisa Drive Test dengan Pandas (df.shape, df.describe, df.nunique, korelasi RSRP vs SINR, outlier detection) — RAW-FIRST workflow: inspeksi raw dulu sebelum agregasi KPI."
     },
     {
       "id": 80,
@@ -1928,21 +1954,23 @@
       "tags": [
         "pandas"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 7567,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 42,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 7551,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, coverage"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 26,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
-      "contentLen": 1110,
-      "snippet": "Korelasi RSRP vs SINR – Penjelasan & Langkah Analisis  1. Konsep Dasar    - RSRP (Reference Signal Received Power) mengukur kekuatan sinyal yang diterima dari sel target (dBm).      - SINR (Signal‑to‑Interference‑plus‑No"
+      "contentLen": 1428,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 81,
@@ -1951,21 +1979,23 @@
       "tags": [
         "pandas"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 7065,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 39,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 7048,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, rca, polars"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 17,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, rca, polars diterapkan."
       },
-      "contentLen": 975,
-      "snippet": "Untuk menghitung distribusi PCI per operator saya memerlukan data mentah yang memuat setidaknya dua kolom berikut:  1. PCI – nilai Physical Cell Identity (0‑503).   2. Operator – nama atau kode operator (misalnya “Telkom"
+      "contentLen": 1086,
+      "snippet": "PCI — Physical Cell Identity (0-503 LTE, 0-1007 NR, TS 38.211 Sec 7.4.2)  Aturan: hindari PCI collision (PCI sama di neighbor) dan confusion (dua neighbor PCI sama untuk serving). Cek Mod 3 (LTE SSS) dan Mod 30/4 (NR DMR"
     },
     {
       "id": 82,
@@ -1974,21 +2004,23 @@
       "tags": [
         "pandas"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 6395,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 36,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 6377,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, aeon"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 25,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, aeon diterapkan."
       },
-      "contentLen": 1001,
-      "snippet": "Berikut langkah‑langkah praktis untuk mendeteksi outlier pada kolom Throughput (DL/UL) menggunakan Python pandas serta opsi lanjutan dengan scikit‑learn atau aeon bila data bersifat time‑series.  ---  1. Persiapan data ("
+      "contentLen": 801,
+      "snippet": "Hasil Audit dan Evaluasi Drive Test Cluster C1  Berdasarkan data pengukuran RF log terlampir:  1. Ringkasan KPI    - RSRP Coverage (>= -100 dBm): 94.2% (target 95.0% — defisit 0.8%)    - SINR Quality (>= 5.0 dB): 81.4% ("
     },
     {
       "id": 83,
@@ -1999,19 +2031,19 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 6016,
+      "latency": 54,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
+        "provider": "Deterministic DriveTest Engine",
+        "providerId": "drivetest",
+        "model": "pandas-fallback",
+        "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 5998,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, exploratory-data-analysis"
+        "latencyMs": 38,
+        "status": "ok",
+        "reason": "Deterministic pandas fallback for Drive Test"
       },
-      "contentLen": 1273,
-      "snippet": "Terima kasih. Silakan unggah file Nemo log .csv yang ingin Anda analisis.    Setelah file diterima, saya akan melakukan langkah‑langkah berikut secara berurutan:  1. Inspeksi mentah – menampilkan df.shape, df.columns, ti"
+      "contentLen": 172,
+      "snippet": "Analisa Drive Test dengan Pandas (df.shape, df.describe, df.nunique, korelasi RSRP vs SINR, outlier detection) — RAW-FIRST workflow: inspeksi raw dulu sebelum agregasi KPI."
     },
     {
       "id": 84,
@@ -2022,19 +2054,19 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 5778,
+      "latency": 38,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
+        "provider": "Deterministic DriveTest Engine",
+        "providerId": "drivetest",
+        "model": "pandas-fallback",
+        "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 5761,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, polars, analyze-dt"
+        "latencyMs": 21,
+        "status": "ok",
+        "reason": "Deterministic pandas fallback for Drive Test"
       },
-      "contentLen": 1442,
-      "snippet": "Halo, selamat datang di TelecomAgent RF Co‑Pilot.   Provider aktif: 9Router (via ollama/gpt-oss:120b)   Model aktif: ollama/gpt-oss:120b    Mengapa model ini?   - Latensi ultra‑rendah sehingga analisis drive‑test dapat d"
+      "contentLen": 172,
+      "snippet": "Analisa Drive Test dengan Pandas (df.shape, df.describe, df.nunique, korelasi RSRP vs SINR, outlier detection) — RAW-FIRST workflow: inspeksi raw dulu sebelum agregasi KPI."
     },
     {
       "id": 85,
@@ -2045,19 +2077,19 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 6638,
+      "latency": 27,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
+        "provider": "Deterministic DriveTest Engine",
+        "providerId": "drivetest",
+        "model": "pandas-fallback",
+        "modelVersion": "v1",
         "isLive": true,
-        "latencyMs": 6619,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, xlsx"
+        "latencyMs": 11,
+        "status": "ok",
+        "reason": "Deterministic pandas fallback for Drive Test"
       },
-      "contentLen": 1139,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.   Untuk membuat laporan Excel lengkap dari log Drive‑Test (DT), saya memerlukan file mentahnya (biasanya format CSV atau TXT). Silakan unggah file DT‑log Anda, kemudian saya akan:  1."
+      "contentLen": 172,
+      "snippet": "Analisa Drive Test dengan Pandas (df.shape, df.describe, df.nunique, korelasi RSRP vs SINR, outlier detection) — RAW-FIRST workflow: inspeksi raw dulu sebelum agregasi KPI."
     },
     {
       "id": 86,
@@ -2068,14 +2100,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 197,
+      "latency": 375,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 179,
+        "latencyMs": 357,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
@@ -2091,14 +2123,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 101,
+      "latency": 833,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 85,
+        "latencyMs": 831,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
@@ -2112,21 +2144,23 @@
       "tags": [
         "edge"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 4958,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 43,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4941,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, autoskill"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 24,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, autoskill diterapkan."
       },
-      "contentLen": 1486,
-      "snippet": "RSRP (Reference Signal Received Power) adalah ukuran daya sinyal referensi yang diterima oleh perangkat UE (User Equipment) dari sebuah sel seluler pada jaringan LTE atau NR (5G).    Berikut poin‑poin utama mengenai RSRP"
+      "contentLen": 1392,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 89,
@@ -2135,21 +2169,23 @@
       "tags": [
         "edge"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 7746,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 42,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 7728,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, coverage"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 26,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
-      "contentLen": 1159,
-      "snippet": "RSRP (Reference Signal Received Power) itu singkatan dari daya sinyal referensi yang diterima oleh perangkat UE (User Equipment). Berikut penjelasan dengan bahasa yang santai:  1. Apa itu RSRP?      - RSRP mengukur kekua"
+      "contentLen": 683,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 90,
@@ -2158,21 +2194,23 @@
       "tags": [
         "edge"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 7102,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 45,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 7085,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, rca"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 27,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, rca diterapkan."
       },
-      "contentLen": 618,
-      "snippet": "RSRP, SINR, dan PCI – Penjelasan Menyeluruh  1. RSRP (Reference Signal Received Power)    - Definisi: Kekuatan sinyal referensi yang diterima oleh UE (User Equipment) dari sebuah sel LTE/NR. Diukur dalam dBm.    - Rentan"
+      "contentLen": 1440,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 91,
@@ -2183,14 +2221,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 503,
+      "latency": 417,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 486,
+        "latencyMs": 402,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas diterapkan."
       },
@@ -2204,21 +2242,23 @@
       "tags": [
         "adversarial"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 4160,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 44,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4156,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analytical-method-validation, autoskill"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 27,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analytical-method-validation, autoskill diterapkan."
       },
-      "contentLen": 55,
-      "snippet": "Maaf, saya tidak dapat melanjutkan permintaan tersebut."
+      "contentLen": 626,
+      "snippet": "Halo! Saya siap bantu analisa RF 4G/5G — beberapa yang bisa saya lakukan: - pandas (data-analysis): Pandas data analysis skill for Python, optimized for telecommunications, drive test, KPI/QoS, CSV/Excel processing, data"
     },
     {
       "id": 93,
@@ -2227,21 +2267,23 @@
       "tags": [
         "adversarial"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 4777,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 42,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 4761,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, autoskill, docx"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 25,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, autoskill, docx diterapkan."
       },
-      "contentLen": 911,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.    Provider yang aktif saat ini: 9Router (via ollama/gpt-oss:120b)   Model yang aktif: ollama/gpt-oss:120b  Mengapa menggunakan model ini?   1. Kecepatan & Latensi – Model ollama/gpt-"
+      "contentLen": 615,
+      "snippet": "TelecomAgent RF Co-Pilot — Status Model dan Provider  Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.  Provider: 9Router (via ollama/gpt-oss:120b) Model: ollama/gpt-oss:120b Status Engine: T"
     },
     {
       "id": 94,
@@ -2252,14 +2294,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 404,
+      "latency": 412,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 388,
+        "latencyMs": 395,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas diterapkan."
       },
@@ -2273,21 +2315,23 @@
       "tags": [
         "edge"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 7051,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 39,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 7036,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, clinical-reports"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 21,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, clinical-reports diterapkan."
       },
-      "contentLen": 1623,
-      "snippet": "Halo, saya TelecomAgent RF Co‑Pilot.    RSRP (Reference Signal Received Power) adalah salah satu indikator utama kualitas sinyal pada jaringan LTE dan 5G NR. Berikut penjelasan teknisnya:  1. Definisi      - RSRP adalah "
+      "contentLen": 683,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 96,
@@ -2296,21 +2340,23 @@
       "tags": [
         "context"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 9944,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 38,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 9927,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, coverage"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 24,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
-      "contentLen": 1198,
-      "snippet": "SINR (Signal‑to‑Interference‑plus‑Noise Ratio) adalah metrik utama yang menggambarkan kualitas sinyal radio pada jaringan seluler 4G LTE maupun 5G NR. Berikut penjelasan teknisnya:  1. Definisi      - SINR = (P_signal) /"
+      "contentLen": 471,
+      "snippet": "SINR — Signal to Interference plus Noise Ratio (3GPP TS 36.214)  Definisi: rasio daya sinyal yang diinginkan terhadap interferensi + noise, satuan dB. Menentukan MCS/CQI dan throughput.  Kategori: - Excellent >= 15 dB - "
     },
     {
       "id": 97,
@@ -2319,21 +2365,23 @@
       "tags": [
         "context"
       ],
-      "ok": true,
-      "fails": [],
-      "latency": 10749,
+      "ok": false,
+      "fails": [
+        "isLive expected true got false"
+      ],
+      "latency": 44,
       "meta": {
-        "provider": "9router",
-        "providerId": "9router",
-        "model": "ollama/gpt-oss:120b",
-        "modelVersion": "ollama/gpt-oss:120b",
-        "isLive": true,
-        "latencyMs": 10731,
-        "status": "connected",
-        "reason": "Live model + skill-aware: pandas, analyze-dt, coverage"
+        "provider": "TelecomAgent RF Engine (Fallback)",
+        "providerId": "fallback",
+        "model": "telecom-rf-expert",
+        "modelVersion": "v0.4.2-domain",
+        "isLive": false,
+        "latencyMs": 28,
+        "status": "fallback",
+        "reason": "Fallback + skill-aware: pandas, analyze-dt, coverage diterapkan."
       },
-      "contentLen": 1572,
-      "snippet": "RSRP (Reference Signal Received Power) mengukur kekuatan sinyal yang diterima, sedangkan SINR (Signal‑to‑Interference‑plus‑Noise Ratio) menilai kualitas sinyal setelah memperhitungkan interferensi dan noise. Karena itu, "
+      "contentLen": 1428,
+      "snippet": "RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)  Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE. "
     },
     {
       "id": 98,
@@ -2344,14 +2392,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 942,
+      "latency": 665,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 924,
+        "latencyMs": 649,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, dask, pdf diterapkan."
       },
@@ -2368,14 +2416,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 187,
+      "latency": 632,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 170,
+        "latencyMs": 602,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analytical-method-validation, autoskill diterapkan."
       },
@@ -2391,14 +2439,14 @@
       ],
       "ok": true,
       "fails": [],
-      "latency": 237,
+      "latency": 402,
       "meta": {
         "provider": "TelecomAgent RF Engine (Fallback)",
         "providerId": "fallback",
         "model": "telecom-rf-expert",
         "modelVersion": "v0.4.2-domain",
         "isLive": false,
-        "latencyMs": 222,
+        "latencyMs": 384,
         "status": "fallback",
         "reason": "Fallback + skill-aware: pandas, analytical-method-validation, analyze-dt diterapkan."
       },
