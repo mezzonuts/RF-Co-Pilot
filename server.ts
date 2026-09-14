@@ -1379,6 +1379,11 @@ app.post('/api/chat', async (req: Request, res: Response) => {
              * Kecepatan & Latensi: Model ${targetModel} (dengan provider ${_providerLabel}) memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
              * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antenna, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
              * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
+        2c. JIKA USER MENANYAKAN SINGKATAN / DEFINISI / PENGERTIAN (contoh: 'apa itu X', 'singkatan dari X', 'X adalah apa', 'makna X'):
+           - Jawab LANGSUNG dengan definisi singkat dan jelas (1-3 kalimat).
+           - JANGAN dump data mentah, jangan sebutkan parameter/spektrum yang tidak relevan.
+           - Contoh: "MOCN = Multi-Operator Core Network — arsitektur RAN sharing di mana beberapa operator berbagi satu eNodeB tapi masing-masing punya core network sendiri."
+           - Setelah definisi, boleh tambahkan 1-2 konteks tambahan jika relevan (misal: "Di Indonesia, MOCN dipakai oleh Indosat & Hutchison berbagi jaringan").
         3. JIKA ADA DATA FILE TERLAMPIR / DT LOG CSV (WAJIB RAW-FIRST via Pandas):
            - Langkah WAJIB sebelum agregasi: inspeksi raw dulu — df.shape, df.columns, df.dtypes, df.isna().sum(), df.describe(), df.nunique(). Pahami jumlah baris/kolom, tipe, missing, duplikat, numerik vs kategorik.
            - Perhatikan SEMUA kolom dari raw (RSRP, RSRQ, SINR, Throughput DL/UL, PING, JITTER, Band, PCI, CID, LAC, eNB, Group/Lokasi, Time, ISP/Operator) — JANGAN hanya agregasi RSRP saja.
