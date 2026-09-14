@@ -1374,7 +1374,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
            - Deteksi & sebutkan secara eksplisit Provider yang aktif: "${_providerLabel}" (jangan jawab Google AI Studio jika provider bukan google).
            - Deteksi & sebutkan secara eksplisit Model yang aktif: "${targetModel}".
            - Jelaskan alasannya (\"Bila kenapa / mengapa model ini\"):
-             * Kecepatan & Latensi: Model Gemini Flash memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
+             * Kecepatan & Latensi: Model ${targetModel} (dengan provider ${_providerLabel}) memberikan latensi inferensi ultra-rendah untuk interaksi real-time tanpa jeda.
              * Kapabilitas Penalaran RF: Mampu mengkalkulasi KPI radio (RSRP, SINR, CQI, BLER), parameter tilt RET antenna, alokasi PCI Modulo 3, serta diagnosa handover failure dengan rujukan 3GPP (TS 38.211, TS 38.331).
              * Jendela Konteks Luas: Mendukung pembacaan preview log Drive Test (CSV/Nemo/TEMS) dan OSS counter dalam volume besar tanpa truncate.
         3. JIKA ADA DATA FILE TERLAMPIR / DT LOG CSV (WAJIB RAW-FIRST via Pandas):
