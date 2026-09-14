@@ -1,0 +1,2402 @@
+[
+  {
+    "id": 1,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah MCC dan MNC untuk operator Telkomsel?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510-10"
+  },
+  {
+    "id": 2,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan PLMN ID dari Indosat Ooredoo Hutchison brand IM3!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510-01"
+  },
+  {
+    "id": 3,
+    "category": "Operator & Spectrum",
+    "prompt": "PLMN 510-89 dialokasikan untuk operator dan brand apa di Indonesia?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510-89"
+  },
+  {
+    "id": 4,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan PLMN ID resmi untuk XL Axiata!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510-11"
+  },
+  {
+    "id": 5,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah PLMN ID milik Smartfren Telecom?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510-28"
+  },
+  {
+    "id": 6,
+    "category": "Operator & Spectrum",
+    "prompt": "EARFCN 1850 beroperasi pada frekuensi berapa dan band LTE berapa?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1870"
+  },
+  {
+    "id": 7,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai center frequency DL untuk EARFCN 3775 Band 8 Telkomsel?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "957.5"
+  },
+  {
+    "id": 8,
+    "category": "Operator & Spectrum",
+    "prompt": "Tentukan frekuensi downlink untuk EARFCN 38950 pada Band 40 TDD!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2320"
+  },
+  {
+    "id": 9,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah frekuensi radio untuk 5G NR ARFCN 632000 di n40?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2300"
+  },
+  {
+    "id": 10,
+    "category": "Operator & Spectrum",
+    "prompt": "NR-ARFCN 156400 Telkomsel beroperasi pada band 5G berapa?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "n28"
+  },
+  {
+    "id": 11,
+    "category": "Operator & Spectrum",
+    "prompt": "Bagaimana arsitektur RAN sharing MOCN antara PLMN 510-01 dan 510-89 pada IOH?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mocn"
+  },
+  {
+    "id": 12,
+    "category": "Operator & Spectrum",
+    "prompt": "Di mana informasi daftar PLMN MOCN dibroadcast ke UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sib1"
+  },
+  {
+    "id": 13,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa fungsi parameter cellReservedForOperatorUse dalam SIB1 MOCN?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cellreservedforoperatoruse"
+  },
+  {
+    "id": 14,
+    "category": "Operator & Spectrum",
+    "prompt": "Tuliskan formula perhitungan CGI (Cell Global Identity) lengkap!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tac"
+  },
+  {
+    "id": 15,
+    "category": "Operator & Spectrum",
+    "prompt": "Mengapa Band 8 (900 MHz) sangat ideal untuk implementasi NB-IoT deep indoor?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "164"
+  },
+  {
+    "id": 16,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai Maximum Coupling Loss (MCL) standar untuk teknologi NB-IoT?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mcl"
+  },
+  {
+    "id": 17,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah alokasi bandwidth TDD Band 40 Smartfren pada EARFCN 39850?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "30 mhz"
+  },
+  {
+    "id": 18,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan nomor band FDD 850 MHz yang dipakai Smartfren untuk coverage anchor!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "band 5"
+  },
+  {
+    "id": 19,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah teoritis peak throughput 5G NR n40 100MHz di IKN Nusantara?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1.54"
+  },
+  {
+    "id": 20,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah jumlah Resource Block (PRB) pada 5G NR 100MHz dengan 30kHz SCS?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "273"
+  },
+  {
+    "id": 21,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah modulasi tertinggi yang digunakan pada 5G NR peak rate 3GPP TS 38.306?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "256qam"
+  },
+  {
+    "id": 22,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN DL untuk Band 3 XL Axiata 1855 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1700"
+  },
+  {
+    "id": 23,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN DL untuk Band 1 Indosat 2150 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "500"
+  },
+  {
+    "id": 24,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa nomor NR-ARFCN untuk deployment 5G XL Axiata di band 700 MHz n28?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "155000"
+  },
+  {
+    "id": 25,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan nomor NR-ARFCN n1 2100 MHz untuk Telkomsel 5G NSA anchor!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "427000"
+  },
+  {
+    "id": 26,
+    "category": "Operator & Spectrum",
+    "prompt": "Jelaskan konsep IOH toll-free roaming pada jaringan integrasi MOCN!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ioh"
+  },
+  {
+    "id": 27,
+    "category": "Operator & Spectrum",
+    "prompt": "Tuliskan rumus 3GPP TS 36.101 untuk menghitung frekuensi downlink LTE dari EARFCN!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "fdl_low"
+  },
+  {
+    "id": 28,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai delta frequency global channel raster 5G NR di bawah 3 GHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "5 khz"
+  },
+  {
+    "id": 29,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai global channel raster 5G NR di atas 3000 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "15 khz"
+  },
+  {
+    "id": 30,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapa alokasi spektrum total Band 40 Telkomsel di frekuensi 2.3 GHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "50 mhz"
+  },
+  {
+    "id": 31,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN LTE Band 3 Tri Hutchison pada center freq 1820 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1350"
+  },
+  {
+    "id": 32,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN LTE Band 1 Tri Hutchison pada center freq 2147.5 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "275"
+  },
+  {
+    "id": 33,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN Band 8 XL Axiata pada center freq 927.5 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "3475"
+  },
+  {
+    "id": 34,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan EARFCN Band 8 Indosat IM3 pada center freq 932.5 MHz!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "3525"
+  },
+  {
+    "id": 35,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah bandwidth carrier LTE Band 3 Telkomsel EARFCN 1850?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "20 mhz"
+  },
+  {
+    "id": 36,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah MIMO layers maksimum yang dipakai dalam kalkulasi peak throughput n40 IKN?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "4x4"
+  },
+  {
+    "id": 37,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai scaling factor f dalam throughput TS 38.306 IKN?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "scaling factor"
+  },
+  {
+    "id": 38,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah overhead factor standar Downlink 5G NR FR1 yang digunakan dalam kalkulasi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "0.14"
+  },
+  {
+    "id": 39,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nilai subcarrier spacing numerology mu=1 pada 5G NR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "30 khz"
+  },
+  {
+    "id": 40,
+    "category": "Operator & Spectrum",
+    "prompt": "Tuliskan kode MCC resmi untuk seluruh operator telekomunikasi seluler di Indonesia!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "510"
+  },
+  {
+    "id": 41,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan standar 3GPP yang mengatur spesifikasi MOCN multi-operator!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "23.251"
+  },
+  {
+    "id": 42,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa parameter SIB1 yang menunjukkan sel tidak boleh diakses oleh UE umum?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cellbarred"
+  },
+  {
+    "id": 43,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan frekuensi uplink dan downlink duplex mode FDD pada Band 8!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "900 mhz"
+  },
+  {
+    "id": 44,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah bandwidth total alokasi frekuensi 5G NR n40 di IKN?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "100 mhz"
+  },
+  {
+    "id": 45,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa keunggulan deployment NB-IoT in-band dibandingkan standalone?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "in-band"
+  },
+  {
+    "id": 46,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan NR-ARFCN n3 1800 MHz yang digunakan untuk sharing spectrum IOH!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "367500"
+  },
+  {
+    "id": 47,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa fungsi carrier aggregation pada jaringan LTE-Advanced Telkomsel dan XL?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "carrier aggregation"
+  },
+  {
+    "id": 48,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nomor EARFCN untuk Band 40 XL Axiata di frekuensi 2360 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "39350"
+  },
+  {
+    "id": 49,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nomor EARFCN untuk Band 40 Indosat IM3 di frekuensi 2340 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "39150"
+  },
+  {
+    "id": 50,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nomor EARFCN untuk Band 1 Telkomsel di frekuensi 2135 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "150"
+  },
+  {
+    "id": 51,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah nomor EARFCN untuk Band 1 XL Axiata di frekuensi 2157.5 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "375"
+  },
+  {
+    "id": 52,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan duplex mode yang digunakan pada Band 40 (2300 MHz)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tdd"
+  },
+  {
+    "id": 53,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan duplex mode yang digunakan pada Band 3 (1800 MHz)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "fdd"
+  },
+  {
+    "id": 54,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan duplex mode yang digunakan pada Band 1 (2100 MHz)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "fdd"
+  },
+  {
+    "id": 55,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapa target code rate Rmax pada kalkulasi throughput 256QAM 3GPP TS 38.306?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "948"
+  },
+  {
+    "id": 56,
+    "category": "Operator & Spectrum",
+    "prompt": "Apakah Smartfren memiliki alokasi frekuensi 2G GSM di Indonesia?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "smartfren"
+  },
+  {
+    "id": 57,
+    "category": "Operator & Spectrum",
+    "prompt": "Apa peran DSS (Dynamic Spectrum Sharing) pada band n1 Telkomsel?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dss"
+  },
+  {
+    "id": 58,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapakah jumlah subcarrier dalam 1 Resource Block pada LTE dan 5G NR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "12"
+  },
+  {
+    "id": 59,
+    "category": "Operator & Spectrum",
+    "prompt": "Berapa slot per subframe pada 5G NR dengan numerologi mu=1 (30 kHz)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2"
+  },
+  {
+    "id": 60,
+    "category": "Operator & Spectrum",
+    "prompt": "Sebutkan interface yang menghubungkan shared RAN ke EPC dalam MOCN!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "s1"
+  },
+  {
+    "id": 61,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah threshold minimum RSRP untuk kategori sinyal Excellent pada LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-80"
+  },
+  {
+    "id": 62,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapa nilai RSRP di mana suatu area dikategorikan sebagai Coverage Hole?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-110"
+  },
+  {
+    "id": 63,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah nilai threshold SINR minimum untuk mencegah radio link drop?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "0 db"
+  },
+  {
+    "id": 64,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan definisi kondisi Pilot Pollution pada drive test LTE/NR!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pilot pollution"
+  },
+  {
+    "id": 65,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah kriteria perbedaan delta RSRP antar kandidat cell pada Pilot Pollution?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "3 db"
+  },
+  {
+    "id": 66,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Tuliskan formula perhitungan Physical Cell ID (PCI) berdasarkan TS 36.211!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "nid"
+  },
+  {
+    "id": 67,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah total jumlah PCI unik yang tersedia pada teknologi 4G LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "504"
+  },
+  {
+    "id": 68,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah total jumlah Physical Cell ID unik pada teknologi 5G NR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1008"
+  },
+  {
+    "id": 69,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan penyebab dan dampak dari terjadinya PCI Collision!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "collision"
+  },
+  {
+    "id": 70,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan perbedaan antara PCI Confusion dan PCI Collision!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "confusion"
+  },
+  {
+    "id": 71,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Mengapa kondisi PCI Modulo 3 identik menyebabkan degradasi tajam pada SINR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mod 3"
+  },
+  {
+    "id": 72,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Subcarrier reference signal apa yang bertabrakan saat terjadi PCI Modulo 3 conflict?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "crs"
+  },
+  {
+    "id": 73,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan dampak interferensi dari PCI Modulo 30 pada uplink LTE!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mod 30"
+  },
+  {
+    "id": 74,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Sinyal uplink apa yang mengalami collision pada interferensi PCI Mod 30?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dmrs"
+  },
+  {
+    "id": 75,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa itu PIM (Passive Intermodulation) dan apa penyebab fisiknya di tower?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pim"
+  },
+  {
+    "id": 76,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana gejala PIM terdeteksi pada metrik RTWP / Uplink RSSI base station?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rtwp"
+  },
+  {
+    "id": 77,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan apa yang dimaksud dengan Cross-Feeder pada instalasi antena eNodeB!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cross-feeder"
+  },
+  {
+    "id": 78,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana cara mendeteksi kabel Cross-Feeder melalui log drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "azimuth"
+  },
+  {
+    "id": 79,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Tuliskan rumus pergeseran Doppler Shift pada kondisi mobile UE berkecepatan tinggi!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "doppler"
+  },
+  {
+    "id": 80,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa dampak Carrier Frequency Offset (CFO) akibat Doppler shift pada OFDM?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "orthogonality"
+  },
+  {
+    "id": 81,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah jarak ekuivalen per step Timing Advance (TA) pada LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "78.12"
+  },
+  {
+    "id": 82,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah durasi sampling time dasar Ts pada LTE 30.72 MHz?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "32.55"
+  },
+  {
+    "id": 83,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Kapan fitur Extended Cyclic Prefix (Extended CP) / TA80 wajib diaktifkan?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "extended cp"
+  },
+  {
+    "id": 84,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah durasi normal CP vs extended CP pada frame LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "16.67"
+  },
+  {
+    "id": 85,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Tuliskan rumus Path Loss berdasarkan SIB2 referenceSignalPower dan RSRP!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "referencesignalpower"
+  },
+  {
+    "id": 86,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa arti Rank Indicator (RI) = 1 pada pelaporan CSI UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rank indicator"
+  },
+  {
+    "id": 87,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapa batas Condition Number matriks channel MIMO sebelum rank collapse?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "condition number"
+  },
+  {
+    "id": 88,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa itu Spurious Emission dan apa penyebab kemunculannya?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "spurious"
+  },
+  {
+    "id": 89,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Mengapa CQI UE jatuh ke nilai 1-4 saat terjadi pilot pollution?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cqi"
+  },
+  {
+    "id": 90,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa solusi optimasi RF utama untuk mengatasi overshooting cell?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tilt"
+  },
+  {
+    "id": 91,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa fungsi Remote Electrical Tilt (RET) pada antena sektoral?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ret"
+  },
+  {
+    "id": 92,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah target Downlink BLER pada loop konvergensi link adaptation L1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "10%"
+  },
+  {
+    "id": 93,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana hubungan antara RSRQ rendah dan RSSI tinggi pada interferensi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rsrq"
+  },
+  {
+    "id": 94,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa yang dimaksud dengan Cell Individual Offset (CIO) pada optimasi RF?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cio"
+  },
+  {
+    "id": 95,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa efek multipath delay spread yang melebihi durasi Cyclic Prefix?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "isi"
+  },
+  {
+    "id": 96,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Sebutkan frekuensi gelombang intermodulasi orde 3 dari sinyal f1 dan f2!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2f1"
+  },
+  {
+    "id": 97,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Jelaskan peran beamforming pada 5G NR Massive MIMO di layer 1!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "beamforming"
+  },
+  {
+    "id": 98,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Mengapa kondisi LOS (Line of Sight) murni kadang menurunkan MIMO Rank?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mimo"
+  },
+  {
+    "id": 99,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapa threshold RSRQ untuk kategori kualitas radio Good?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-11"
+  },
+  {
+    "id": 100,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa yang terjadi pada modulasi data ketika SINR bernilai di bawah 0 dB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "qpsk"
+  },
+  {
+    "id": 101,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa fungsi Primary Synchronization Signal (PSS) dalam kalkulasi PCI?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pss"
+  },
+  {
+    "id": 102,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa fungsi Secondary Synchronization Signal (SSS) dalam kalkulasi PCI?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sss"
+  },
+  {
+    "id": 103,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapa nilai N_ID_2 yang mungkin diperoleh dari PSS LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "0..2"
+  },
+  {
+    "id": 104,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapa range nilai group ID N_ID_1 pada SSS LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "167"
+  },
+  {
+    "id": 105,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana cara mendeteksi keberadaan eksternal jamming pada spektrum LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "noise floor"
+  },
+  {
+    "id": 106,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa dampak rusaknya konektor jumper RF terhadap VSWR dan PIM?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "vswr"
+  },
+  {
+    "id": 107,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Mengapa coverage Band 8 (900MHz) memiliki path loss lebih rendah dari Band 3?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "path loss"
+  },
+  {
+    "id": 108,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah jarak jangkauan maksimum normal CP LTE sebelum butuh extended CP?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "1.4 km"
+  },
+  {
+    "id": 109,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa fungsi CSI-RS (Channel State Information RS) pada 5G NR Layer 1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "csi-rs"
+  },
+  {
+    "id": 110,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa penyebab drop RSRP tiba-tiba sebesar 20 dB saat rotasi kendaraan di drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "shadowing"
+  },
+  {
+    "id": 111,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana cara membedakan interferensi internal sel tetangga vs eksternal PIM?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "uplink"
+  },
+  {
+    "id": 112,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa dampak negatif dari mechanical down-tilt yang terlalu curam pada sidelobe?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sidelobe"
+  },
+  {
+    "id": 113,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa yang dimaksud dengan Inter-Carrier Interference (ICI)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ici"
+  },
+  {
+    "id": 114,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Berapakah threshold minimum SINR untuk mencapai modulasi 256QAM pada LTE/NR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "20 db"
+  },
+  {
+    "id": 115,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa arti physical layer parameter referenceSignalPower pada SIB2?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dbm"
+  },
+  {
+    "id": 116,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Bagaimana cara mengisolasi sektor yang mengalami cross-feeder TX/RX diversity?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "diversity"
+  },
+  {
+    "id": 117,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa efek thermal noise floor standar pada bandwidth 20 MHz LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-174"
+  },
+  {
+    "id": 118,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Mengapa pilot pollution menyebabkan ping-pong handover antar sektor?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ping-pong"
+  },
+  {
+    "id": 119,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Apa hubungan antara MCS (Modulation and Coding Scheme) dan BLER target L1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mcs"
+  },
+  {
+    "id": 120,
+    "category": "Layer 1 RF RCA",
+    "prompt": "Sebutkan metode diversity receiver untuk memitigasi fading di eNodeB!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mrc"
+  },
+  {
+    "id": 121,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan fungsi algoritma scheduler Proportional Fair (PF) pada MAC layer!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "proportional fair"
+  },
+  {
+    "id": 122,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa kelemahan utama dari Round Robin (RR) scheduler pada jaringan seluler?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "round robin"
+  },
+  {
+    "id": 123,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa dampak penggunaan scheduler Max C/I terhadap pengguna di cell edge?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "starvation"
+  },
+  {
+    "id": 124,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapakah jumlah proses HARQ standar pada sistem LTE FDD?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "8"
+  },
+  {
+    "id": 125,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan perbedaan mendasar antara HARQ Chase Combining dan Incremental Redundancy!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "incremental redundancy"
+  },
+  {
+    "id": 126,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapakah target residual BLER pada proses transmisi awal HARQ MAC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "10%"
+  },
+  {
+    "id": 127,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan fungsi sublayer RLC AM (Acknowledged Mode) menurut TS 36.322!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rlc am"
+  },
+  {
+    "id": 128,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa yang terjadi jika parameter RLC maxRetxThreshold terlampaui?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "maxretxthreshold"
+  },
+  {
+    "id": 129,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Kapan RLC Unacknowledged Mode (UM) digunakan dan untuk jenis trafik apa?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rlc um"
+  },
+  {
+    "id": 130,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi timer t-Reordering pada sublayer RLC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t-reordering"
+  },
+  {
+    "id": 131,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan fungsi timer t-PollRetransmit pada RLC AM!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t-pollretransmit"
+  },
+  {
+    "id": 132,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana cara kerja PDCP Discard Timer dalam mencegah buffer bloat?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "discardtimer"
+  },
+  {
+    "id": 133,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapakah nilai tipikal PDCP discardTimer untuk bearer VoLTE QCI 1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "100 ms"
+  },
+  {
+    "id": 134,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan fungsi fitur Robust Header Compression (ROHC) pada PDCP!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rohc"
+  },
+  {
+    "id": 135,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapa ukuran kompresi header IP/UDP/RTP yang dicapai oleh ROHC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2-4 byte"
+  },
+  {
+    "id": 136,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi Buffer Status Report (BSR) yang dikirimkan UE ke eNodeB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "bsr"
+  },
+  {
+    "id": 137,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi Power Headroom Report (PHR) pada Uplink scheduling MAC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "phr"
+  },
+  {
+    "id": 138,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "DCI format berapa yang membawa uplink grant scheduling pada LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dci format 0"
+  },
+  {
+    "id": 139,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "DCI format berapa yang digunakan untuk downlink scheduling resource assignment?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dci format 1"
+  },
+  {
+    "id": 140,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan fungsi sublayer SDAP pada arsitektur 5G NR QoS (TS 37.324)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sdap"
+  },
+  {
+    "id": 141,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapakah nilai 5QI standar untuk layanan VoNR Conversational Voice?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "5qi 1"
+  },
+  {
+    "id": 142,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan QCI untuk IMS Signaling (SIP Register/Invite) pada 4G VoLTE!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "qci 5"
+  },
+  {
+    "id": 143,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan QCI default bearer non-GBR untuk general internet browsing!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "qci 9"
+  },
+  {
+    "id": 144,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapa Packet Delay Budget untuk bearer suara QCI 1 / 5QI 1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "100 ms"
+  },
+  {
+    "id": 145,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa perbedaan perlakuan traffic antara GBR dan Non-GBR bearer di MAC scheduler?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "gbr"
+  },
+  {
+    "id": 146,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan peran Semi-Persistent Scheduling (SPS) pada efisiensi VoLTE!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sps"
+  },
+  {
+    "id": 147,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa arti Redundancy Version (RV) pada proses retransmisi HARQ?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rv"
+  },
+  {
+    "id": 148,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi RLC Transparent Mode (TM) dan di mana penggunaannya?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rlc tm"
+  },
+  {
+    "id": 149,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana PDCP layer menangani sequence numbering dan ciphering paket?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ciphering"
+  },
+  {
+    "id": 150,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa yang dimaksud dengan Logical Channel Prioritization (LCP) pada MAC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "lcp"
+  },
+  {
+    "id": 151,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapa jumlah Logical Channel Groups (LCG) yang dilaporkan dalam BSR LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "4"
+  },
+  {
+    "id": 152,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa itu MAC Control Element (MAC CE) dan berikan contoh fungsinya!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mac ce"
+  },
+  {
+    "id": 153,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa pemicu pengiriman Periodic BSR vs Truncated BSR pada MAC UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "bsr"
+  },
+  {
+    "id": 154,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi RLC STATUS PDU dalam mekanisme ARQ acknowledgments?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "status pdu"
+  },
+  {
+    "id": 155,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa penyebab terjadinya RLC buffer overflow pada base station eNodeB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "buffer"
+  },
+  {
+    "id": 156,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana mekanisme ROHC mendeteksi corrupt packet di sisi receiver?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "crc"
+  },
+  {
+    "id": 157,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa peran DCI format 1_1 pada 5G NR bandwidth part (BWP) switching?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "bwp"
+  },
+  {
+    "id": 158,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa arti QoS Flow ID (QFI) pada enkapsulasi paket 5G NR user plane?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "qfi"
+  },
+  {
+    "id": 159,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Mengapa VoLTE tidak boleh menggunakan RLC AM mode?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "latency"
+  },
+  {
+    "id": 160,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Berapakah jumlah HARQ process maksimum pada 5G NR TDD?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "16"
+  },
+  {
+    "id": 161,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi parameter pollPDU pada konfigurasi RLC AM?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pollpdu"
+  },
+  {
+    "id": 162,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi parameter pollByte pada konfigurasi RLC AM?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pollbyte"
+  },
+  {
+    "id": 163,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana MAC scheduler memperlakukan UE dengan Power Headroom negatif?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "power headroom"
+  },
+  {
+    "id": 164,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan peran DRB (Data Radio Bearer) vs SRB (Signaling Radio Bearer)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "drb"
+  },
+  {
+    "id": 165,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa itu MAC PDU Subheader dan bagaimana susunan formatnya?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mac pdu"
+  },
+  {
+    "id": 166,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana korelasi antara HARQ NACK berulang dan penurunan throughput?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "nack"
+  },
+  {
+    "id": 167,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa dampak negatif jika discardTimer pada PDCP diset terlalu besar?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "delay"
+  },
+  {
+    "id": 168,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa dampak negatif jika discardTimer pada PDCP diset terlalu kecil?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "packet loss"
+  },
+  {
+    "id": 169,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan 3 state kompresi pada ROHC (Initialization, First Order, Second Order)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rohc"
+  },
+  {
+    "id": 170,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Jelaskan peran MAC multiplexing dalam menggabungkan data dari banyak logical channel!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "multiplexing"
+  },
+  {
+    "id": 171,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa yang dimaksud dengan Discontinuous Reception (DRX) di layer 2 MAC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "drx"
+  },
+  {
+    "id": 172,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana C-DRX (Connected DRX) menghemat daya baterai UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sleep"
+  },
+  {
+    "id": 173,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan nama channel logical yang membawa pesan dedicated RRC!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dcch"
+  },
+  {
+    "id": 174,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan nama channel logical yang membawa pesan broadcast SIB!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "bcch"
+  },
+  {
+    "id": 175,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Sebutkan nama channel logical yang membawa user traffic data murni!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "dtch"
+  },
+  {
+    "id": 176,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa peran Transport Block (TB) Size pada alokasi throughput MAC sublayer?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "transport block"
+  },
+  {
+    "id": 177,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi feedback Asynchronous HARQ pada Uplink 5G NR?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "harq"
+  },
+  {
+    "id": 178,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa fungsi timer drx-InactivityTimer pada siklus C-DRX?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "inactivitytimer"
+  },
+  {
+    "id": 179,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Apa perbedaan mendasar antara RLC SDU dan RLC PDU?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sdu"
+  },
+  {
+    "id": 180,
+    "category": "Layer 2 MAC/RLC/PDCP",
+    "prompt": "Bagaimana SDAP layer menandai Reflective QoS pada arah uplink 5G?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "reflective qos"
+  },
+  {
+    "id": 181,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan kondisi evaluasi pengukuran untuk Handover Event A1!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event a1"
+  },
+  {
+    "id": 182,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan kondisi evaluasi pengukuran untuk Handover Event A2!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event a2"
+  },
+  {
+    "id": 183,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Tuliskan formula matematis pemicu Handover Event A3 menurut TS 36.331!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event a3"
+  },
+  {
+    "id": 184,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan fungsi Event A4 pada skenario mobility inter-frequency LTE!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event a4"
+  },
+  {
+    "id": 185,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan kondisi pemicu Event A5 (Coverage-based Inter-Frequency Handover)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event a5"
+  },
+  {
+    "id": 186,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Event measurement apa yang digunakan untuk trigger SgNB Addition di 5G NSA EN-DC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event b1"
+  },
+  {
+    "id": 187,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan kondisi evaluasi Event B2 untuk skenario inter-RAT fallback!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "event b2"
+  },
+  {
+    "id": 188,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan definisi dan gejala kegagalan Too Late Handover!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "too late"
+  },
+  {
+    "id": 189,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana langkah optimasi parameter untuk memperbaiki Too Late Handover?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "timetotrigger"
+  },
+  {
+    "id": 190,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan definisi dan tanda-tanda kegagalan Too Early Handover!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "too early"
+  },
+  {
+    "id": 191,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana langkah optimasi parameter untuk memperbaiki Too Early Handover?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "hysteresis"
+  },
+  {
+    "id": 192,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan skenario kegagalan Handover to Wrong Cell!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "wrong cell"
+  },
+  {
+    "id": 193,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan parameter penting yang dibroadcast di dalam MasterInformationBlock (MIB)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "mib"
+  },
+  {
+    "id": 194,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan isi informasi vital yang dibroadcast di dalam SIB1!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sib1"
+  },
+  {
+    "id": 195,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi parameter q-RxLevMin di SIB1 dalam evaluasi cell selection Srxlev?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "q-rxlevmin"
+  },
+  {
+    "id": 196,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan parameter radio common yang dibawa oleh SIB2!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sib2"
+  },
+  {
+    "id": 197,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi SIB3, SIB4, dan SIB5 dalam mobility mode IDLE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "reselection"
+  },
+  {
+    "id": 198,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan arti dan penyebab NAS EMM Reject Cause 15 (No Suitable Cells In TA)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cause 15"
+  },
+  {
+    "id": 199,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan arti dan solusi untuk NAS EMM Reject Cause 19 (ESM failure)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cause 19"
+  },
+  {
+    "id": 200,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan penyebab terjadinya NAS Reject Cause 7 (EPS services not allowed)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cause 7"
+  },
+  {
+    "id": 201,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan penyebab munculnya NAS Reject Cause 9 (UE identity cannot be derived)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cause 9"
+  },
+  {
+    "id": 202,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan 3 penyebab pemicu RRC Connection Re-establishment (reestablishmentCause)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "reconfigurationfailure"
+  },
+  {
+    "id": 203,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi timer T310 pada mekanisme deteksi Radio Link Failure (RLF)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t310"
+  },
+  {
+    "id": 204,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Berapakah jumlah N310 out-of-sync berturut-turut untuk men-start timer T310?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "n310"
+  },
+  {
+    "id": 205,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi timer T311 saat UE melakukan pencarian sel re-establishment?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t311"
+  },
+  {
+    "id": 206,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan urutan pesan signaling pada prosedur 5G NSA SgNB Addition (Option 3X)!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sgnb addition"
+  },
+  {
+    "id": 207,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan interface yang menghubungkan LTE MeNB dan 5G SgNB pada EN-DC!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "x2"
+  },
+  {
+    "id": 208,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi pesan RRCConnectionReconfiguration dengan mobilityControlInfo?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "handover"
+  },
+  {
+    "id": 209,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa peran pesan SecurityModeCommand dalam pembentukan koneksi RRC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "securitymodecommand"
+  },
+  {
+    "id": 210,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi prosedur UECapabilityEnquiry / UECapabilityInformation pada RRC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "uecapabilityinformation"
+  },
+  {
+    "id": 211,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa yang dimaksud dengan Tracking Area Update (TAU) pada NAS layer?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tau"
+  },
+  {
+    "id": 212,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Kapan Periodic TAU dipicu oleh UE saat dalam mode RRC IDLE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t3412"
+  },
+  {
+    "id": 213,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi timer T300 pada saat UE mengirimkan RRCConnectionRequest?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t300"
+  },
+  {
+    "id": 214,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa arti pesan RRCConnectionReject dan parameter waitTime?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "waittime"
+  },
+  {
+    "id": 215,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan peran S-NSSAI dalam Network Slicing pada 5G RRC dan NAS!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "s-nssai"
+  },
+  {
+    "id": 216,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Sebutkan perbedaan SRB0, SRB1, dan SRB2 pada protokol RRC!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "srb1"
+  },
+  {
+    "id": 217,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi SRB3 pada arsitektur 5G NSA EN-DC dual connectivity?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "srb3"
+  },
+  {
+    "id": 218,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana ANR (Automatic Neighbor Relation) bekerja mengisi neighbor table?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "anr"
+  },
+  {
+    "id": 219,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa itu Measurement Gap dan mengapa dibutuhkan saat inter-frequency handover?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "measurement gap"
+  },
+  {
+    "id": 220,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Berapakah durasi standar Measurement Gap Repetition Period (MGRP)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "40 ms"
+  },
+  {
+    "id": 221,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa penyebab terjadinya Handover Ping-Pong antara dua sel berdekatan?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "hysteresis"
+  },
+  {
+    "id": 222,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa isi dari pesan RRC RRCConnectionRelease?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "redirectedcarrierinfo"
+  },
+  {
+    "id": 223,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan konsep Blind Handover pada jaringan LTE!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "blind handover"
+  },
+  {
+    "id": 224,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa yang dimaksud dengan Cell Reselection Priority pada SIB4/SIB5?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cellreselectionpriority"
+  },
+  {
+    "id": 225,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Kapan kriteria Treselection dievaluasi oleh UE sebelum berpindah sel di IDLE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "treselection"
+  },
+  {
+    "id": 226,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi pesan NAS Attach Request pada inisialisasi koneksi awal LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "attach request"
+  },
+  {
+    "id": 227,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi GUTI (Globally Unique Temporary Identifier) pada prosedur NAS?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "guti"
+  },
+  {
+    "id": 228,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Mengapa UE melakukan Detach Request ke MME?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "detach"
+  },
+  {
+    "id": 229,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa penyebab munculnya RLF counter due to Maximum RLC Retransmission?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rlf"
+  },
+  {
+    "id": 230,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa arti IE cellIdentity pada struktur ASN.1 SIB1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cellidentity"
+  },
+  {
+    "id": 231,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana prosedur CSFB (Circuit Switched Fallback) bekerja jika VoLTE tidak aktif?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "csfb"
+  },
+  {
+    "id": 232,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi parameter speedDependentParameters pada mobilitas kecepatan tinggi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t-crmax"
+  },
+  {
+    "id": 233,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Jelaskan fungsi paging message pada interface radio PCCH!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "paging"
+  },
+  {
+    "id": 234,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa yang dimaksud dengan S-Measure pada konfigurasi pengukuran RRC?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "s-measure"
+  },
+  {
+    "id": 235,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa efek jika threshold S-Measure diset terlalu tinggi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "battery"
+  },
+  {
+    "id": 236,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana UE menentukan target cell saat terjadi RRC Connection Re-establishment?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "srxlev"
+  },
+  {
+    "id": 237,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa peran MME pool dan S1-flex dalam mencegah single point of failure core?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "s1-flex"
+  },
+  {
+    "id": 238,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa fungsi timer T304 selama eksekusi Handover berjalan?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t304"
+  },
+  {
+    "id": 239,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Apa penyebab handover failure akibat RACH preamble timeout pada target cell?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "prach"
+  },
+  {
+    "id": 240,
+    "category": "Layer 3 RRC & Mobility",
+    "prompt": "Bagaimana interaksi antara eNodeB dan AMF pada migrasi N2/N3 arsitektur 5G SA?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ng-c"
+  },
+  {
+    "id": 241,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Jelaskan fenomena PRB Congestion pada site Cikarang saat siang vs malam hari!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "congestion"
+  },
+  {
+    "id": 242,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah utilisasi PRB tipikal pada kondisi busy hour site mengalami kongesti?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "95%"
+  },
+  {
+    "id": 243,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah penurunan throughput per user saat PRB terutilisasi penuh > 95%?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2 mbps"
+  },
+  {
+    "id": 244,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapa target standar nilai Mean Opinion Score (MOS) untuk layanan VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "3.8"
+  },
+  {
+    "id": 245,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah batas ambang Jitter maksimum sebelum kualitas suara VoLTE terdegradasi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "30 ms"
+  },
+  {
+    "id": 246,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah threshold Packet Loss Rate (PLR) yang memicu suara putus-putus pada VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2%"
+  },
+  {
+    "id": 247,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa dampak negatif terhadap audio jika codec suara VoLTE tidak di-mapping ke QCI 1?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "qci 1"
+  },
+  {
+    "id": 248,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Sebutkan kriteria jarak continuous untuk mendefinisikan sebuah Coverage Hole!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "200"
+  },
+  {
+    "id": 249,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah threshold RSRP pada area yang teridentifikasi sebagai Coverage Hole?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-110"
+  },
+  {
+    "id": 250,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah threshold SINR pada area yang teridentifikasi sebagai Coverage Hole?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "-3 db"
+  },
+  {
+    "id": 251,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa codec suara default dengan bitrate 12.65 kbps yang dipakai pada VoLTE komersial?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "amr-wb"
+  },
+  {
+    "id": 252,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa keunggulan codec EVS (Enhanced Voice Services) dibanding AMR-WB pada MOS score?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "evs"
+  },
+  {
+    "id": 253,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara mendiagnosa apakah throughput drop disebabkan oleh transport backhaul?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "backhaul"
+  },
+  {
+    "id": 254,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab throughput rendah pada saat drive test meskipun RSRP -70 dBm dan SINR 25 dB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tcp window"
+  },
+  {
+    "id": 255,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa fungsi Jitter Buffer Management (JBM) pada client VoLTE UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "jbm"
+  },
+  {
+    "id": 256,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Mengapa ketiadaan fitur ROHC menyebabkan konsumsi resource berlebih pada VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rohc"
+  },
+  {
+    "id": 257,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dimaksud dengan KPI Call Setup Success Rate (CSSR) pada drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cssr"
+  },
+  {
+    "id": 258,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dimaksud dengan KPI Call Drop Rate (CDR) pada sesi VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cdr"
+  },
+  {
+    "id": 259,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana langkah optimasi untuk menaikkan nilai MOS pada rute drive test pegunungan?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "amr"
+  },
+  {
+    "id": 260,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa indikasi drive test jika ditemukan 5 cell overlap dengan RSRP -85 dBm dan SINR -2 dB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pilot pollution"
+  },
+  {
+    "id": 261,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa langkah perbaikan pertama jika ditemukan Coverage Hole 300 meter di area residential?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ret"
+  },
+  {
+    "id": 262,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Kapan proposal penambahan Small Cell / IBS diajukan berdasarkan data drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ibs"
+  },
+  {
+    "id": 263,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara memvalidasi keberhasilan aktivasi Carrier Aggregation (CA) pada drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "scell"
+  },
+  {
+    "id": 264,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa arti Primary Cell (PCell) dan Secondary Cell (SCell) pada Carrier Aggregation?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "pcell"
+  },
+  {
+    "id": 265,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa pemicu terjadinya silent call / call mute pada panggilan suara VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rtp"
+  },
+  {
+    "id": 266,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa KPI yang mengukur latensi round trip paket data pada drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "rtt"
+  },
+  {
+    "id": 267,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah target RTT standar untuk pengalaman gaming dan streaming 4G LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "50 ms"
+  },
+  {
+    "id": 268,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana pengaruh tingginya Uplink BLER terhadap penurunan download throughput?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "tcp ack"
+  },
+  {
+    "id": 269,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab UE melakukan Fallback ke 3G/2G saat melakukan panggilan suara?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "volte"
+  },
+  {
+    "id": 270,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa dampak negatif dari ketidakseimbangan daya link Uplink dan Downlink (Link Imbalance)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "imbalance"
+  },
+  {
+    "id": 271,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara mendeteksi masalah overshooting site pada log GPS drive test?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "overshooting"
+  },
+  {
+    "id": 272,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab throughput FTP download berfluktuasi naik turun secara drastis?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "handover"
+  },
+  {
+    "id": 273,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dimaksud dengan Cross-Coverage antar site yang berhadapan?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cross-coverage"
+  },
+  {
+    "id": 274,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah target minimum User Throughput DL pada cluster perkotaan modern?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "20 mbps"
+  },
+  {
+    "id": 275,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang menyebabkan SIP 486 Busy Here saat call setup VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "busy"
+  },
+  {
+    "id": 276,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab pesan SIP 504 Server Time-out pada registrasi VoLTE IMS?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ims"
+  },
+  {
+    "id": 277,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara mengatasi bad coverage pada area basement gedung parkir?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "das"
+  },
+  {
+    "id": 278,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa peran Distributed Antenna System (DAS) pada optimasi in-building?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "das"
+  },
+  {
+    "id": 279,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa arti metrik DL PRB Utilization = 100% secara konsisten dalam kurun 1 jam?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "saturation"
+  },
+  {
+    "id": 280,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara membedakan RF degradation akibat fading vs interference?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "sinr"
+  },
+  {
+    "id": 281,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa efek multipath fading pada performa throughput di kawasan urban canyon gedung tinggi?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "multipath"
+  },
+  {
+    "id": 282,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dimaksud dengan Handover Interruption Time (HIT)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "interruption"
+  },
+  {
+    "id": 283,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah standar Handover Interruption Time untuk seamless intra-frequency LTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "50 ms"
+  },
+  {
+    "id": 284,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa hubungan antara MCS tinggi (256QAM) dan efisiensi konsumsi PRB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "spectral efficiency"
+  },
+  {
+    "id": 285,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Mengapa drive test di jalan tol sering mengalami lonjakan drop call rate?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "doppler"
+  },
+  {
+    "id": 286,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa fungsi analisis log Scanner vs log UE chipset pada drive test audit?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "scanner"
+  },
+  {
+    "id": 287,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Mengapa RF Scanner dapat mendeteksi pilot pollution yang tidak terbaca oleh UE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "top-n"
+  },
+  {
+    "id": 288,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa dampak antenna down-tilt berlebihan (over-tilting) terhadap SINR sel sekitar?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "null"
+  },
+  {
+    "id": 289,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara verifikasi bahwa fitur VoLTE Single Radio Voice Call Continuity (SRVCC) aktif?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "srvcc"
+  },
+  {
+    "id": 290,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dimaksud dengan Call Setup Time (CST) pada pengetesan VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cst"
+  },
+  {
+    "id": 291,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Berapakah durasi CST ideal untuk panggilan VoLTE ke VoLTE?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "2 detik"
+  },
+  {
+    "id": 292,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab tingginya Packet Delay Variation pada transmisi fronthaul eCPRI?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "fronthaul"
+  },
+  {
+    "id": 293,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang menyebabkan SCell deactivation tiba-tiba pada Carrier Aggregation?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "scell"
+  },
+  {
+    "id": 294,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa indikasi kegagalan transmisi downlink jika DL BLER > 30% pada SINR 15 dB?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "cqi"
+  },
+  {
+    "id": 295,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Bagaimana cara mendeteksi terjadinya interworking issue antar vendor (Multi-vendor RAN)?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "x2"
+  },
+  {
+    "id": 296,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa penyebab panggilan VoLTE drop dengan release cause Radio Connection Lost?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "t310"
+  },
+  {
+    "id": 297,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang menyebabkan throughput HTTP download terbatasi di 10 Mbps pada 5G NSA?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ambr"
+  },
+  {
+    "id": 298,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Jelaskan peran parameter UE-AMBR dan APN-AMBR pada pembatasan kecepatan!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ambr"
+  },
+  {
+    "id": 299,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Apa yang dilakukan RF engineer jika menemukan cell dengan status sleep/degraded pada OSS?",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "alarm"
+  },
+  {
+    "id": 300,
+    "category": "KPI & E2E DT RCA",
+    "prompt": "Sebutkan langkah validasi akhir setelah implementasi re-tuning PCI dan tilt selesai!",
+    "mode": "live",
+    "maxLen": 1800,
+    "contains": "ssv"
+  }
+]
