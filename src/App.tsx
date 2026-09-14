@@ -132,6 +132,7 @@ export default function App() {
         messages: [{ role: 'user', content: 'Say hello dan jelaskan model dan provider apa yang sedang dipakai serta alasannya' }],
         provider,
         model,
+        baseUrl,
         apiKey,
       })
     })
@@ -263,7 +264,7 @@ export default function App() {
       <div style={{display:'flex',flex:1,overflow:'hidden'}}>
         {tab==='agent' && (
           <AgentWorkspace
-            llmConfig={{ provider, model, apiKey, temp, maxTokens, systemPrompt }}
+            llmConfig={{ provider, model, baseUrl, apiKey, temp, maxTokens, systemPrompt }}
             onManageSkills={()=>setTab('skills')}
             onOpenLlmSettings={()=>setLlmOpen(true)}
           />

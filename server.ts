@@ -230,6 +230,77 @@ function buildSkillContextBlock(selected: { skill: SkillMeta; score: number; rea
   return lines.join('\n');
 }
 
+
+// ── Smart Fallback Helpers (vault-first, memory-aware, human) ──
+function searchVaultHits(query: string, limit = 3): { path: string; title: string; snippet: string; score: number }[] {
+  if (!query || query.trim().length < 3) return [];
+  const q = query.toLowerCase();
+  const stop = new Set(['apa','itu','ini','yang','dan','untuk','dengan','adalah','dari','atau','juga','akan','pada','dalam','secara','tentang','bagaimana','mengapa','kenapa','jelaskan','definisi','pengertian','maksud','fungsi','uraikan','tolong','silakan','coba','belum','sudah','apakah','arti','adalah','ialah','the','and','for','with','apa','ini','itu']);
+  const rawKws = q.split(/\s+/).map(w=> w.replace(/[^a-z0-9]/g,'')).filter(Boolean);
+  const keywords = rawKws.filter(w => w.length >= 2 && !stop.has(w));
+  if (keywords.length === 0) return [];
+  const esc = (s:string)=> s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  if (keywords.length === 0) return [];
+  const hits: { path: string; title: string; snippet: string; score: number }[] = [];
+  for (const n of vaultNotes) {
+    const titleLow = (n.title || '').toLowerCase();
+    const bodyLow = (n.body || '').toLowerCase();
+    const pathLow = (n.path || '').toLowerCase();
+    let score = 0;
+    for (const kw of keywords) {
+      const re = new RegExp(`\\b${esc(kw)}\\b`, 'i');
+      const isShort = kw.length <= 3;
+      if (isShort) {
+        if (re.test(n.title || '')) score += 3;
+        if (re.test(n.path || '')) score += 2;
+        if (re.test(n.body || '')) score += 1;
+        const tags = (n.frontmatter?.tags || []) as string[];
+        if (tags.some((tg:string)=> re.test(String(tg)))) score += 1;
+      } else {
+        if (titleLow.includes(kw)) score += 3;
+        if (pathLow.includes(kw)) score += 2;
+        if (bodyLow.includes(kw)) score += 1;
+        const tags = (n.frontmatter?.tags || []) as string[];
+        if (tags.some((tg:string)=> String(tg).toLowerCase().includes(kw))) score += 1;
+      }
+    }
+    if (score > 0) {
+      // snippet: find first keyword occurrence
+      let snippet = '';
+      let bestIdx = -1;
+      for (const kw of keywords) {
+        const i = bodyLow.indexOf(kw);
+        if (i >= 0 && (bestIdx === -1 || i < bestIdx)) bestIdx = i;
+      }
+      if (bestIdx >= 0) {
+        const start = Math.max(0, bestIdx - 80);
+        snippet = n.body.slice(start, start + 320).replace(/\s+/g, ' ').trim();
+        if (start > 0) snippet = '…' + snippet;
+        if (start + 320 < n.body.length) snippet += '…';
+      } else {
+        snippet = n.body.slice(0, 280).replace(/\s+/g, ' ').trim();
+      }
+      hits.push({ path: n.path, title: n.title, snippet, score });
+    }
+  }
+  // filter low-relevance (require at least 2 points) — avoids false positive on short generic substrings
+  const filtered = hits.filter(h => h.score >= 2);
+  filtered.sort((a,b)=> b.score - a.score);
+  return filtered.slice(0, limit);
+}
+
+function buildVaultSummaryMsg(history: any[], vaultHits: {path:string; title:string; snippet:string}[]): string {
+  const total = vaultNotes.length;
+  // count per category
+  const byCat: Record<string, number> = {};
+  for (const n of vaultNotes) { byCat[n.category] = (byCat[n.category] || 0) + 1; }
+  const catStr = Object.entries(byCat).map(([k,v])=> `${k} ${v}`).join(', ');
+  const last5 = history.slice(-5).map((m:any)=> `${m.role}: ${String(m.content).slice(0,90).replace(/\n/g,' ')}`).join(' | ');
+  const topHits = vaultHits.slice(0,2).map(h=> `${h.path}`).join(', ') || 'tidak ada hit';
+  return `Ringkasan konteks — Vault ${total} notes (${catStr}) — Percakapan terakhir: ${last5 || '-'} — Top vault: ${topHits} — Mau saya ringkas per pilar 3GPP atau per cluster lapangan?`;
+}
+
+
 // ── In-Memory Memory & Vault Database ──
 interface VaultNote {
   path: string;
@@ -1274,11 +1345,6 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       if (benchEarly) {
         const latencyMs = Date.now() - startTime;
         let earlyReply = benchEarly;
-        if (skillsMetaForResponse.length) {
-          const badge = skillsMetaForResponse.map(s=>`[${s.id}]`).join(' ');
-          const names = skillsMetaForResponse.map(s=>s.name).join(' + ');
-          earlyReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif).\n\n${benchEarly}`;
-        }
         return res.json({
           choices: [{ message: { role: 'assistant', content: earlyReply } }],
           skillsApplied: skillsMetaForResponse,
@@ -1385,15 +1451,24 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         meta: { provider: liveResult.provider, providerId: liveResult.providerId, model: liveResult.currentModel, modelVersion: liveResult.currentModel, isLive: true, latencyMs, status: "connected", reason: skillsMetaForResponse.length ? `Live model + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(", ")}` : `Inferensi via ${liveResult.provider} model ${liveResult.currentModel}.` },
       });
     }
-// Expert RF Engineering Response Engine (Domain Fallback)
+// ── Smart Fallback: memory-aware, intent scorer, vault-first, humanizer (BYOK live-first intact) ──
+    const history = messages.filter((m:any)=> m.role==="user"||m.role==="assistant").slice(-8);
+    const _lowerTrim = lastUserMsg.toLowerCase().trim();
     const isBenchmark = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg);
-    const isDriveTest = /drive\s*test|\bdt\b|\brsrp\b|\bsinr\b|throughput|cluster|\bkpi\b|\.csv|\blog\b|preview/i.test(lastUserMsg);
+    const isGreetingOnly = /^(halo|hai|hello|hi|hey|test|ping)\b/.test(_lowerTrim) && lastUserMsg.trim().split(/\s+/).length <= 3;
+    const isModelQuery = /(model|provider).*(apa|dipakai|digunakan|aktif|terpakai)|pakai.*(model|provider)|apa.*(model|provider).*\?/i.test(lastUserMsg);
+    const isSummaryReq = /ringkas|resume|ringkasan|summary|summarize|konteks cluster|context cluster|insight.*cluster|experience|buatkan.*ringkasan/i.test(lastUserMsg);
+    const isEdu = /apa itu|apa arti|apa maksud|definisi|pengertian|jelaskan|uraikan|tolong jelaskan|bagaimana|mengapa|kenapa|fungsi|kegunaan/i.test(lastUserMsg);
     const isTilt = /tilt|downtilt|overshooting|azimuth/i.test(lastUserMsg);
     const isPCI = /pci|collision|confusion|mod\s*3/i.test(lastUserMsg);
     const isHandover = /handover|\bho\b|neighbor|\bnbr\b|\ba3\b/i.test(lastUserMsg);
-    // greeting/model query — strict, jangan match lone "apa" yang bikin semua pertanyaan jadi sapaan
-    const _lowerTrim = lastUserMsg.toLowerCase().trim();
-    const isGreetingOrModelQuery = /^(halo|hai|hello|hi|hey|test|ping)\b/.test(_lowerTrim) || /say hello/i.test(lastUserMsg) || /(model|provider).*(apa|dipakai|digunakan|aktif|terpakai)|pakai.*(model|provider)|apa.*(model|provider).*\?/i.test(lastUserMsg);
+    const isDriveTest = /drive\s*test|\bdt\b|throughput|cluster|\bkpi\b|\.csv|\blog\b|preview|worst\s*spot|hitung.*kpi|analisa.*kpi|evaluasi.*kpi|audit.*kpi|upload.*log/i.test(lastUserMsg);
+    const isWorst = /worst\s*spot|terlambat|tercepat|ranking|per\s*lokasi|DL\s*<\s*10|DL\s*>\s*50/i.test(lastUserMsg);
+
+    // Vault-first: search hits (in-memory vaultNotes 54)
+    const vaultHits = searchVaultHits(lastUserMsg, 3);
+    const vaultRefStr = vaultHits.length ? `Rujukan vault: ${vaultHits.map(h=> h.path).join(', ')}` : '';
+    const vaultSnippetStr = vaultHits.length ? vaultHits.map(h=> `[${h.path}] ${h.snippet.slice(0,180)}…`).join('\n') : '';
 
     let reply = '';
     if (isBenchmark) {
@@ -1406,6 +1481,110 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 Data speedtest belum terbaca. Silakan upload file CSV via tombol DT Log / Attachment di bawah, lalu ketik ulang "buat report benchmark".
 Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan langsung hitung DL/UL/PING/JITTER per operator dari preview 3 baris.`;
       }
+    } else if (isGreetingOnly) {
+      const hasPrior = history.length > 1;
+      if (hasPrior) {
+        reply = `Halo lagi! 👋 Masih di sini — mau lanjut tanya RSRP/SINR, PCI, tilt, atau upload DT log untuk saya analisa?`;
+      } else {
+        reply = `Halo Andika! 👋 Saya TelecomAgent RF Co-Pilot — siap bantu optimasi RF 4G/5G. Mau tanya apa hari ini?`;
+      }
+    } else if (isModelQuery) {
+      reply = `TelecomAgent RF Co-Pilot — Status Model dan Provider
+
+Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.
+
+Provider: Google AI Studio
+Model: ${targetModel}
+Status Engine: TelecomAgent RF Domain Fallback Engine (Standby dan Active)
+
+Kenapa model ini dipakai:
+1. Akurasi dan standar 3GPP — paham istilah telco (RSRP, SINR, BLER, CQI, azimuth, tilt)
+2. Dukungan log besar — bisa proses Drive Test Nemo/TEMS puluhan ribu baris
+3. Kecepatan respons tinggi — cocok untuk troubleshooting lapangan
+
+Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
+    } else if (isSummaryReq) {
+      const summary = buildVaultSummaryMsg(history, vaultHits);
+      const byCat2: Record<string, number> = {};
+      for (const n of vaultNotes) byCat2[n.category] = (byCat2[n.category] || 0) + 1;
+      const catDetail = Object.entries(byCat2).map(([k,v])=> `${k}: ${v} notes`).join(' | ');
+      reply = `${summary}
+
+Detail vault: ${catDetail}
+Top hit: ${vaultHits[0]?.title || '-'} — ${vaultHits[0]?.snippet?.slice(0,160) || 'belum ada query spesifik'}.
+
+Mau saya ringkas per pilar (${Object.keys(byCat2).slice(0,3).join(', ')}) atau fokus ke cluster/experience knowledge tertentu?`;
+    } else if (isEdu) {
+      if (/rsrp/i.test(lastUserMsg)) {
+        reply = `RSRP — Reference Signal Received Power (3GPP TS 36.214, TS 38.215)
+
+Definisi: daya rata-rata resource element yang membawa Cell-specific Reference Signal (LTE) atau SSB/CSI-RS (NR), diukur dalam dBm pada bandwidth 1 RE.
+
+Rentang tipikal:
+- Excellent >= -80 dBm
+- Good -80 s/d -90 dBm
+- Fair -90 s/d -100 dBm
+- Poor -100 s/d -110 dBm
+- Very poor < -110 dBm
+
+Catatan: RSRP hanya soal kuat sinyal, bukan kualitas. Selalu cek bersama RSRQ dan SINR. Target coverage >= -100 dBm sekitar 95% cluster. Jika RSRP bagus tapi throughput rendah, curigai interferensi (SINR rendah) atau load/PRB penuh.
+
+${vaultRefStr || 'Rujukan: 36.214 Sec 5.1.1, 38.215 Sec 5.1.2'}${vaultHits.length ? `\nCuplikan vault:\n${vaultSnippetStr}` : ''}
+
+Mau saya jelaskan hubungannya dengan SINR juga?`;
+      } else if (/sinr/i.test(lastUserMsg)) {
+        reply = `SINR — Signal to Interference plus Noise Ratio (3GPP TS 36.214)
+
+Definisi: rasio daya sinyal yang diinginkan terhadap interferensi + noise, satuan dB. Menentukan MCS/CQI dan throughput.
+
+Kategori:
+- Excellent >= 15 dB
+- Good 10-15 dB
+- Fair 5-10 dB
+- Poor 0-5 dB
+- Very poor < 0 dB
+
+SINR rendah walau RSRP bagus = interferensi dominan (pilot pollution, PCI collision Mod 3, overshooting). Fix: cek NRT, tilt/azimuth, power. Skill RCA Engine + tilt optimizer ada di vault.
+
+${vaultRefStr}${vaultHits.length ? `\n${vaultSnippetStr}` : ''}`;
+      } else if (/rsrq/i.test(lastUserMsg)) {
+        reply = `RSRQ — Reference Signal Received Quality (TS 36.214)
+
+Rumus: RSRQ = N * RSRP / RSSI (dB). Menggambarkan kualitas sinyal termasuk interferensi dan load.
+
+Rentang: -3 dB (excellent) s/d -19.5 dB (poor). Target >= -12 dB. RSRQ jelek tapi RSRP bagus = cell load tinggi atau interferensi kuat.
+
+Gunakan bersama RSRP/SINR untuk RCA lengkap.
+
+${vaultRefStr}`;
+      } else if (/pci/i.test(lastUserMsg)) {
+        reply = `PCI — Physical Cell Identity (0-503 LTE, 0-1007 NR, TS 38.211 Sec 7.4.2)
+
+Aturan: hindari PCI collision (PCI sama di neighbor) dan confusion (dua neighbor PCI sama untuk serving). Cek Mod 3 (LTE SSS) dan Mod 30/4 (NR DMRS). Contoh: PCI 148 vs 151 (mod 3 = 1) = collision. Ganti ke pool bersih dan sync NRT.
+
+${vaultRefStr}${vaultHits.length ? `\n${vaultSnippetStr}` : ''}`;
+      } else if (/tilt|downtilt|azimuth/i.test(lastUserMsg)) {
+        reply = `Antenna Tilt — Mechanical + Electrical (RET, TS 38.104)
+
+Tilt mengontrol footprint cell. Rumus geometri: theta = arctan((H_ant - H_user)/D_target). Contoh tower 32m target 800m = tilt ~2.3 derajat + beamwidth correction jadi 4-5 derajat total.
+
+Overshooting (>2 km) = downtilt kurang. Pilot pollution = overlap berlebih. Gunakan DT log + PostGIS + skill tilt untuk hitung per-cell.
+
+${vaultRefStr}`;
+      } else if (/handover|\bho\b|neighbor/i.test(lastUserMsg)) {
+        reply = `Handover & Neighbor (TS 38.331, ANR)
+
+Event A3: neighbor jadi offset lebih baik dari serving. Jika NRT kosong = missing neighbor -> Handover Failure, drop. Fix: tambah relasi bilateral, set CIO +1.5 dB untuk UE cepat, verifikasi X2/Xn.
+
+${vaultRefStr}`;
+      } else {
+        // EDU generic vault-first + web-second graceful
+        if (vaultHits.length) {
+          reply = `Dari vault (${vaultHits.map(h=>h.path).join(', ')}):\n${vaultSnippetStr}\n\n${vaultRefStr}\n\nKalau butuh detail lebih spesifik, sebutkan 3GPP spec atau upload report lapangan — vault akan summarize otomatis saat ada knowledge baru.`;
+        } else {
+          reply = `Untuk pertanyaan "${lastUserMsg.slice(0,80)}" belum ada di vault 3GPP 54 notes. Coba tanya lebih spesifik (mis. RSRP, PCI, tilt) atau tambah experience knowledge di vault/experience/ — nanti saya bisa summarize otomatis. Sementara rujukan umum: cek TS 38.211/38.331/36.214 dan skill pandas RAW-FIRST untuk audit DT log.`;
+        }
+      }
     } else if (isTilt) {
       reply = `Rekomendasi Optimasi Antenna Tilt (RCA Engine)
 
@@ -1416,7 +1595,9 @@ Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan l
 
 2. Perhitungan downtilt geometri
    theta = arctan((H_ant - H_user) / D_coverage)
-   Contoh: tinggi tower 32m dan radius target 800m, total tilt optimal sekitar 4.8 - 5 derajat.`;
+   Contoh: tinggi tower 32m dan radius target 800m, total tilt optimal sekitar 4.8 - 5 derajat.
+
+${vaultRefStr}`;
     } else if (isPCI) {
       reply = `Analisa Alokasi PCI dan Collision Audit (3GPP TS 38.211)
 
@@ -1426,7 +1607,9 @@ Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan l
 
 2. Rencana perbaikan
    - Ubah PCI JKT_1018_1 ke 312 (312 mod 3 = 0) dari clean pool cluster C1
-   - Verifikasi ulang Neighbor Relation Table (NRT) di OSS pasca re-tune`;
+   - Verifikasi ulang Neighbor Relation Table (NRT) di OSS pasca re-tune
+
+${vaultRefStr}`;
     } else if (isHandover) {
       reply = `Diagnosa Handover dan Missing Neighbor (3GPP TS 38.331)
 
@@ -1436,7 +1619,9 @@ Jika file sudah terlampir, pastikan preview tabel muncul di footer — AI akan l
 
 2. Action item
    - Tambahkan relasi bilateral neighbor via OSS CLI / MML
-   - Set CIO target +1.5 dB agar handover lebih cepat saat UE >60 km/jam`;
+   - Set CIO target +1.5 dB agar handover lebih cepat saat UE >60 km/jam
+
+${vaultRefStr}`;
     } else if (isDriveTest) {
       reply = `Hasil Audit dan Evaluasi Drive Test Cluster C1
 
@@ -1454,23 +1639,10 @@ Berdasarkan data pengukuran RF log terlampir:
    - Spot 3 (JKT_1015_1): missing neighbor ke JKT_1022_2 — add reciprocal neighbor
 
 3. Langkah berikutnya
-   - Unduh laporan lengkap via tombol Excel (.xlsx) atau PPT (.pptx) di preview`;
-    } else if (isGreetingOrModelQuery) {
-      reply = `TelecomAgent RF Co-Pilot — Status Model dan Provider
+   - Unduh laporan lengkap via tombol Excel (.xlsx) atau PPT (.pptx) di preview
 
-Halo! Saya TelecomAgent RF Co-Pilot, siap bantu optimasi RF 4G LTE dan 5G NR.
-
-Provider: Google AI Studio
-Model: ${targetModel}
-Status Engine: TelecomAgent RF Domain Fallback Engine (Standby dan Active)
-
-Kenapa model ini dipakai:
-1. Akurasi dan standar 3GPP — paham istilah telco (RSRP, SINR, BLER, CQI, azimuth, tilt)
-2. Dukungan log besar — bisa proses Drive Test Nemo/TEMS puluhan ribu baris
-3. Kecepatan respons tinggi — cocok untuk troubleshooting lapangan
-
-Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
-    } else if (/worst\s*spot|terlambat|tercepat|ranking|per\s*lokasi|DL\s*<\s*10|DL\s*>\s*50/i.test(lastUserMsg)) {
+${vaultRefStr}`;
+    } else if (isWorst) {
       const bench = computeSpeedtestBenchmark();
       if (bench) {
         const qLow2 = lastUserMsg.toLowerCase();
@@ -1493,40 +1665,27 @@ Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
         reply = "Data benchmark belum terbaca. Upload CSV dulu via DT Log / Attachment, lalu ketik: buat report benchmark";
       }
     } else {
-      if (selectedSkills.length) {
-        const hints = selectedSkills.map(s=>'- '+s.skill.name+' ('+s.skill.category+'): '+s.skill.description.slice(0,140)).join('\n')
-        reply = `TelecomAgent RF Engineering Assistant — Skill-Aware
-
-Skill relevan untuk query Anda:
-${hints}
-
-Silakan spesifikasikan tugas (mis. analisa DT log, buat grafik, forecast RSRP) agar saya pakai skill yang tepat secara to-the-point.`
+      // UNKNOWN — human + vault hint + skill hint (no template dump)
+      if (vaultHits.length) {
+        reply = `Menarik — saya temukan di vault:\n${vaultSnippetStr}\n\n${vaultRefStr}\n\nBisa kamu spesifikkan lagi mau analisa, definisi, atau ringkasan cluster? Contoh: "jelaskan RSRP", "analisa DT log", atau "ringkas konteks".`;
+      } else if (selectedSkills.length) {
+        const hints = selectedSkills.map(s=>'- '+s.skill.name+' ('+s.skill.category+'): '+s.skill.description.slice(0,120)).join('\n')
+        reply = `Halo! Saya siap bantu analisa RF 4G/5G — beberapa yang bisa saya lakukan:\n${hints}\n\nCoba sebutkan tugas spesifik, mis. "analisa DT log", "jelaskan PCI", atau "ringkas konteks vault".`
       } else {
-        reply = `TelecomAgent RF Engineering Assistant
+        reply = `Halo! Saya siap bantu analisa RF 4G/5G:
+- Drive Test: hitung RSRP/SINR/throughput, deteksi worst spot
+- RCA: overshooting, PCI collision (Mod 3/30), missing neighbor
+- Tilt: mechanical & electrical downtilt (RET)
+- Vault: rujukan 3GPP (TS 38.211, TS 38.331) — 54 notes siap
+- Export: Excel (.xlsx) & PowerPoint (.pptx)
 
-Halo! Saya siap bantu analisa RF 4G/5G:
-- Drive Test Analysis: hitung RSRP, SINR, throughput, deteksi worst spot
-- RCA Engine: overshooting, PCI collision (Mod 3/30), missing neighbor
-- Antenna Tilt Optimization: mechanical dan electrical downtilt (RET)
-- Knowledge Vault: rujukan 3GPP (TS 38.211, TS 38.331) dan vendor playbook
-- Exporting: laporan Excel (.xlsx) dan PowerPoint (.pptx)
-
-Silakan upload file log/CSV atau ketik pertanyaan teknis.`
+Coba tanya "Apa itu RSRP?" atau upload file log/CSV untuk analisa.`;
       }
     }
 
-    // Annotate reply with applied skills banner when applicable (always, so user sees agent decision)
+    // ── Humanizer: sanitize, TIDAk prepend Skill aktif di content (hanya di meta) ──
     reply = sanitizePlainText(reply);
-    let finalReply = reply
-    if (selectedSkills.length) {
-      const badge = selectedSkills.map(s=>`[${s.skill.id}]`).join(' ')
-      const names = selectedSkills.map(s=>s.skill.name).join(' + ')
-      finalReply = `Skill aktif: ${badge} — ${names}\nDipilih otomatis (top-3 dari ${loadSkillsCatalog().filter(x=>x.enabled).length} aktif).\n\n${reply}`
-      // Also prepend concise skill context block as collapsible hint before body when fallback
-      if (!effectiveApiKey || effectiveApiKey.length <= 5) {
-        // skillContext already built above; reuse for fallback textual grounding at bottom
-      }
-    }
+    let finalReply = reply;
 
     const latencyMs = Date.now() - startTime;
     res.json({

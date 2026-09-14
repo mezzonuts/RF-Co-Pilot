@@ -51,6 +51,7 @@ interface UserMemory {
 export interface LLMConfig {
   provider: string;
   model: string;
+  baseUrl?: string;
   apiKey: string;
   temp: number;
   maxTokens: number;
@@ -414,6 +415,7 @@ ${previewStr}`:''}
           messages: payloadMessages,
           provider: llmConfig?.provider || 'google',
           model: llmConfig?.model || 'gemini-3.8-flash',
+          baseUrl: llmConfig?.baseUrl,
           apiKey: llmConfig?.apiKey,
           temperature: llmConfig?.temp ?? 0.3,
           max_tokens: llmConfig?.maxTokens ?? 2048,
