@@ -1157,6 +1157,121 @@ const handlePptxExport = async (req: Request, res: Response) => {
 };
 app.all('/api/export/pptx', handlePptxExport);
 
+// 12b. Benchmark Export — generates comprehensive Excel from uploaded CSVs
+const handleBenchmarkExport = async (req: Request, res: Response) => {
+  try {
+    const { webtestPath, videotestPath, speedtestPath, date } = req.body || {};
+    // Find CSV files from uploads or hermes attachments
+    const attachDir = 'C:/Users/PC/AppData/Local/hermes/attachments';
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    const findCsv = (hint: string): string | null => {
+      const patterns = [hint, hint.replace(/\\s+/g, '_')];
+      for (const d of [uploadDir, attachDir]) {
+        for (const p of patterns) {
+          const fp = path.join(d, p);
+          if (fs.existsSync(fp)) return fp;
+        }
+      }
+      return null;
+    };
+    const webPath = webtestPath || findCsv('Report-webtest-2026-06-15-to-2026-06-15.csv');
+    const vidPath = videotestPath || findCsv('Report-videotest-2026-06-15-to-2026-06-15.csv');
+    const spdPath = speedtestPath || findCsv('Report-speedtest-2026-06-15-to-2026-06-15-2.csv');
+
+    // Build benchmark via Python sidecar
+    const pyScript = path.join(process.cwd(), 'scripts', 'generate_benchmark.py');
+    const outDir = path.join(process.cwd(), 'reports');
+    const outName = `benchmark_${date || '2026-06-15'}.xlsx`;
+    const outPath = path.join(outDir, outName);
+    fs.mkdirSync(outDir, { recursive: true });
+
+    // Build Python command — pass directory containing CSVs
+    const pyExe = process.env.PYTHON_EXE || 'C:/Users/PC/AppData/Local/Python/pythoncore-3.14-64/python.exe';
+    const dataDir = path.join(process.cwd(), 'reports', 'tmp_benchmark_data');
+    fs.mkdirSync(dataDir, { recursive: true });
+    if (spdPath) fs.copyFileSync(spdPath, path.join(dataDir, 'speedtest.csv'));
+    if (webPath) fs.copyFileSync(webPath, path.join(dataDir, 'webtest.csv'));
+    if (vidPath) fs.copyFileSync(vidPath, path.join(dataDir, 'videotest.csv'));
+    const args = [pyScript, dataDir, '--output', outPath];
+
+    const { execSync } = require('child_process');
+    const pyOut = execSync(`"${pyExe}" "${args.join('" "')}"`, {
+      timeout: 60_000,
+      encoding: 'utf-8',
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+    });
+    console.log('[benchmark-export] python output:', pyOut.trim());
+
+    if (!fs.existsSync(outPath)) {
+      res.status(500).json({ error: 'Benchmark generation failed', detail: pyOut });
+      return;
+    }
+
+    const buffer = fs.readFileSync(outPath);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${outName}"`);
+    res.send(buffer);
+  } catch (err: any) {
+    console.error('[benchmark-export] error:', err?.message);
+    res.status(500).json({ error: 'Benchmark export error', detail: err?.message });
+  }
+};
+app.all('/api/benchmark/export', handleBenchmarkExport);
+
+// 12c. Benchmark Charts — generates PNG charts from uploaded CSVs
+const handleChartExport = async (req: Request, res: Response) => {
+  const { execSync } = require('child_process');
+  try {
+    const attachDir = 'C:/Users/PC/AppData/Local/hermes/attachments';
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    const findCsv = (hint: string): string | null => {
+      const patterns = [hint, hint.replace(/\\s+/g, '_')];
+      for (const d of [uploadDir, attachDir]) {
+        for (const p of patterns) {
+          const fp = path.join(d, p);
+          if (fs.existsSync(fp)) return fp;
+        }
+      }
+      return null;
+    };
+    const spdPath = findCsv('Report-speedtest-2026-06-15-to-2026-06-15-2.csv');
+    const webPath = findCsv('Report-webtest-2026-06-15-to-2026-06-15.csv');
+    const vidPath = findCsv('Report-videotest-2026-06-15-to-2026-06-15.csv');
+
+    // Create a temp directory with symlinks/copies for Python script
+    const tmpDir = path.join(process.cwd(), 'reports', 'tmp_chart_data');
+    fs.mkdirSync(tmpDir, { recursive: true });
+    if (spdPath) fs.copyFileSync(spdPath, path.join(tmpDir, 'speedtest.csv'));
+    if (webPath) fs.copyFileSync(webPath, path.join(tmpDir, 'webtest.csv'));
+    if (vidPath) fs.copyFileSync(vidPath, path.join(tmpDir, 'videotest.csv'));
+
+    const pyScript = path.join(process.cwd(), 'scripts', 'generate_charts.py');
+    const outDir = path.join(process.cwd(), 'reports', 'charts');
+    fs.mkdirSync(outDir, { recursive: true });
+
+    const pyExe = process.env.PYTHON_EXE || 'C:/Users/PC/AppData/Local/Python/pythoncore-3.14-64/python.exe';
+    const pyOut = execSync(`"${pyExe}" "${pyScript}" "${tmpDir}" --output "${outDir}"`, {
+      timeout: 120_000,
+      encoding: 'utf-8',
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+    });
+    console.log('[chart-export] python output:', pyOut.trim());
+
+    // Return list of generated chart files
+    const charts = fs.readdirSync(outDir).filter(f => f.endsWith('.png'));
+    res.json({
+      status: 'ok',
+      chartsGenerated: charts.length,
+      charts: charts.map(f => ({ name: f, url: `/reports/charts/${f}` })),
+      outputDir: outDir,
+    });
+  } catch (err: any) {
+    console.error('[chart-export] error:', err?.message);
+    res.status(500).json({ error: 'Chart export error', detail: err?.message });
+  }
+};
+app.all('/api/benchmark/charts', handleChartExport);
+
 // 12. AI Chat (Gemini API with RF Engineering Intelligence Fallback)
 
 // ── Speedtest Benchmark helper (reads uploaded CSV, returns clean plain-text report) ──
@@ -1290,10 +1405,98 @@ function computeSpeedtestBenchmark(): string | null {
     out += '- Rekomendasi: fokus optimasi XL di lokasi DL<10 terbanyak, cek RSRP -84 dBm avg (lebih rendah 5-6 dB dari kompetitor).\n';
     out += '\nTips: ketik Download Excel untuk export tabel per-ISP/per-lokasi dari preview kanan.';
     return out;
-  } catch (e:any) { console.warn('benchmark compute failed', e?.message); return null; }
-}
+      } catch (e:any) { console.warn('benchmark compute failed', e?.message); return null; }
+    }
 
-app.post('/api/chat', async (req: Request, res: Response) => {
+    function computeWebtestBenchmark(csvPath: string): string {
+      try {
+        const raw = fs.readFileSync(csvPath, 'utf-8');
+        const allRows = parseCSVRows(raw);
+        if (allRows.length < 2) return 'Webtest: data kosong';
+        const header = allRows[0].map(h => h.trim());
+        const idx = (name: string) => header.findIndex(h => h.toLowerCase()===name.toLowerCase());
+        const iThru = idx('Throughput'), iLoad = idx('Loading Time'), iISP = idx('ISP'), iRsrp = idx('RSRP'), iSinr = idx('SINR');
+        const dataRows = allRows.slice(1).filter(r => r.length >= header.length);
+        type WRow = {thru:number;load:number;isp:string;rsrp:number;sinr:number};
+        const rows: WRow[] = [];
+        for (const cols of dataRows) {
+          const thru = parseFloat(cols[iThru]); if (isNaN(thru)) continue;
+          rows.push({ thru, load: parseFloat(cols[iLoad]||''), isp: (cols[iISP]||'').trim(), rsrp: parseFloat(cols[iRsrp]||''), sinr: parseFloat(cols[iSinr]||'') });
+        }
+        if (!rows.length) return 'Webtest: tidak ada data valid';
+        const byIsp: Record<string, WRow[]> = {};
+        for (const r of rows) {
+          const k = r.isp.includes('INDOSAT') ? 'INDOSAT' : r.isp.includes('XL') ? 'XL' : r.isp.includes('Telkomsel') || r.isp.includes('Telkomunikasi') ? 'Telkomsel' : r.isp || 'Unknown';
+          (byIsp[k] = byIsp[k]||[]).push(r);
+        }
+        const avg = (a:number[]) => a.length ? a.reduce((s,v)=>s+v,0)/a.length : 0;
+        const fmt = (n:number,d=1) => isFinite(n)?n.toFixed(d):'-';
+        let out = 'Ringkasan Webtest — Total sampel: '+rows.length+'\n';
+        out += 'Sumber: Report-webtest-2026-06-15\n\n';
+        out += 'RINGKASAN PER OPERATOR\n';
+        const ispOrder = ['Telkomsel','INDOSAT','XL'];
+        for (const k of Object.keys(byIsp)) if (!ispOrder.includes(k)) ispOrder.push(k);
+        for (const isp of ispOrder) {
+          const lst = byIsp[isp]; if(!lst) continue;
+          const thrus = lst.map(r=>r.thru).filter(v=>isFinite(v));
+          const loads = lst.map(r=>r.load).filter(v=>isFinite(v));
+          const rsrps = lst.map(r=>r.rsrp).filter(v=>isFinite(v));
+          out += '- '+isp+' ('+lst.length+' sampel): Throughput avg '+fmt(avg(thrus))+' Mbps, Loading avg '+fmt(avg(loads),0)+' ms, RSRP avg '+fmt(avg(rsrps))+' dBm\n';
+        }
+        out += '\nInsight: Throughput >10 Mbps = good browsing, Loading <2000 ms = acceptable.';
+        return out;
+      } catch(e:any) { return 'Webtest compute error: '+(e?.message||e); }
+    }
+
+    function computeVideotestBenchmark(csvPath: string): string {
+      try {
+        const raw = fs.readFileSync(csvPath, 'utf-8');
+        const allRows = parseCSVRows(raw);
+        if (allRows.length < 2) return 'Videotest: data kosong';
+        const header = allRows[0].map(h => h.trim());
+        const idx = (name: string) => header.findIndex(h => h.toLowerCase()===name.toLowerCase());
+        const iThru = idx('Throughput'), iInit = idx('Initial Buffering'), iRebuf = idx('Re Buffering'), iISP = idx('ISP'), iRes = idx('Resolution'), iRsrp = idx('RSRP');
+        const dataRows = allRows.slice(1).filter(r => r.length >= header.length);
+        type VRow = {thru:number;init:number;rebuf:number;isp:string;res:string;rsrp:number};
+        const rows: VRow[] = [];
+        for (const cols of dataRows) {
+          const thru = parseFloat(cols[iThru]); if (isNaN(thru)) continue;
+          rows.push({ thru, init: parseFloat(cols[iInit]||''), rebuf: parseFloat(cols[iRebuf]||''), isp: (cols[iISP]||'').trim(), res: (iRes>=0?(cols[iRes]||'').trim():''), rsrp: parseFloat(cols[iRsrp]||'') });
+        }
+        if (!rows.length) return 'Videotest: tidak ada data valid';
+        const byIsp: Record<string, VRow[]> = {};
+        for (const r of rows) {
+          const k = r.isp.includes('INDOSAT') ? 'INDOSAT' : r.isp.includes('XL') ? 'XL' : r.isp.includes('Telkomsel') || r.isp.includes('Telkomunikasi') ? 'Telkomsel' : r.isp || 'Unknown';
+          (byIsp[k] = byIsp[k]||[]).push(r);
+        }
+        const avg = (a:number[]) => a.length ? a.reduce((s,v)=>s+v,0)/a.length : 0;
+        const fmt = (n:number,d=1) => isFinite(n)?n.toFixed(d):'-';
+        let out = 'Ringkasan Videotest — Total sampel: '+rows.length+'\n';
+        out += 'Sumber: Report-videotest-2026-06-15\n\n';
+        out += 'RINGKASAN PER OPERATOR\n';
+        const ispOrder = ['Telkomsel','INDOSAT','XL'];
+        for (const k of Object.keys(byIsp)) if (!ispOrder.includes(k)) ispOrder.push(k);
+        for (const isp of ispOrder) {
+          const lst = byIsp[isp]; if(!lst) continue;
+          const thrus = lst.map(r=>r.thru).filter(v=>isFinite(v));
+          const inits = lst.map(r=>r.init).filter(v=>isFinite(v));
+          const rebufs = lst.map(r=>r.rebuf).filter(v=>isFinite(v));
+          const rsrps = lst.map(r=>r.rsrp).filter(v=>isFinite(v));
+          const goodPlay = lst.filter(r=>r.rebuf===0).length;
+          out += '- '+isp+' ('+lst.length+' sampel): Throughput avg '+fmt(avg(thrus))+' Mbps, Init Buffer avg '+fmt(avg(inits),0)+' ms, Re-buffer avg '+fmt(avg(rebufs),0)+' ms, Smooth '+fmt(goodPlay/lst.length*100,0)+'%, RSRP avg '+fmt(avg(rsrps))+' dBm\n';
+        }
+        const byRes: Record<string, number> = {};
+        for (const r of rows) { const res = r.res||'?'; byRes[res]=(byRes[res]||0)+1; }
+        out += '\nDISTRIBUSI RESOLUSI\n';
+        for (const [res,cnt] of Object.entries(byRes).sort((a,b)=>b[1]-a[1])) {
+          out += '- '+res+': '+cnt+' sampel ('+fmt(cnt/rows.length*100,1)+'%)\n';
+        }
+        out += '\nInsight: Init Buffer <2000 ms = fast start, Re-buffer <500 ms = smooth, Smooth >90% = good QoE.';
+        return out;
+      } catch(e:any) { return 'Videotest compute error: '+(e?.message||e); }
+    }
+
+    app.post('/api/chat', async (req: Request, res: Response) => {
   const startTime = Date.now();
   try {
     const {
@@ -1360,17 +1563,36 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const skillsMetaForResponse = selectedSkills.map(s => ({ id: s.skill.id, name: s.skill.name, category: s.skill.category, reason: s.reason, score: s.score }));
 
     // ── Deterministic benchmark shortcut: always return clean report (no LLM markdown) ──
-    const isBenchmarkEarly = /benchmark|speedtest|speed\s*test|report\s*benchmark|laporan\s*benchmark/i.test(lastUserMsg) && !/(ringkas|resume|rekomendasi|bandingkan|analisa|optimasi|per operator|ringkasan)/i.test(lastUserMsg);
+    const isBenchmarkEarly = /benchmark|speedtest|speed\s*test|webtest|web\s*test|videotest|video\s*test|report\s*benchmark|laporan\s*benchmark|buat.*report|generate.*report|analisis.*csv|report.*all|full.*report/i.test(lastUserMsg) && !/(ringkas|resume|rekomendasi|bandingkan|analisa|optimasi|per operator|ringkasan)/i.test(lastUserMsg);
     if (isBenchmarkEarly) {
       const benchEarly = computeSpeedtestBenchmark();
       if (benchEarly) {
         const latencyMs = Date.now() - startTime;
         let earlyReply = benchEarly;
+
+        // Also compute webtest + videotest if requested
+        const wantAll = /report.*all|full.*report|ketiga|semua.*test|3.*test|webtest|videotest/i.test(lastUserMsg);
+        if (wantAll) {
+          try {
+            const attachDir2 = 'C:/Users/PC/AppData/Local/hermes/attachments';
+            const webCsv = path.join(attachDir2, 'Report-webtest-2026-06-15-to-2026-06-15.csv');
+            const vidCsv = path.join(attachDir2, 'Report-videotest-2026-06-15-to-2026-06-15.csv');
+            if (fs.existsSync(webCsv)) {
+              earlyReply += '\\n\\n═══ WEBTEST ANALYSIS ═══\\n';
+              earlyReply += computeWebtestBenchmark(webCsv);
+            }
+            if (fs.existsSync(vidCsv)) {
+              earlyReply += '\\n\\n═══ VIDEOTEST ANALYSIS ═══\\n';
+              earlyReply += computeVideotestBenchmark(vidCsv);
+            }
+          } catch (e:any) { console.warn('[benchmark] web/video compute error:', e?.message); }
+        }
+
         return res.json({
           choices: [{ message: { role: 'assistant', content: earlyReply } }],
           skillsApplied: skillsMetaForResponse,
           skillContextBlock: skillContext,
-          meta: { provider: 'Benchmark Engine (deterministic)', providerId: 'benchmark', model: 'speedtest-benchmark', modelVersion: 'benchmark-v1', isLive: false, latencyMs, status: 'ok', reason: 'Benchmark deterministic — langsung dari CSV 4397 sampel.' }
+          meta: { provider: 'Benchmark Engine (deterministic)', providerId: 'benchmark', model: 'multi-test-benchmark', modelVersion: 'benchmark-v2', isLive: false, latencyMs, status: 'ok', reason: 'Benchmark v2 — speedtest + webtest + videotest.' }
         });
       }
     }
