@@ -39,6 +39,7 @@
 ## Training History
 - 2026-09-14 ✅ Data pipeline — 346 training examples generated (data/train.jsonl)
 - 2026-09-14 ⏳ Training pending — requires GPU environment + ML libraries
+- 2026-09-15 ❌ FAIL — 346 live entries used; data pipeline OK (train.jsonl written); LoRA training failed: `ModuleNotFoundError: No module named 'peft'` — install `pip install transformers peft trl accelerate bitsandbytes`
 
 ## Notes
 - Auto retraining cron: 02:00 daily (job: fallback-retrain-nightly)
