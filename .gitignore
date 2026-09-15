@@ -59,13 +59,5 @@ Thumbs.db
 skills_state.json
 uploads/
 
-# Vault basic knowledge (3GPP 4G/5G)
-# Keep wrappers (vault/sources/*.md) + manifest, ignore heavy binaries
-vault/3gpp/**/*.docx
-vault/3gpp/**/*.doc
-vault/3gpp/**/*.xsd
-!vault/3gpp/README.md
-!vault/3gpp/**/.gitkeep
-
-# Dataset training raw files
-vault/dataset/
+# Vault 3GPP knowledge — ALL tracked (docx, xsd, txt, md)
+# vault/ content fully versioned for collaboration
