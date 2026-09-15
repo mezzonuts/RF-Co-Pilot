@@ -152,6 +152,17 @@ rf-copilot/
 cargo tauri build
 ```
 
+## Known Limitations (Next Iteration)
+
+| # | Limitation | Impact | Next Step |
+|---|-----------|--------|-----------|
+| 1 | **Sesi 1 PASS rate 84.2%** (117/139) — 22 FAILs: model tidak menyebut "510" (PLMN) atau "RSRP" secara literal | Jawaban benar tapi validator tidak match | Prompt engineering: tambahkan instruksi "selalu sebut MCC/MNC/PLMN saat identifikasi operator" |
+| 2 | **Sesi 2 belum re-run** setelah validator fuzzy + 9Router fix | Angka 67/300 (22.3%) masih stale | Re-run `node tests/run_sesi2.mjs` |
+| 3 | **LoRA training belum jalan** — butuh GPU + `pip install transformers peft trl accelerate bitsandbytes` | Fallback model belum di-fine-tune | Siapkan GPU server, jalankan `python scripts/train_fallback.py` |
+| 4 | **server.ts 2.015 baris** — monolith, sulit maintain | Semua logic (routing, vault, chat, skills) dalam 1 file | Refactor: split ke `routes/`, `lib/`, `middleware/` |
+| 5 | **Sesi 2 validator false negatives** — model jawab benar tapi format beda (PLMN "510–01" vs "510-01") | PASS rate rendah meski jawaban benar | Fuzzy validator sudah di-improve, perlu re-run verify |
+| 6 | **Model kadang include thinking/reasoning** dalam response (bukan final answer) | Content kosong atau debug text muncul di UI | System prompt: "Jangan sertakan proses berpikir, langsung jawab" |
+
 ## Catatan
 - dist/ dan node_modules/ tidak di-commit (.gitignore)
 - Jangan commit API key / token — pakai placeholder [REDACTED]
