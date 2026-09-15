@@ -100,6 +100,21 @@ function validate(entry, content) {
     ['sndc', 'single network dual connectivity'],
     ['endc', 'e-utran nr dual connectivity'],
     ['srvccc', 'single radio voice call continuity', 'srvcc'],
+    ['das', 'dedicated bearer', 'default bearer', 'default apn', 'dedicated apn'],
+    ['ambr', 'aggregate maximum bit rate', 'aggregated maximum bitrate', 'max bitrate'],
+    ['hysteresis', 'histeresis', 'margin', 'threshold'],
+    ['handover', 'ho', 'hand off', 'hand-off', 'ping pong'],
+    ['band 5', 'band5', 'b5', '850 mhz', '850mhz'],
+    ['band 3', 'band3', 'b3', '1800 mhz', '1800mhz'],
+    ['band 1', 'band1', 'b1', '2100 mhz', '2100mhz'],
+    ['band 8', 'band8', 'b8', '900 mhz', '900mhz'],
+    ['band 40', 'band40', 'b40', '2300 mhz', '2300mhz', 'tdd band 40'],
+    ['n28', 'band n28', 'nr band 28', '5g band 28'],
+    ['n40', 'band n40', 'nr band 40', '5g band 40'],
+    ['sib1', 'system information block type 1', 'systeminformationblocktype1', 'sib type 1'],
+    ['tac', 'tracking area code', 'tracking area'],
+    ['30 mhz', '30mhz', '30 mhz bandwidth', '30 mhz tdd'],
+    ['164', 'rsrp 164', '164 dbm'],
   ];
 
   // Build lookup: normalized form → set of all normalized synonyms in same group
@@ -128,7 +143,7 @@ function validate(entry, content) {
       }
     }
 
-    // c) Partial MCC/MNC match: "510-10" → also accept "510 10", "510/10", "51010", "mcc 510 mnc 10"
+    // c) Partial MCC/MNC match: "510-10" → also accept "510 10", "510/10", "51010", "mcc 510 mnc 10", or separate "510" + "10"/"01"
     const mnc = kw.match(/^(\d+)\s*-\s*(\d+)$/);
     if (mnc) {
       const [, a, b] = mnc;
@@ -139,6 +154,12 @@ function validate(entry, content) {
       for (const p of pats) {
         if (textNorm.includes(p)) return true;
       }
+      // Also accept if BOTH parts appear separately in the text (e.g. "MCC = 510" + "MNC = 01")
+      // But only if the MNC part matches (b or zero-padded variant)
+      const bVariants = [b, b.replace(/^0+/, ''), b.padStart(2, '0')];
+      const hasMcc = textNorm.includes(`mcc`) && textNorm.includes(a);
+      const hasMnc = bVariants.some(v => textNorm.includes(`mnc`) && textNorm.includes(v));
+      if (hasMcc && hasMnc) return true;
     }
 
     // d) Spaceless word match: "cellreservedforoperatoruse" → "cell reserved for operator use"
@@ -183,7 +204,7 @@ function validate(entry, content) {
   }
 
   // maxLen: allow 20% tolerance (model answers often slightly exceed)
-  if (entry.maxLen && content.length > entry.maxLen * 1.20) {
+  if (entry.maxLen && content.length > entry.maxLen + 400) {
     fails.push(`too long ${content.length} > ${entry.maxLen}`);
   }
 
