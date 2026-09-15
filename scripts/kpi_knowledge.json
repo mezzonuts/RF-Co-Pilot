@@ -1,0 +1,385 @@
+{
+  "_version": "1.0",
+  "_description": "KPI mapping database — fuzzy column name patterns → RF/telecom metrics",
+
+  "category_detection": {
+    "speedtest": {
+      "description": "Network throughput testing (DL/UL speed, latency, jitter)",
+      "confidence_columns": ["dl", "ul", "download", "upload", "speed", "throughput", "latency", "ping", "jitter", "packet_loss"],
+      "min_match": 3
+    },
+    "webtest": {
+      "description": "HTTP/Web performance testing (page load, response time)",
+      "confidence_columns": ["response_time", "load_time", "ttfb", "time_to_first_byte", "page_load", "http_status", "status_code", "url", "web"],
+      "min_match": 3
+    },
+    "videotest": {
+      "description": "Video streaming QoE (buffering, bitrate, resolution)",
+      "confidence_columns": ["buffering", "initial_buffer", "re_buffer", "video", "resolution", "bitrate", "startup_time", "rebuffer"],
+      "min_match": 3
+    },
+    "dt_log": {
+      "description": "Drive Test log (RF measurements per location)",
+      "confidence_columns": ["rsrp", "rsrq", "sinr", "rssi", "pci", "earfcn", "nrarfcn", "ecno", "cqi", "bler"],
+      "min_match": 4
+    },
+    "kpi_oss": {
+      "description": "OSS/KPI counter data (network-level metrics)",
+      "confidence_columns": ["success_rate", "drop_rate", "ho_success", "rrc_setup", "erab_setup", "prb", "availability", "retention"],
+      "min_match": 3
+    },
+    "generic": {
+      "description": "Unknown format — will attempt column-by-column analysis",
+      "confidence_columns": [],
+      "min_match": 0
+    }
+  },
+
+  "column_patterns": {
+    "throughput_dl": {
+      "aliases": ["dl", "download", "download_speed", "dl_speed", "dl_throughput", "down_speed", "downlink", "downlink_speed", "download_speed_mbps", "dl_mbps", "throughput_down"],
+      "unit": "Mbps",
+      "type": "numeric",
+      "kpi_group": "throughput",
+      "description": "Downlink throughput",
+      "stats": ["avg", "median", "p5", "p50", "p95", "p99", "min", "max", "std", "count"],
+      "quality_thresholds": {
+        "excellent": 50,
+        "good": 20,
+        "fair": 10,
+        "poor": 5
+      },
+      "quality_labels": {"excellent": ">50 Mbps", "good": "20-50 Mbps", "fair": "10-20 Mbps", "poor": "<10 Mbps"}
+    },
+    "throughput_ul": {
+      "aliases": ["ul", "upload", "upload_speed", "ul_speed", "ul_throughput", "up_speed", "uplink", "uplink_speed", "upload_speed_mbps", "ul_mbps", "throughput_up"],
+      "unit": "Mbps",
+      "type": "numeric",
+      "kpi_group": "throughput",
+      "description": "Uplink throughput",
+      "stats": ["avg", "median", "p5", "p50", "p95", "p99", "min", "max", "std"],
+      "quality_thresholds": {"excellent": 20, "good": 10, "fair": 5, "poor": 2}
+    },
+    "throughput": {
+      "aliases": ["throughput", "speed", "bitrate", "data_rate", "transfer_rate", "bandwidth", "kbps", "mbps"],
+      "unit": "Mbps",
+      "type": "numeric",
+      "kpi_group": "throughput",
+      "description": "Generic throughput",
+      "stats": ["avg", "median", "p5", "p50", "p95", "p99", "min", "max", "std"],
+      "quality_thresholds": {"excellent": 50, "good": 20, "fair": 10, "poor": 5}
+    },
+    "latency": {
+      "aliases": ["ping", "latency", "rtt", "round_trip", "delay", "ms", "ping_ms", "rtt_ms", "response_time", "response_time_ms"],
+      "unit": "ms",
+      "type": "numeric",
+      "kpi_group": "latency",
+      "description": "Network latency/RTT",
+      "stats": ["avg", "median", "p50", "p95", "p99", "min", "max", "std"],
+      "quality_thresholds": {"excellent": 10, "good": 30, "fair": 60, "poor": 100},
+      "quality_labels": {"excellent": "<10 ms", "good": "10-30 ms", "fair": "30-60 ms", "poor": ">60 ms"}
+    },
+    "jitter": {
+      "aliases": ["jitter", "jitter_ms", "packet_jitter", "variation", "delay_variation"],
+      "unit": "ms",
+      "type": "numeric",
+      "kpi_group": "latency",
+      "description": "Jitter (latency variation)",
+      "stats": ["avg", "median", "p95", "max", "std"],
+      "quality_thresholds": {"excellent": 2, "good": 5, "fair": 10, "poor": 20}
+    },
+    "packet_loss": {
+      "aliases": ["packet_loss", "loss", "packet_loss_pct", "loss_percent", "plp"],
+      "unit": "%",
+      "type": "numeric",
+      "kpi_group": "reliability",
+      "description": "Packet loss percentage",
+      "stats": ["avg", "median", "max"],
+      "quality_thresholds": {"excellent": 0.1, "good": 1, "fair": 3, "poor": 5}
+    },
+    "rsrp": {
+      "aliases": ["rsrp", "rsrp_dbm", "reference_signal", "signal_strength", "rx_power", "rsrp_rx", "rsrpvalue", "rsrp_level"],
+      "unit": "dBm",
+      "type": "numeric",
+      "kpi_group": "signal",
+      "description": "Reference Signal Received Power",
+      "stats": ["avg", "median", "p5", "p50", "p95", "min", "max", "std"],
+      "quality_thresholds": {"excellent": -80, "good": -90, "fair": -100, "poor": -110},
+      "quality_labels": {"excellent": ">-80 dBm", "good": "-80 to -90", "fair": "-90 to -100", "poor": "<-100 dBm"}
+    },
+    "rsrq": {
+      "aliases": ["rsrq", "rsrq_db", "signal_quality", "rsrq_rx"],
+      "unit": "dB",
+      "type": "numeric",
+      "kpi_group": "signal",
+      "description": "Reference Signal Received Quality",
+      "stats": ["avg", "median", "p50", "p95", "min", "max"],
+      "quality_thresholds": {"excellent": -5, "good": -8, "fair": -12, "poor": -15}
+    },
+    "sinr": {
+      "aliases": ["sinr", "sinr_db", "sin", "signal_to_noise", "snir", "cinr", "sinr_level"],
+      "unit": "dB",
+      "type": "numeric",
+      "kpi_group": "signal",
+      "description": "Signal to Interference plus Noise Ratio",
+      "stats": ["avg", "median", "p50", "p95", "min", "max", "std"],
+      "quality_thresholds": {"excellent": 20, "good": 10, "fair": 3, "poor": 0},
+      "quality_labels": {"excellent": ">20 dB", "good": "10-20 dB", "fair": "3-10 dB", "poor": "<3 dB"}
+    },
+    "rssi": {
+      "aliases": ["rssi", "rssi_dbm", "received_signal"],
+      "unit": "dBm",
+      "type": "numeric",
+      "kpi_group": "signal",
+      "description": "Received Signal Strength Indicator",
+      "stats": ["avg", "median", "min", "max"]
+    },
+    "cqi": {
+      "aliases": ["cqi", "channel_quality", "cqi_index"],
+      "unit": "",
+      "type": "numeric",
+      "kpi_group": "signal",
+      "description": "Channel Quality Indicator",
+      "stats": ["avg", "median", "min", "max"],
+      "quality_thresholds": {"excellent": 15, "good": 10, "fair": 5, "poor": 2}
+    },
+    "bler": {
+      "aliases": ["bler", "block_error", "block_error_rate", "bl"],
+      "unit": "%",
+      "type": "numeric",
+      "kpi_group": "reliability",
+      "description": "Block Error Rate",
+      "stats": ["avg", "median", "max"],
+      "quality_thresholds": {"excellent": 1, "good": 5, "fair": 10, "poor": 20}
+    },
+    "pci": {
+      "aliases": ["pci", "physical_cell", "cell_id_pci", "physical_cell_id"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "Physical Cell ID",
+      "stats": ["unique_count", "top_values"],
+      "quality_thresholds": {}
+    },
+    "earfcn": {
+      "aliases": ["earfcn", "e_arfcn", "lte_freq", "lte_arfcn", "dl_earfcn"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "E-UTRA Absolute Radio Frequency Channel Number (LTE)",
+      "stats": ["unique_count", "top_values"],
+      "quality_thresholds": {}
+    },
+    "nrarfcn": {
+      "aliases": ["nrarfcn", "nr_arfcn", "nr_freq", "5g_arfcn"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "NR Absolute Radio Frequency Channel Number (5G)",
+      "stats": ["unique_count", "top_values"],
+      "quality_thresholds": {}
+    },
+    "band": {
+      "aliases": ["band", "bandwidth", "lte_band", "nr_band", "freq_band", "band_number"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "Frequency Band",
+      "stats": ["unique_count", "top_values"]
+    },
+    "cell_id": {
+      "aliases": ["cell_id", "cid", "cell", "cellid", "eutra_cell_id", "nci", "nr_cell_id", "physical_cell"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "Cell Identifier",
+      "stats": ["unique_count", "top_values"]
+    },
+    "enodeb_id": {
+      "aliases": ["enodeb", "enb", "enodeb_id", "enbid", "gnodeb", "gnb", "gnodeb_id", "gnbid", "site_id", "site"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "eNodeB/gNodeB ID",
+      "stats": ["unique_count", "top_values"]
+    },
+    "tac": {
+      "aliases": ["tac", "tracking_area", "tracking_area_code"],
+      "unit": "",
+      "type": "identifier",
+      "kpi_group": "cell",
+      "description": "Tracking Area Code",
+      "stats": ["unique_count", "top_values"]
+    },
+    "operator": {
+      "aliases": ["isp", "operator", "carrier", "provider", "network", "mcc_mnc", "mnc", "mcc", "plmn", "operator_name"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "operator",
+      "description": "Operator/ISP identifier",
+      "stats": ["unique_count", "top_values", "value_counts"]
+    },
+    "group": {
+      "aliases": ["group", "location", "site_name", "poi", "spot", "area", "cluster", "region", "zone", "address", "地点", "lokasi"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "location",
+      "description": "Location/grouping identifier",
+      "stats": ["unique_count", "top_values", "value_counts"]
+    },
+    "timestamp": {
+      "aliases": ["timestamp", "time", "datetime", "date", "ts", "start_time", "end_time", "time_stamp", "measurement_time", "log_time"],
+      "unit": "",
+      "type": "temporal",
+      "kpi_group": "time",
+      "description": "Timestamp/time column",
+      "stats": ["unique_count", "min", "max", "range"]
+    },
+    "url": {
+      "aliases": ["url", "uri", "link", "host", "domain", "website", "page"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "target",
+      "description": "URL/resource identifier",
+      "stats": ["unique_count", "top_values"]
+    },
+    "status_code": {
+      "aliases": ["status", "status_code", "http_status", "code", "response_code"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "reliability",
+      "description": "HTTP status code",
+      "stats": ["unique_count", "top_values", "value_counts"],
+      "quality_thresholds": {"good": "2xx", "redirect": "3xx", "client_error": "4xx", "server_error": "5xx"}
+    },
+    "buffering_events": {
+      "aliases": ["buffering", "rebuffer", "re_buffer", "buffer_count", "buffer_events", "stall", "stall_count", "rebuffering"],
+      "unit": "",
+      "type": "numeric",
+      "kpi_group": "qoe",
+      "description": "Video buffering/stall events",
+      "stats": ["avg", "median", "max", "sum"],
+      "quality_thresholds": {"excellent": 0, "good": 1, "fair": 3, "poor": 5}
+    },
+    "initial_buffer": {
+      "aliases": ["initial_buffer", "startup", "startup_time", "init_buffer", "first_frame", "time_to_first_frame", "initial_buffering"],
+      "unit": "ms",
+      "type": "numeric",
+      "kpi_group": "qoe",
+      "description": "Video startup/initial buffering time",
+      "stats": ["avg", "median", "p95", "max"],
+      "quality_thresholds": {"excellent": 500, "good": 1000, "fair": 2000, "poor": 4000}
+    },
+    "re_buffer": {
+      "aliases": ["re_buffer", "rebuffer_time", "rebuffer_duration", "stall_duration", "rebuffer_duration"],
+      "unit": "ms",
+      "type": "numeric",
+      "kpi_group": "qoe",
+      "description": "Rebuffering duration",
+      "stats": ["avg", "median", "max"],
+      "quality_thresholds": {"excellent": 0, "good": 100, "fair": 500, "poor": 1000}
+    },
+    "resolution": {
+      "aliases": ["resolution", "video_resolution", "res", "quality_level", "video_quality"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "qoe",
+      "description": "Video resolution",
+      "stats": ["unique_count", "top_values", "value_counts"]
+    },
+    "error": {
+      "aliases": ["error", "error_message", "fail", "failure", "error_code"],
+      "unit": "",
+      "type": "categorical",
+      "kpi_group": "reliability",
+      "description": "Error indicator",
+      "stats": ["value_counts", "unique_count"]
+    },
+    "size": {
+      "aliases": ["size", "bytes", "content_length", "file_size", "response_size", "payload_size"],
+      "unit": "bytes",
+      "type": "numeric",
+      "kpi_group": "throughput",
+      "description": "Response/payload size",
+      "stats": ["avg", "median", "min", "max", "sum"]
+    },
+    "latitude": {
+      "aliases": ["latitude", "lat", "y", "gps_lat"],
+      "unit": "degrees",
+      "type": "numeric",
+      "kpi_group": "location",
+      "description": "GPS latitude",
+      "stats": ["min", "max", "avg"]
+    },
+    "longitude": {
+      "aliases": ["longitude", "lon", "lng", "x", "gps_lon"],
+      "unit": "degrees",
+      "type": "numeric",
+      "kpi_group": "location",
+      "description": "GPS longitude",
+      "stats": ["min", "max", "avg"]
+    }
+  },
+
+  "operator_mnc": {
+    "10": {"name": "Telkomsel", "full_name": "PT Telekomunikasi Selular"},
+    "01": {"name": "Indosat", "full_name": "PT Indonesian Satellite Corporation Tbk (INDOSAT)"},
+    "11": {"name": "XL", "full_name": "PT Excelcomindo Pratama / XL Axiata"},
+    "28": {"name": "Smartfren", "full_name": "PT Smartfren Telecom"},
+    "89": {"name": "Hutchison", "full_name": "Hutchison 3 Indonesia / Tri"}
+  },
+
+  "operator_name_patterns": {
+    "telkomsel": ["telkomsel", "telkom", "tsel", "telekomunikasi selular", "pt telekomunikasi"],
+    "indosat": ["indosat", "isat", "indosat ooredoo", "pt indosat", "pt isat"],
+    "xl": ["xl", "axiata", "xl axiata", "excelcomindo", "pt xl", "xl-axiata"],
+    "smartfren": ["smartfren", "smart", "pt smartfren"],
+    "hutchison": ["hutchison", "tri", "3 indonesia", "pt hutchison"]
+  },
+
+  "test_type_keywords": {
+    "speedtest": ["speed", "dl", "ul", "download", "upload", "mbps", "gbps"],
+    "webtest": ["web", "http", "page", "load", "ttfb", "url", "response"],
+    "videotest": ["video", "buffering", "initial_buffer", "re_buffer", "youtube", "resolution", "bitrate", "qoe"],
+    "dt_log": ["drive", "test", "route", "drive_test", "dt_log", "log_file"],
+    "ping_test": ["ping", "latency", "rtt", "delay", "ms"],
+    "dns_test": ["dns", "resolve", "lookup"],
+    "traceroute": ["traceroute", "trace", "hop"]
+  },
+
+  "recommended_analysis": {
+    "throughput": [
+      "distribution_per_operator",
+      "distribution_per_band",
+      "time_series_trend",
+      "percentile_comparison_p50_p95_p99",
+      "quality_classification",
+      "anomaly_detection"
+    ],
+    "signal": [
+      "distribution_per_operator",
+      "coverage_map",
+      "correlation_rsrp_sinr",
+      "threshold_compliance",
+      "worst_spots_identification"
+    ],
+    "latency": [
+      "distribution_per_operator",
+      "correlation_latency_throughput",
+      "anomaly_detection",
+      "p95_comparison"
+    ],
+    "qoe": [
+      "buffering_ratio_per_operator",
+      "startup_time_distribution",
+      "resolution_breakdown",
+      "quality_score_calculation"
+    ],
+    "cell": [
+      "most_frequent_cells",
+      "handover_analysis",
+      "pci_collision_detection",
+      "band_usage_breakdown"
+    ]
+  }
+}

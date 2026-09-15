@@ -1272,6 +1272,68 @@ const handleChartExport = async (req: Request, res: Response) => {
 };
 app.all('/api/benchmark/charts', handleChartExport);
 
+// 12d. Adaptive KPI Analysis — uses kpi_engine.py for any CSV format
+const handleAdaptiveAnalysis = async (req: Request, res: Response) => {
+  try {
+    const { csvPath, csvPaths } = req.body || {};
+    const pyExe = 'C:/Users/PC/AppData/Local/Python/pythoncore-3.14-64/python.exe';
+    const pyScript = path.join(process.cwd(), 'scripts', 'kpi_engine.py');
+    const knowledgePath = path.join(process.cwd(), 'scripts', 'kpi_knowledge.json');
+    const { execSync } = require('child_process');
+
+    // Determine input files
+    let inputPaths: string[] = [];
+    if (csvPath) inputPaths.push(csvPath);
+    if (Array.isArray(csvPaths)) inputPaths.push(...csvPaths);
+
+    // Auto-find CSVs from attachments if none provided
+    if (!inputPaths.length) {
+      const attachDir = 'C:/Users/PC/AppData/Local/hermes/attachments';
+      const candidates = ['Report-speedtest', 'Report-webtest', 'Report-videotest'];
+      for (const c of candidates) {
+        try {
+          const files = fs.readdirSync(attachDir).filter(f => f.startsWith(c) && f.endsWith('.csv'));
+          for (const f of files) inputPaths.push(path.join(attachDir, f));
+        } catch {}
+      }
+    }
+
+    if (!inputPaths.length) {
+      return res.status(400).json({ error: 'No CSV files found' });
+    }
+
+    // Run kpi_engine.py with --json for structured output
+    const tmpDir = path.join(process.cwd(), 'reports', 'tmp_kpi');
+    fs.mkdirSync(tmpDir, { recursive: true });
+    // Copy CSVs to temp directory for kpi_engine
+    for (const p of inputPaths) {
+      if (fs.existsSync(p)) {
+        const fname = path.basename(p);
+        fs.copyFileSync(p, path.join(tmpDir, fname));
+      }
+    }
+    const args = [pyScript, tmpDir, '--all', '--json', '--knowledge', knowledgePath, '--output', path.join(tmpDir, 'result.json')];
+
+    const pyOut = execSync(`"${pyExe}" "${args.join('" "')}"`, {
+      timeout: 120_000,
+      encoding: 'utf-8',
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+    });
+
+    const resultPath = path.join(tmpDir, 'result.json');
+    if (!fs.existsSync(resultPath)) {
+      return res.status(500).json({ error: 'KPI analysis failed', detail: pyOut });
+    }
+
+    const result = JSON.parse(fs.readFileSync(resultPath, 'utf-8'));
+    res.json({ status: 'ok', filesAnalyzed: result.length, results: result });
+  } catch (err: any) {
+    console.error('[adaptive-analysis] error:', err?.message);
+    res.status(500).json({ error: 'Adaptive analysis error', detail: err?.message });
+  }
+};
+app.all('/api/benchmark/analyze', handleAdaptiveAnalysis);
+
 // 12. AI Chat (Gemini API with RF Engineering Intelligence Fallback)
 
 // ── Speedtest Benchmark helper (reads uploaded CSV, returns clean plain-text report) ──
