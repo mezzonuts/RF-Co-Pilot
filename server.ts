@@ -15,6 +15,19 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// ── API: Fetch Available Models ──
+app.post('/api/models', async (req, res) => {
+  const { apiKey } = req.body;
+  if (!apiKey) return res.status(400).json({ error: 'API key required' });
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to fetch models' });
+  }
+});
+
 // ── Skills Manager (Vault-First + Skill-Aware) ──
 // Source: C:/Users/PC/Documents/Skill AI  (fallback: ./skills bundled)
 const EXTERNAL_SKILLS_ROOT = 'C:/Users/PC/Documents/Skill AI';

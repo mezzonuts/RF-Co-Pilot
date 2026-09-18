@@ -41,6 +41,7 @@ export default function App() {
   const [systemPrompt, setSystemPrompt] = useState('You are TelecomAgent — expert RF engineer for 4G/5G. Help optimize networks using precise technical knowledge. Always cite 3GPP/vendor sources when relevant. Generate Excel/PPT outputs via tools.')
   const [testResult, setTestResult] = useState<{msg:string, ok:boolean}|null>(null)
   const [testing, setTesting] = useState(false)
+  const [dynamicModels, setDynamicModels] = useState<string[]>([])
 
   // Skills — fetched from backend (C:\Users\PC\Documents\Skill AI + bundled fallback), toggle persists server-side
   const [skillSearch, setSkillSearch] = useState('')
@@ -122,6 +123,21 @@ export default function App() {
     if (p==='9router') { setBaseUrl('http://localhost:20128/v1'); setApiKey(''); }
     setTestResult(null)
   }
+  const fetchModels = (key: string) => {
+    fetch('/api/models', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: key })
+    })
+      .then(r => r.json())
+      .then(j => {
+        if (j.models) {
+          setDynamicModels(j.models.map((m: any) => m.name.replace('models/', '')));
+        }
+      })
+      .catch(console.error);
+  }
+
   const doTestLLM = () => {
     setTesting(true); setTestResult(null)
     const t0 = performance.now();
@@ -145,6 +161,7 @@ export default function App() {
             msg: `✓ Connected — ${meta.provider} (${meta.model}) • responded in ${meta.latencyMs || ms}ms [Live API]`,
             ok: true
           });
+          fetchModels(apiKey); // Auto-fetch models on success
         } else {
           setTestResult({
             msg: `✓ Active — ${meta?.provider || 'TelecomAgent RF Engine'} (${meta?.model || model}) • ${ms}ms [Domain Standby]`,
@@ -394,10 +411,10 @@ export default function App() {
               <div>
                 <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>MODEL</div>
                 <select value={model} onChange={e=>setModel(e.target.value)} style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'10px 12px',color:'#e4e4e7',outline:'none'}}>
-                  {MODELS[provider].map(m=><option key={m} value={m}>{m}</option>)}
+                  {(dynamicModels.length > 0 ? dynamicModels : MODELS[provider]).map(m=><option key={m} value={m}>{m}</option>)}
                 </select>
                 <div style={{display:'flex',gap:8,marginTop:8}}>
-                  <button style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8}}><i className="ri-refresh-line"></i> Refresh models</button>
+                  <button onClick={() => fetchModels(apiKey)} style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8}}><i className="ri-refresh-line"></i> Refresh models</button>
                   <button style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8}}>ollama list</button>
                 </div>
               </div>
