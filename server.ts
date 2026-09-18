@@ -1564,7 +1564,7 @@ function computeSpeedtestBenchmark(): string | null {
     const {
       messages = [],
       provider = 'google',
-      model = 'gemini-2.5-flash',
+      model = 'gemini-1.5-flash',
       apiKey,
       temperature = 0.3,
       max_tokens = 2048,
@@ -1593,10 +1593,10 @@ function computeSpeedtestBenchmark(): string | null {
     const envKeyForProvider = process.env[providerEnvKey] || (providerLower === '9router' ? (process.env['9ROUTER_API_KEY'] || process.env['NINE_ROUTER_API_KEY'] || '') : '');
     const effectiveApiKey = apiKey || envKeyForProvider || process.env['9ROUTER_API_KEY'] || process.env.GEMINI_API_KEY || '';
     // normalize model name — only force-default for google
-        let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
+        let targetModel = model || (isGoogle ? 'gemini-1.5-flash' : 'my-combo');
     if (isGoogle) {
       if (!targetModel || targetModel.includes('3.8') || targetModel.includes('3.1') || targetModel.includes('gpt') || targetModel.includes('custom')) {
-        targetModel = 'gemini-2.5-flash';
+        targetModel = 'gemini-1.5-flash';
       }
     }
     // PRIORITY: if 9Router is reachable, override provider+model
@@ -1711,7 +1711,7 @@ function computeSpeedtestBenchmark(): string | null {
       const useGemini = isGoogle && effectiveApiKey && effectiveApiKey.length > 5;
       if (useGemini) {
         // Gemini native SDK (systemInstruction + chat)
-        const candidateModels = [targetModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+        const candidateModels = [targetModel, "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
         const testedModels = Array.from(new Set(candidateModels));
         for (const currentModel of testedModels) {
           try {
@@ -1732,7 +1732,7 @@ function computeSpeedtestBenchmark(): string | null {
       const headers: Record<string,string> = { "Content-Type": "application/json", ...(_k.length > 5 ? { Authorization: `Bearer ${_k}` } : {}) };
       if (providerLower === '9router') console.log(`[chat] 9router _k len=${_k.length} hex=${Buffer.from(_k).toString('hex').slice(0,40)} hasAuth=${!!(headers as any).Authorization} base=${base}`);
       // For 9router: working model is ollama/gpt-oss:120b (my-combo currently empty) — keep user model first, then working fallback
-      const orModels = (providerLower === "google") ? ["gemini-2.5-flash"] : Array.from(new Set([targetModel].filter(Boolean))); // single model only — avoid 429 from fallback models
+      const orModels = (providerLower === "google") ? ["gemini-1.5-flash"] : Array.from(new Set([targetModel].filter(Boolean))); // single model only — avoid 429 from fallback models
       for (const currentModel of Array.from(new Set(orModels))) {
         try {
           const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {

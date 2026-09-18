@@ -561,7 +561,7 @@ ${previewStr}`:''}
               <span style={{width:6,height:6,borderRadius:999,background:'#10b981',display:'inline-block'}} className="animate-pulse" />
               <span>{llmConfig?.provider === 'google' ? 'Google AI Studio' : (llmConfig?.provider || 'Google AI Studio')}</span>
               <span>•</span>
-              <span style={{color:'#a78bfa'}}>{llmConfig?.model || 'gemini-2.5-flash'}</span>
+              <span style={{color:'#a78bfa'}}>{llmConfig?.model || 'gemini-1.5-flash'}</span>
             </span>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -612,7 +612,7 @@ ${previewStr}`:''}
               {isSending && (
                 <div className="agent-msg-row">
                   <div className="agent-avatar"><i className="ri-loader-4-line" style={{animation:'spin 1s linear infinite'}}></i></div>
-                  <div className="flex-1"><div className="results-box mono" style={{fontSize:12,color:'#a1a1aa'}}>Menghubungi {llmConfig?.provider === 'google' ? 'Google AI Studio' : (llmConfig?.provider || 'Google AI Studio')} ({llmConfig?.model || 'gemini-2.5-flash'})...</div></div>
+                  <div className="flex-1"><div className="results-box mono" style={{fontSize:12,color:'#a1a1aa'}}>Menghubungi {llmConfig?.provider === 'google' ? 'Google AI Studio' : (llmConfig?.provider || 'Google AI Studio')} ({llmConfig?.model || 'gemini-1.5-flash'})...</div></div>
                 </div>
               )}
               {chatError && <div className="mono" style={{fontSize:11,color:'#f87171',background:'#1a0a0a',border:'1px solid #441a1a',borderRadius:8,padding:'8px 10px'}}>{chatError}</div>}

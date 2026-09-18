@@ -12,7 +12,7 @@ type Tab = 'agent' | 'vault' | 'tools' | 'skills'
 type Provider = 'google'|'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
 
 const MODELS: Record<Provider,string[]> = {
-  google: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash'],
+  google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'],
   ollama: ['qwen2.5:32b','qwen2.5:72b','llama3.3:70b','deepseek-r1:32b','mistral-nemo:12b'],
   openrouter: ['qwen/qwen-2.5-32b','anthropic/claude-3.5-sonnet','openai/gpt-4o'],
   openai: ['gpt-4o','gpt-4o-mini','o1-preview'],
@@ -31,7 +31,7 @@ export default function App() {
 
   // LLM settings state — default to Google AI Studio (key via .env GEMINI_API_KEY atau Settings UI)
   const [provider, setProvider] = useState<Provider>('google')
-  const [model, setModel] = useState('gemini-2.5-flash')
+  const [model, setModel] = useState('gemini-1.5-flash')
   const [baseUrl, setBaseUrl] = useState('https://generativelanguage.googleapis.com')
   const [apiKey, setApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
