@@ -43,6 +43,23 @@ export default function App() {
   const [testing, setTesting] = useState(false)
   const [dynamicModels, setDynamicModels] = useState<string[]>([])
 
+  // 1. Load key dari localStorage saat aplikasi dibuka
+  useEffect(() => {
+    const savedKey = localStorage.getItem('GEMINI_API_KEY');
+    if (savedKey) {
+      setApiKey(savedKey);
+      // Auto-validate setelah 1 detik aplikasi dimuat
+      setTimeout(doTestLLM, 1000);
+    }
+  }, []);
+
+  // 2. Simpan key ke localStorage tiap kali berubah
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem('GEMINI_API_KEY', apiKey);
+    }
+  }, [apiKey]);
+
   // Skills — fetched from backend (C:\Users\PC\Documents\Skill AI + bundled fallback), toggle persists server-side
   const [skillSearch, setSkillSearch] = useState('')
   const [skillCategory, setSkillCategory] = useState('all')
