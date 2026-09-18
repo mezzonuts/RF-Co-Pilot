@@ -2305,9 +2305,10 @@ async function startServer() {
     });
   }
 
+if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`TelecomAgent RF Co-Pilot running on http://0.0.0.0:${PORT}`);
   });
 }
 
-startServer();export default app;
+module.exports = app;
