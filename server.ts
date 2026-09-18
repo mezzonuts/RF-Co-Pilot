@@ -1573,6 +1573,7 @@ function computeSpeedtestBenchmark(): string | null {
 
     app.post('/api/chat', async (req: Request, res: Response) => {
   const startTime = Date.now();
+  console.log(`[API_CHAT_START] Request body size: ${JSON.stringify(req.body).length} bytes`);
   try {
     const {
       messages = [],
@@ -2285,7 +2286,8 @@ Coba tanya "Apa itu RSRP?" atau upload file log/CSV untuk analisa.`;
       }
     });
   } catch (err: any) {
-    res.status(500).json({ error: String(err) });
+    console.error('[API_CHAT_CRITICAL_ERROR]', err?.message, err?.stack);
+    res.status(500).json({ error: String(err?.message || err) });
   }
 });
 
@@ -2305,10 +2307,15 @@ async function startServer() {
     });
   }
 
+  if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`TelecomAgent RF Co-Pilot running on http://0.0.0.0:${PORT}`);
+    });
+  }
+}
+
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`TelecomAgent RF Co-Pilot running on http://0.0.0.0:${PORT}`);
-  });
+  startServer();
 }
 
 module.exports = app;
