@@ -12,7 +12,7 @@ type Tab = 'agent' | 'vault' | 'tools' | 'skills'
 type Provider = 'google'|'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
 
 const MODELS: Record<Provider,string[]> = {
-  google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'],
+  google: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview', 'gemini-3.8-flash', 'gemini-flash-latest'],
   ollama: ['qwen2.5:32b','qwen2.5:72b','llama3.3:70b','deepseek-r1:32b','mistral-nemo:12b'],
   openrouter: ['qwen/qwen-2.5-32b','anthropic/claude-3.5-sonnet','openai/gpt-4o'],
   openai: ['gpt-4o','gpt-4o-mini','o1-preview'],
@@ -29,9 +29,9 @@ export default function App() {
   const [newSkillOpen, setNewSkillOpen] = useState(false)
   const [activeTool, setActiveTool] = useState<any | null>(null)
 
-  // LLM settings state — default to Google AI Studio (key via .env GEMINI_API_KEY atau Settings UI)
+  // LLM settings state — default to Google AI Studio (Gemini 2.5/3.x)
   const [provider, setProvider] = useState<Provider>('google')
-  const [model, setModel] = useState('gemini-1.5-flash')
+  const [model, setModel] = useState('gemini-2.5-flash')
   const [baseUrl, setBaseUrl] = useState('https://generativelanguage.googleapis.com')
   const [apiKey, setApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
@@ -42,23 +42,68 @@ export default function App() {
   const [testResult, setTestResult] = useState<{msg:string, ok:boolean}|null>(null)
   const [testing, setTesting] = useState(false)
   const [dynamicModels, setDynamicModels] = useState<string[]>([])
+  const [modelsLoading, setModelsLoading] = useState(false)
+  const [modelsError, setModelsError] = useState<string|null>(null)
 
-  // 1. Load key dari localStorage saat aplikasi dibuka
+  const fetchModels = async (key?: string) => {
+    const k = (key !== undefined ? key : apiKey).trim()
+    setModelsLoading(true)
+    setModelsError(null)
+    try {
+      const r = await fetch('/api/models', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: k })
+      })
+      const j = await r.json()
+      if (j.ok && Array.isArray(j.models) && j.models.length > 0) {
+        const list = j.models.map((m: any) => typeof m === 'string' ? m : m.id)
+        setDynamicModels(list)
+        if (!list.includes(model)) {
+          setModel(list[0])
+        }
+      } else if (j.modelNames && Array.isArray(j.modelNames) && j.modelNames.length > 0) {
+        setDynamicModels(j.modelNames)
+        if (!j.modelNames.includes(model)) {
+          setModel(j.modelNames[0])
+        }
+      } else if (j.error) {
+        setModelsError(j.error)
+      }
+    } catch (e: any) {
+      setModelsError(e?.message || 'Gagal mendeteksi model')
+    } finally {
+      setModelsLoading(false)
+    }
+  }
+
+  // 1. Load key & auto-detect models saat aplikasi dibuka
   useEffect(() => {
-    const savedKey = localStorage.getItem('GEMINI_API_KEY');
+    const savedKey = localStorage.getItem('GEMINI_API_KEY') || ''
     if (savedKey) {
-      setApiKey(savedKey);
-      // Auto-validate setelah 1 detik aplikasi dimuat
-      setTimeout(doTestLLM, 1000);
+      setApiKey(savedKey)
+      fetchModels(savedKey)
+      setTimeout(doTestLLM, 800)
+    } else {
+      // Coba fetch models jika server memiliki GEMINI_API_KEY di environment
+      fetchModels('')
     }
-  }, []);
+  }, [])
 
-  // 2. Simpan key ke localStorage tiap kali berubah
-  useEffect(() => {
-    if (apiKey) {
-      localStorage.setItem('GEMINI_API_KEY', apiKey);
+  // 2. Simpan key ke localStorage dan auto-refresh model list jika diubah
+  const handleApiKeyChange = (newKey: string) => {
+    setApiKey(newKey)
+    if (newKey.trim()) {
+      localStorage.setItem('GEMINI_API_KEY', newKey.trim())
+      // Auto-detect models setelah 600ms debounce
+      const timeoutId = setTimeout(() => {
+        fetchModels(newKey.trim())
+      }, 600)
+      return () => clearTimeout(timeoutId)
+    } else {
+      localStorage.removeItem('GEMINI_API_KEY')
     }
-  }, [apiKey]);
+  }
 
   // Skills — fetched from backend (C:\Users\PC\Documents\Skill AI + bundled fallback), toggle persists server-side
   const [skillSearch, setSkillSearch] = useState('')
@@ -130,29 +175,16 @@ export default function App() {
   // Provider change — mirrors mock onProviderChange
   const onProviderChange = (p:Provider) => {
     setProvider(p)
-    const first = MODELS[p][0]
-    if (first) setModel(first)
+    const list = dynamicModels.length > 0 && p === 'google' ? dynamicModels : MODELS[p]
+    if (list && list[0]) setModel(list[0])
     if (p==='google') {
       setBaseUrl('https://generativelanguage.googleapis.com')
-      setApiKey('')
+      const savedKey = localStorage.getItem('GEMINI_API_KEY') || ''
+      if (savedKey) setApiKey(savedKey)
     }
     if (p==='ollama') setBaseUrl('http://localhost:11434/v1')
-    if (p==='9router') { setBaseUrl('http://localhost:20128/v1'); setApiKey(''); }
+    if (p==='9router') { setBaseUrl('http://localhost:20128/v1') }
     setTestResult(null)
-  }
-  const fetchModels = (key: string) => {
-    fetch('/api/models', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiKey: key })
-    })
-      .then(r => r.json())
-      .then(j => {
-        if (j.models) {
-          setDynamicModels(j.models.map((m: any) => m.name.replace('models/', '')));
-        }
-      })
-      .catch(console.error);
   }
 
   const doTestLLM = () => {
@@ -166,19 +198,26 @@ export default function App() {
         provider,
         model,
         baseUrl,
-        apiKey,
+        apiKey: apiKey || localStorage.getItem('GEMINI_API_KEY') || '',
       })
     })
       .then(r => r.json())
       .then(j => {
         const ms = Math.round(performance.now() - t0);
         const meta = j?.meta;
+        if (meta?.status === 'error' || j?.error) {
+          setTestResult({
+            msg: `✗ Error: ${meta?.error || j?.error || 'Koneksi gagal'}`,
+            ok: false
+          });
+          return;
+        }
         if (meta?.isLive) {
           setTestResult({
-            msg: `✓ Connected — ${meta.provider} (${meta.model}) • responded in ${meta.latencyMs || ms}ms [Live API]`,
+            msg: `✓ Connected — ${meta.provider || 'Google AI Studio'} (${meta.model || model}) • responded in ${meta.latencyMs || ms}ms [Live API]`,
             ok: true
           });
-          fetchModels(apiKey); // Auto-fetch models on success
+          fetchModels(apiKey); // Auto-fetch live models on success
         } else {
           setTestResult({
             msg: `✓ Active — ${meta?.provider || 'TelecomAgent RF Engine'} (${meta?.model || model}) • ${ms}ms [Domain Standby]`,
@@ -414,7 +453,7 @@ export default function App() {
               <div>
                 <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>PROVIDER</div>
                 <select value={provider} onChange={e=>onProviderChange(e.target.value as Provider)} style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'10px 12px',color:'#e4e4e7',outline:'none'}}>
-                  <option value="google">Google AI Studio (Gemini 3)</option>
+                  <option value="google">Google AI Studio (Gemini 2.5 / 3.x)</option>
                   <option value="ollama">Ollama (Local)</option>
                   <option value="openrouter">OpenRouter</option>
                   <option value="openai">OpenAI</option>
@@ -426,26 +465,40 @@ export default function App() {
                 <p style={{fontSize:11,color:'#71717a',marginTop:6,fontFamily:'JetBrains Mono, monospace'}}>{hintText}</p>
               </div>
               <div>
-                <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>MODEL</div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a'}}>MODEL</div>
+                  {dynamicModels.length > 0 && (
+                    <span style={{fontSize:10,color:'#34d399',background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',padding:'1px 6px',borderRadius:4}}>
+                      ✓ {dynamicModels.length} models auto-detected
+                    </span>
+                  )}
+                </div>
                 <select value={model} onChange={e=>setModel(e.target.value)} style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'10px 12px',color:'#e4e4e7',outline:'none'}}>
                   {(dynamicModels.length > 0 ? dynamicModels : MODELS[provider]).map(m=><option key={m} value={m}>{m}</option>)}
                 </select>
                 <div style={{display:'flex',gap:8,marginTop:8}}>
-                  <button onClick={() => fetchModels(apiKey)} style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8}}><i className="ri-refresh-line"></i> Refresh models</button>
-                  <button style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'4px 10px',borderRadius:8}}>ollama list</button>
+                  <button onClick={() => fetchModels(apiKey)} disabled={modelsLoading} style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'6px 12px',borderRadius:8,color:'#e4e4e7',cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+                    <i className={modelsLoading ? "ri-loader-4-line animate-spin" : "ri-refresh-line"}></i>
+                    {modelsLoading ? 'Mendeteksi...' : 'Auto-Detect Models'}
+                  </button>
+                  {provider === 'ollama' && <button style={{fontSize:11,background:'#18181b',border:'1px solid #27272a',padding:'6px 12px',borderRadius:8,color:'#a1a1aa'}}>ollama list</button>}
                 </div>
+                {modelsError && <p style={{fontSize:11,color:'#f87171',marginTop:6}}>⚠️ {modelsError}</p>}
               </div>
               <div>
                 <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>BASE URL</div>
                 <input value={baseUrl} onChange={e=>setBaseUrl(e.target.value)} style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 12px',color:'#e4e4e7',fontFamily:'JetBrains Mono, monospace',fontSize:13,outline:'none'}} />
               </div>
               <div>
-                <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>API KEY <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,color:'#71717a'}}>— untuk cloud provider</span></div>
+                <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>API KEY <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,color:'#71717a'}}>— Google AI Studio / Cloud</span></div>
                 <div style={{position:'relative'}}>
-                  <input type={showKey?'text':'password'} value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="sk-... / sk-or-..." style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 36px 8px 12px',color:'#e4e4e7',fontFamily:'JetBrains Mono, monospace',fontSize:13,outline:'none'}} />
+                  <input type={showKey?'text':'password'} value={apiKey} onChange={e=>handleApiKeyChange(e.target.value)} placeholder="AIzaSy... (Gemini API Key)" style={{width:'100%',background:'#14141b',border:'1px solid #27272a',borderRadius:8,padding:'8px 36px 8px 12px',color:'#e4e4e7',fontFamily:'JetBrains Mono, monospace',fontSize:13,outline:'none'}} />
                   <button onClick={()=>setShowKey(v=>!v)} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:24,height:24,background:'transparent',border:'none',cursor:'pointer',color:'#71717a'}}><i className={showKey?'ri-eye-off-line':'ri-eye-line'}></i></button>
                 </div>
-                <p style={{fontSize:10,color:'#71717a',marginTop:4}}>Disimpan lokal (encrypted). Tidak dikirim kemana-mana.</p>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:6}}>
+                  <p style={{fontSize:10,color:'#71717a'}}>Disimpan lokal di browser (aman, langsung ke backend proxy).</p>
+                  {apiKey.trim() && <span style={{fontSize:10,color:'#34d399'}}>● Tersimpan</span>}
+                </div>
               </div>
               <div>
                 <div style={{fontSize:11,fontWeight:600,letterSpacing:1,color:'#71717a',marginBottom:8}}>TEMPERATURE <span style={{fontFamily:'JetBrains Mono, monospace',fontWeight:400,textTransform:'none',letterSpacing:0,color:'#a1a1aa'}}>{temp.toFixed(2)}</span></div>

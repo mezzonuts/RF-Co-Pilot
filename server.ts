@@ -1,8 +1,9 @@
+import path from 'path';
 import dotenv from 'dotenv';
+dotenv.config();
 dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 import express, { Request, Response } from 'express';
-import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
@@ -15,16 +16,99 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Static mounts for public assets (favicon, icons) and reports (charts)
+app.use(express.static(path.join(process.cwd(), 'public')));
+app.use('/reports', express.static(path.join(process.cwd(), 'reports')));
+
+// Explicit favicon handler
+app.get('/favicon.ico', (_req: Request, res: Response) => {
+  const icoPath = path.join(process.cwd(), 'public', 'favicon.ico');
+  if (fs.existsSync(icoPath)) {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.sendFile(icoPath);
+  } else {
+    res.status(204).end();
+  }
+});
+
+
 // ── API: Fetch Available Models ──
-app.post('/api/models', async (req, res) => {
-  const { apiKey } = req.body;
-  if (!apiKey) return res.status(400).json({ error: 'API key required' });
+app.all('/api/models', async (req, res) => {
+  const apiKey = (
+    (req.body && req.body.apiKey) ||
+    req.query.apiKey ||
+    req.headers['x-api-key'] ||
+    process.env.GEMINI_API_KEY ||
+    ''
+  ).toString().trim();
+
+  if (!apiKey) {
+    return res.status(400).json({
+      ok: false,
+      error: 'API key required. Masukkan Gemini API Key di menu LLM Configuration atau simpan di environment.'
+    });
+  }
+
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to fetch models' });
+    const data: any = await response.json();
+
+    if (data.error) {
+      return res.status(response.status || 400).json({
+        ok: false,
+        error: data.error.message || 'Gagal memverifikasi API Key ke Google AI Studio',
+        detail: data.error
+      });
+    }
+
+    const rawModels: any[] = Array.isArray(data.models) ? data.models : [];
+    // Filter models supporting generateContent
+    const filtered = rawModels
+      .filter((m: any) => !m.supportedGenerationMethods || m.supportedGenerationMethods.includes('generateContent'))
+      .map((m: any) => {
+        const id = (m.name || '').replace(/^models\//, '');
+        return {
+          id,
+          name: m.displayName || id,
+          description: m.description || '',
+          inputTokenLimit: m.inputTokenLimit,
+          outputTokenLimit: m.outputTokenLimit,
+          version: m.version || '',
+        };
+      });
+
+    // Priority sorting: modern Flash & Pro models first
+    filtered.sort((a, b) => {
+      const getScore = (id: string) => {
+        if (id === 'gemini-2.5-flash') return 1;
+        if (id.includes('2.5-flash')) return 2;
+        if (id.includes('3.8-flash')) return 3;
+        if (id === 'gemini-2.5-pro') return 4;
+        if (id.includes('2.5-pro')) return 5;
+        if (id.includes('3.1-pro')) return 6;
+        if (id.includes('flash-latest')) return 7;
+        if (id.includes('flash')) return 10;
+        if (id.includes('pro')) return 20;
+        return 50;
+      };
+      return getScore(a.id) - getScore(b.id);
+    });
+
+    const modelNames = filtered.map(m => m.id);
+
+    return res.json({
+      ok: true,
+      total: filtered.length,
+      models: filtered,
+      modelNames,
+      raw: data.models
+    });
+  } catch (e: any) {
+    console.error('[models] Error fetching Google models:', e?.message || e);
+    return res.status(500).json({
+      ok: false,
+      error: 'Failed to connect to Google Generative Language API: ' + (e?.message || String(e))
+    });
   }
 });
 
@@ -1584,10 +1668,6 @@ function computeSpeedtestBenchmark(): string | null {
       max_tokens = 2048,
     } = req.body;
 
-    if (!apiKey) {
-      return res.status(400).json({ error: 'API Key diperlukan dari menu LLM Configuration' });
-    }
-
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'messages array required' });
     }
@@ -1605,17 +1685,15 @@ function computeSpeedtestBenchmark(): string | null {
       else if (baseUrl.includes('api.openai')) providerLower = 'openai';
     }
 
-    const isGoogle = providerLower === 'google';
+    const isGoogle = providerLower === 'google' || providerLower === 'gemini';
     // resolve api key env-var per provider (dotenv .env.local already injected)
     const providerEnvKey = providerLower.toUpperCase().replace('-', '_') + '_API_KEY';
     const envKeyForProvider = process.env[providerEnvKey] || (providerLower === '9router' ? (process.env['9ROUTER_API_KEY'] || process.env['NINE_ROUTER_API_KEY'] || '') : '');
-    const effectiveApiKey = apiKey || envKeyForProvider || process.env['9ROUTER_API_KEY'] || process.env.GEMINI_API_KEY || '';
-    // normalize model name — only force-default for google
-        let targetModel = model || (isGoogle ? 'gemini-1.5-flash' : 'my-combo');
-    if (isGoogle) {
-      if (!targetModel || targetModel.includes('3.8') || targetModel.includes('3.1') || targetModel.includes('gpt') || targetModel.includes('custom')) {
-        targetModel = 'gemini-1.5-flash';
-      }
+    const effectiveApiKey = (apiKey || envKeyForProvider || process.env.GEMINI_API_KEY || '').toString().trim();
+    // normalize model name — default to modern gemini-2.5-flash for google
+    let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
+    if (isGoogle && (!targetModel || targetModel === 'my-combo')) {
+      targetModel = 'gemini-2.5-flash';
     }
     // PRIORITY: if 9Router is reachable, override provider+model
     if (providerLower !== '9router' && baseUrl !== 'http://localhost:20128/v1') {
@@ -1727,21 +1805,43 @@ function computeSpeedtestBenchmark(): string | null {
       // Use outer providerLower (already modified by 9Router auto-detect)
       const isGoogle = providerLower === "google" || providerLower === "gemini";
       const useGemini = isGoogle && effectiveApiKey && effectiveApiKey.length > 5;
+      let lastGeminiError: string | null = null;
       if (useGemini) {
         // Gemini native SDK (systemInstruction + chat)
-        const candidateModels = [targetModel, "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
-        const testedModels = Array.from(new Set(candidateModels));
+        const candidateModels = [
+          targetModel,
+          "gemini-2.5-flash",
+          "gemini-2.5-pro",
+          "gemini-3.1-pro-preview",
+          "gemini-3.8-flash",
+        ];
+        const testedModels = Array.from(new Set(candidateModels.filter(Boolean)));
         for (const currentModel of testedModels) {
           try {
-            const ai = new GoogleGenAI({ apiKey: "***"});
+            const ai = new GoogleGenAI({ apiKey: effectiveApiKey });
             const resp = await ai.models.generateContent({
               model: currentModel,
               contents: formattedContents,
-              config: { systemInstruction: systemInstructionText, temperature: Number(temperature) || 0.3, maxOutputTokens: Number(max_tokens) || 2048 },
+              config: {
+                systemInstruction: systemInstructionText,
+                temperature: Number(temperature) || 0.3,
+                maxOutputTokens: Number(max_tokens) || 4096
+              },
             });
             const replyRaw = resp.text || "";
-            if (replyRaw.trim()) return { reply: sanitizePlainText(replyRaw), currentModel, provider: "google", providerId: "google", isLive: true };
-          } catch (mErr:any) { console.warn(`Gemini ${currentModel} error:`, mErr?.message || mErr); }
+            if (replyRaw.trim()) {
+              return {
+                reply: sanitizePlainText(replyRaw),
+                currentModel,
+                provider: "Google AI Studio",
+                providerId: "google",
+                isLive: true
+              };
+            }
+          } catch (mErr: any) {
+            lastGeminiError = mErr?.message || String(mErr);
+            console.warn(`[chat] Gemini ${currentModel} error:`, lastGeminiError);
+          }
         }
       }
       // OpenRouter / 9Router / OpenAI-compatible endpoint
@@ -1750,8 +1850,8 @@ function computeSpeedtestBenchmark(): string | null {
       const headers: Record<string,string> = { "Content-Type": "application/json", ...(_k.length > 5 ? { Authorization: `Bearer ${_k}` } : {}) };
       if (providerLower === '9router') console.log(`[chat] 9router _k len=${_k.length} hex=${Buffer.from(_k).toString('hex').slice(0,40)} hasAuth=${!!(headers as any).Authorization} base=${base}`);
       // For 9router: working model is ollama/gpt-oss:120b (my-combo currently empty) — keep user model first, then working fallback
-      const orModels = (providerLower === "google") ? ["gemini-1.5-flash"] : Array.from(new Set([targetModel].filter(Boolean))); // single model only — avoid 429 from fallback models
-      for (const currentModel of Array.from(new Set(orModels))) {
+      const orModels = (providerLower === "google") ? [targetModel, "gemini-2.5-flash"] : Array.from(new Set([targetModel].filter(Boolean)));
+      for (const currentModel of Array.from(new Set(orModels.filter(Boolean)))) {
         try {
           const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
             method: "POST",
@@ -2295,6 +2395,15 @@ Coba tanya "Apa itu RSRP?" atau upload file log/CSV untuk analisa.`;
   }
 });
 
+// ── Explicit 404 handler for undefined API routes ──
+app.all('/api/*all', (req: Request, res: Response) => {
+  res.status(404).json({
+    ok: false,
+    error: `API route not found: ${req.method} ${req.originalUrl}`,
+    status: 404,
+  });
+});
+
 // ── VITE MIDDLEWARE / STATIC ASSETS ──
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -2311,15 +2420,11 @@ async function startServer() {
     });
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`TelecomAgent RF Co-Pilot running on http://0.0.0.0:${PORT}`);
-    });
-  }
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`TelecomAgent RF Co-Pilot running on http://0.0.0.0:${PORT}`);
+  });
 }
 
-if (process.env.NODE_ENV !== 'production') {
-  startServer();
-}
+startServer();
 
-module.exports = app;
+export default app;
