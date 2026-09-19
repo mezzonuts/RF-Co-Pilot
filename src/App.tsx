@@ -80,7 +80,7 @@ export default function App() {
   const fetchSkills = async () => {
     setSkillsLoading(true)
     try {
-      const r = await fetch('/rpc/skills')
+      const r = await fetch('/api/skills')
       const j = await r.json()
       if (j?.catalog && Array.isArray(j.catalog)) {
         const mapped = j.catalog.map((s:any)=> ({
@@ -123,7 +123,7 @@ export default function App() {
     const next = !skillsOn[id]
     setSkillsOn(prev=>({...prev,[id]:next}))
     setAllSkills(prev=> prev.map(s=> s.id===id ? { ...s, enabled: next } : s))
-    fetch('/rpc/skills/toggle', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, enabled: next }) })
+    fetch('/api/skills/toggle', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, enabled: next }) })
       .then(r=>r.json()).then(j=>{ if(!j?.ok) throw new Error(j?.error||'toggle failed') }).catch(()=> { setSkillsOn(prev=>({...prev,[id]:!next})); setAllSkills(prev=> prev.map(s=> s.id===id ? { ...s, enabled: !next } : s)) })
   }
 
@@ -141,7 +141,7 @@ export default function App() {
     setTestResult(null)
   }
   const fetchModels = (key: string) => {
-    fetch('/rpc/models', {
+    fetch('/api/models', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiKey: key })
@@ -158,7 +158,7 @@ export default function App() {
   const doTestLLM = () => {
     setTesting(true); setTestResult(null)
     const t0 = performance.now();
-    fetch('/rpc/chat', {
+    fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -194,7 +194,7 @@ export default function App() {
 
   const handleExportExcel = () => {
     const a = document.createElement('a');
-    a.href = '/rpc/export/excel';
+    a.href = '/api/export/excel';
     a.download = 'RF_Cluster_Optimization_Report.xlsx';
     document.body.appendChild(a);
     a.click();
@@ -203,7 +203,7 @@ export default function App() {
 
   const handleExportPptx = () => {
     const a = document.createElement('a');
-    a.href = '/rpc/export/pptx';
+    a.href = '/api/export/pptx';
     a.download = 'RF_Cluster_Optimization_Executive_Summary.pptx';
     document.body.appendChild(a);
     a.click();
@@ -228,7 +228,7 @@ export default function App() {
     setSkillsOn(prev => ({ ...prev, [id]: true }));
 
     // Ingest into vault
-    fetch('/rpc/vault/ingest', {
+    fetch('/api/vault/ingest', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

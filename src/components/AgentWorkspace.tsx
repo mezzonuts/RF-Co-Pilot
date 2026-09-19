@@ -112,7 +112,7 @@ export default function AgentWorkspace({
   // -- Memory & session bootstrap --
   useEffect(() => {
     let loaded = false;
-    fetch('/rpc/memory').then(r=>r.json()).then(j=>{
+    fetch('/api/memory').then(r=>r.json()).then(j=>{
       if(j?.projects && Array.isArray(j.projects)){
         const projs: Project[] = j.projects.map((mp:any)=>({ id: mp.id, name: mp.title, status: 'inactive' as const, count: (mp.messages?.length||0), dot: 'emerald' }));
         const tasks: RecentTask[] = j.projects.map((mp:any)=>({ id: mp.id, title: mp.title, time: mp.time, badges: mp.badges||[] }));
@@ -146,12 +146,12 @@ export default function AgentWorkspace({
     try {
       setExportBusy('excel');
       const r = customData
-        ? await fetch('/rpc/export/excel', {
+        ? await fetch('/api/export/excel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(customData),
           })
-        : await fetch('/rpc/export/excel');
+        : await fetch('/api/export/excel');
       if (!r.ok) throw new Error(await r.text());
       const blob = await r.blob();
       const fname = (customData?.fileName ? customData.fileName.replace(/\.[^/.]+$/, '') : 'Cluster_C1') + '_KPI.xlsx';
@@ -167,12 +167,12 @@ export default function AgentWorkspace({
     try {
       setExportBusy('pptx');
       const r = customData
-        ? await fetch('/rpc/export/pptx', {
+        ? await fetch('/api/export/pptx', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(customData),
           })
-        : await fetch('/rpc/export/pptx');
+        : await fetch('/api/export/pptx');
       if (!r.ok) throw new Error(await r.text());
       const blob = await r.blob();
       const fname = (customData?.fileName ? customData.fileName.replace(/\.[^/.]+$/, '') : 'Cluster_C1') + '_Report.pptx';
@@ -238,14 +238,14 @@ export default function AgentWorkspace({
       cache.userMemory = nextUser;
       localStorage.setItem('rf_memory_cache', JSON.stringify(cache));
     }catch{}
-    try{ await fetch('/rpc/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'archive', project: memProj, userMemory: nextUser})}); }catch{}
+    try{ await fetch('/api/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'archive', project: memProj, userMemory: nextUser})}); }catch{}
   }, [messages, lastUpload, attachedFile, parsedRows, parsedInfo, sheetsData, selectedSheet, userMemory, buildUserMemory]);
 
   const handleLoadProject = useCallback((id:string)=>{
     const load = async()=>{
       let hit: any = null;
       try{
-        const r = await fetch('/rpc/memory');
+        const r = await fetch('/api/memory');
         const j = await r.json();
         hit = (j.projects||[]).find((p:any)=>p.id===id);
       }catch{}
@@ -306,7 +306,7 @@ export default function AgentWorkspace({
         setParsedInfo(`Header: ${hdr.join(' | ')}${kpi}`);
         setParsedRows([hdr, ...preview]);
       } else if(ext==='xlsx' || ext==='xls'){
-        // Excel: parse real via backend /rpc/parse — sekarang scan SEMUA sheet (Power Query Raw ikut kebaca)
+        // Excel: parse real via backend /api/parse — sekarang scan SEMUA sheet (Power Query Raw ikut kebaca)
         try{
           const b64: string = await new Promise<string>((resolve, reject)=>{
             const reader = new FileReader();
@@ -318,7 +318,7 @@ export default function AgentWorkspace({
             reader.onerror = ()=> reject(new Error('FileReader failed'));
             reader.readAsDataURL(f);
           });
-          const r = await fetch('/rpc/parse', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fileName: f.name, content: b64, isBase64:true})});
+          const r = await fetch('/api/parse', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fileName: f.name, content: b64, isBase64:true})});
           const j = await r.json();
           if(j.ok){
             // New multi-sheet payload: j.sheetsData, j.sheets
@@ -408,7 +408,7 @@ ${previewStr}`:''}
         }
         payloadMessages.unshift({role:'system', content: sys} as any);
       }
-      const r = await fetch('/rpc/chat', {
+      const r = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
