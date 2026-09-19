@@ -47,3 +47,4 @@
 - Dataset: tests/dataset_fallback_v2.json (append-only)
 - Branch: feat/v0.4-vault-grounded-loop
 - Next: re-run harness setelah validator patch untuk PASS rate lebih tinggi
+- 2026-09-19 ❌ FAIL — 763 live entries used

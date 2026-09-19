@@ -16,7 +16,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ── API: Fetch Available Models ──
-app.post('/api/models', async (req, res) => {
+app.post('/rpc/models', async (req, res) => {
   const { apiKey } = req.body;
   if (!apiKey) return res.status(400).json({ error: 'API key required' });
   try {
@@ -597,7 +597,7 @@ let memoryStore: {
 // ── API ROUTES ──
 
 // 1. Health check
-app.get('/api/health', (_req: Request, res: Response) => {
+app.get('/rpc/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     python_executable: 'web-emulated-sidecar',
@@ -606,11 +606,11 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // 2. Memory
-app.get('/api/memory', (_req: Request, res: Response) => {
+app.get('/rpc/memory', (_req: Request, res: Response) => {
   res.json(memoryStore);
 });
 
-app.post('/api/memory', (req: Request, res: Response) => {
+app.post('/rpc/memory', (req: Request, res: Response) => {
   try {
     const { action, project, userMemory, projects } = req.body;
     if (action === 'archive' && project) {
@@ -640,7 +640,7 @@ app.post('/api/memory', (req: Request, res: Response) => {
 });
 
 // 3. Vault Tree
-app.get('/api/vault/tree', (_req: Request, res: Response) => {
+app.get('/rpc/vault/tree', (_req: Request, res: Response) => {
   const categories: Record<string, any[]> = {
     '3gpp': [],
     'skills': [],
@@ -692,7 +692,7 @@ app.get('/api/vault/tree', (_req: Request, res: Response) => {
 });
 
 // 4. Vault File
-app.get('/api/vault/file', (req: Request, res: Response) => {
+app.get('/rpc/vault/file', (req: Request, res: Response) => {
   const filePath = String(req.query.path || '');
   const note = vaultNotes.find(n => n.path === filePath || n.name === filePath);
   if (!note) {
@@ -708,7 +708,7 @@ app.get('/api/vault/file', (req: Request, res: Response) => {
 });
 
 // 5. Vault Graph
-app.get('/api/vault/graph', (_req: Request, res: Response) => {
+app.get('/rpc/vault/graph', (_req: Request, res: Response) => {
   const nodes = vaultNotes.map(n => ({
     id: n.path,
     label: n.name.replace(/\.md$/i, ''),
@@ -729,7 +729,7 @@ app.get('/api/vault/graph', (_req: Request, res: Response) => {
 });
 
 // 6. Vault Search
-app.get('/api/vault/search', (req: Request, res: Response) => {
+app.get('/rpc/vault/search', (req: Request, res: Response) => {
   const q = String(req.query.q || '').toLowerCase();
   const limit = parseInt(String(req.query.limit || '10'), 10);
   if (!q) {
@@ -755,7 +755,7 @@ app.get('/api/vault/search', (req: Request, res: Response) => {
 });
 
 // 7. Vault Ingest
-app.post('/api/vault/ingest', (req: Request, res: Response) => {
+app.post('/rpc/vault/ingest', (req: Request, res: Response) => {
   try {
     const { fileName, content } = req.body;
     if (!fileName || !content) {
@@ -778,7 +778,7 @@ app.post('/api/vault/ingest', (req: Request, res: Response) => {
 });
 
 // 8. Vault Stats
-app.get('/api/vault/stats', (_req: Request, res: Response) => {
+app.get('/rpc/vault/stats', (_req: Request, res: Response) => {
   res.json({
     vault_cached: vaultNotes.length,
     graph: { nodes: vaultNotes.length, edges: 6 },
@@ -787,7 +787,7 @@ app.get('/api/vault/stats', (_req: Request, res: Response) => {
 });
 
 // ── 8b. Skills Manager API ──
-app.get('/api/skills', (_req: Request, res: Response) => {
+app.get('/rpc/skills', (_req: Request, res: Response) => {
   const catalog = loadSkillsCatalog();
   res.json({
     total: catalog.length,
@@ -802,7 +802,7 @@ app.get('/api/skills', (_req: Request, res: Response) => {
   });
 });
 
-app.get('/api/skills/select', (req: Request, res: Response) => {
+app.get('/rpc/skills/select', (req: Request, res: Response) => {
   const q = String(req.query.q || '');
   const limit = Math.min(6, Math.max(1, parseInt(String(req.query.limit || '3'), 10) || 3));
   if (!q.trim()) return res.status(400).json({ error: 'q required' });
@@ -818,14 +818,14 @@ app.get('/api/skills/select', (req: Request, res: Response) => {
   });
 });
 
-app.get('/api/skills/:id', (req: Request, res: Response) => {
+app.get('/rpc/skills/:id', (req: Request, res: Response) => {
   const catalog = loadSkillsCatalog();
   const hit = catalog.find(s => s.id === req.params.id);
   if (!hit) return res.status(404).json({ error: 'skill not found' });
   res.json(hit);
 });
 
-app.post('/api/skills/toggle', (req: Request, res: Response) => {
+app.post('/rpc/skills/toggle', (req: Request, res: Response) => {
   const { id, enabled } = req.body as { id?: string; enabled?: boolean };
   if (!id || typeof enabled !== 'boolean') return res.status(400).json({ error: 'id and enabled:boolean required' });
   const catalog = loadSkillsCatalog(true);
@@ -836,14 +836,14 @@ app.post('/api/skills/toggle', (req: Request, res: Response) => {
   res.json({ ok: true, id, enabled });
 });
 
-app.post('/api/skills/reload', (_req: Request, res: Response) => {
+app.post('/rpc/skills/reload', (_req: Request, res: Response) => {
   _skillsCatalogCache = null;
   const catalog = loadSkillsCatalog(true);
   res.json({ ok: true, total: catalog.length, enabled: catalog.filter(s => s.enabled).length });
 });
 
 // 9. File Parse (CSV / TXT / Excel)
-app.post('/api/parse', async (req: Request, res: Response) => {
+app.post('/rpc/parse', async (req: Request, res: Response) => {
   try {
     const { fileName = 'data.csv', content = '', isBase64 } = req.body;
     const fname = String(fileName);
@@ -1053,7 +1053,7 @@ const handleExcelExport = async (req: Request, res: Response) => {
     res.status(500).send(`Excel export error: ${err?.message || err}`);
   }
 };
-app.all('/api/export/excel', handleExcelExport);
+app.all('/rpc/export/excel', handleExcelExport);
 
 // 11. Export PPTX (supports GET default or POST with live synced dataset)
 const handlePptxExport = async (req: Request, res: Response) => {
@@ -1168,7 +1168,7 @@ const handlePptxExport = async (req: Request, res: Response) => {
     res.status(500).send(`PPTX export error: ${err?.message || err}`);
   }
 };
-app.all('/api/export/pptx', handlePptxExport);
+app.all('/rpc/export/pptx', handlePptxExport);
 
 // 12b. Benchmark Export — generates comprehensive Excel from uploaded CSVs
 const handleBenchmarkExport = async (req: Request, res: Response) => {
@@ -1229,7 +1229,7 @@ const handleBenchmarkExport = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Benchmark export error', detail: err?.message });
   }
 };
-app.all('/api/benchmark/export', handleBenchmarkExport);
+app.all('/rpc/benchmark/export', handleBenchmarkExport);
 
 // 12c. Benchmark Charts — generates PNG charts from uploaded CSVs
 const handleChartExport = async (req: Request, res: Response) => {
@@ -1283,7 +1283,7 @@ const handleChartExport = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Chart export error', detail: err?.message });
   }
 };
-app.all('/api/benchmark/charts', handleChartExport);
+app.all('/rpc/benchmark/charts', handleChartExport);
 
 // 12d. Adaptive KPI Analysis — uses kpi_engine.py for any CSV format
 const handleAdaptiveAnalysis = async (req: Request, res: Response) => {
@@ -1345,7 +1345,7 @@ const handleAdaptiveAnalysis = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Adaptive analysis error', detail: err?.message });
   }
 };
-app.all('/api/benchmark/analyze', handleAdaptiveAnalysis);
+app.all('/rpc/benchmark/analyze', handleAdaptiveAnalysis);
 
 // 12. AI Chat (Gemini API with RF Engineering Intelligence Fallback)
 
@@ -1571,7 +1571,7 @@ function computeSpeedtestBenchmark(): string | null {
       } catch(e:any) { return 'Videotest compute error: '+(e?.message||e); }
     }
 
-    app.post('/api/chat', async (req: Request, res: Response) => {
+    app.post('/rpc/chat', async (req: Request, res: Response) => {
   const startTime = Date.now();
   console.log(`[API_CHAT_START] Request body size: ${JSON.stringify(req.body).length} bytes`);
   try {
