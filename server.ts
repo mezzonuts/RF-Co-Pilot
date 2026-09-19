@@ -1584,6 +1584,10 @@ function computeSpeedtestBenchmark(): string | null {
       max_tokens = 2048,
     } = req.body;
 
+    if (!apiKey) {
+      return res.status(400).json({ error: 'API Key diperlukan dari menu LLM Configuration' });
+    }
+
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'messages array required' });
     }
