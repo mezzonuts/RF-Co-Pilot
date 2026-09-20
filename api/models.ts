@@ -28,12 +28,13 @@ export default async function handler(req: any, res: any) {
     req.query?.apiKey ||
     req.headers?.['x-api-key'] ||
     process.env.GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY ||
     ''
   ).toString().trim();
 
   const defaultModels = [
-    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Model cepat & cerdas untuk analisis RF' },
-    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Model penalaran mendalam untuk RCA' },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Model cepat & cerdas untuk analisis RF (Rekomendasi)' },
+    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Model penalaran mendalam untuk RCA & 3GPP' },
     { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Model cepat serbaguna' }
   ];
 
@@ -47,7 +48,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
     const data: any = await response.json();
 
     if (data.error) {

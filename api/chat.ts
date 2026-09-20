@@ -57,12 +57,12 @@ export default async function handler(req: any, res: any) {
     const effectiveApiKey = (
       apiKey ||
       req.headers?.['x-api-key'] ||
-      (isGoogle ? process.env.GEMINI_API_KEY : process.env[`${providerLower.toUpperCase().replace('-', '_')}_API_KEY`]) ||
+      (isGoogle ? (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY) : process.env[`${providerLower.toUpperCase().replace('-', '_')}_API_KEY`]) ||
       ''
     ).toString().trim();
 
-    let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'gpt-4o-mini');
-    if (isGoogle && (!targetModel || targetModel === 'my-combo' || targetModel === 'gemini-1.5-flash')) {
+    let targetModel = (model || (isGoogle ? 'gemini-2.5-flash' : 'gpt-4o-mini')).replace(/^models\//, '');
+    if (isGoogle && (!targetModel || targetModel === 'my-combo')) {
       targetModel = 'gemini-2.5-flash';
     }
 
@@ -70,46 +70,49 @@ export default async function handler(req: any, res: any) {
     const defaultSys = 'You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei). Selalu jawab dalam Bahasa Indonesia yang profesional, ramah, dan teknis.';
     const systemInstructionText = (systemMsg ? `${defaultSys}\n\n${systemMsg}` : defaultSys);
 
+    let lastGoogleError = '';
+
     // 1. If Google Gemini
     if (isGoogle && effectiveApiKey) {
-      try {
-        const candidateModels = [
-          targetModel,
-          'gemini-2.5-flash',
-          'gemini-2.5-pro',
-          'gemini-1.5-flash'
-        ];
-        const uniqueCandidates = Array.from(new Set(candidateModels.filter(Boolean)));
+      const candidateModels = [
+        targetModel,
+        'gemini-2.5-flash',
+        'gemini-2.5-pro',
+        'gemini-1.5-flash',
+        'gemini-2.0-flash'
+      ];
+      const uniqueCandidates = Array.from(new Set(candidateModels.filter(Boolean)));
 
-        for (const candModel of uniqueCandidates) {
-          const cleanModelName = candModel.replace(/^models\//, '');
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModelName}:generateContent?key=${effectiveApiKey}`;
+      for (const candModel of uniqueCandidates) {
+        const cleanModelName = candModel.replace(/^models\//, '');
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModelName}:generateContent?key=${encodeURIComponent(effectiveApiKey)}`;
 
-          const formattedContents = Array.isArray(messages)
-            ? messages
-                .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-                .slice(-10)
-                .map((m: any) => ({
-                  role: m.role === 'assistant' ? 'model' : 'user',
-                  parts: [{ text: String(m.content || '') }]
-                }))
-            : [];
+        const formattedContents = Array.isArray(messages)
+          ? messages
+              .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+              .slice(-10)
+              .map((m: any) => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: String(m.content || '') }]
+              }))
+          : [];
 
-          if (formattedContents.length === 0) {
-            formattedContents.push({ role: 'user', parts: [{ text: String(lastUserMsg || 'Halo') }] });
+        if (formattedContents.length === 0) {
+          formattedContents.push({ role: 'user', parts: [{ text: String(lastUserMsg || 'Halo') }] });
+        }
+
+        const geminiPayload: any = {
+          contents: formattedContents,
+          systemInstruction: {
+            parts: [{ text: systemInstructionText }]
+          },
+          generationConfig: {
+            temperature: Number(temperature) || 0.3,
+            maxOutputTokens: Number(max_tokens) || 2048,
           }
+        };
 
-          const geminiPayload: any = {
-            contents: formattedContents,
-            systemInstruction: {
-              parts: [{ text: systemInstructionText }]
-            },
-            generationConfig: {
-              temperature: Number(temperature) || 0.3,
-              maxOutputTokens: Number(max_tokens) || 2048,
-            }
-          };
-
+        try {
           const resp = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -134,10 +137,14 @@ export default async function handler(req: any, res: any) {
                 status: 'connected',
               }
             });
+          } else if (data?.error?.message) {
+            lastGoogleError = data.error.message;
+            console.warn(`[api/chat] Gemini model ${cleanModelName} returned error:`, data.error.message);
           }
+        } catch (fetchErr: any) {
+          lastGoogleError = fetchErr?.message || String(fetchErr);
+          console.warn(`[api/chat] Gemini fetch exception for ${cleanModelName}:`, fetchErr);
         }
-      } catch (err: any) {
-        console.warn('[api/chat] Gemini API call exception:', err?.message || err);
       }
     }
 
@@ -188,6 +195,28 @@ export default async function handler(req: any, res: any) {
       } catch (err: any) {
         console.warn(`[api/chat] Provider ${providerLower} failed:`, err?.message || err);
       }
+    }
+
+    // If API Key was explicitly provided by user for Google, but failed with Google error:
+    if (isGoogle && effectiveApiKey && lastGoogleError) {
+      return res.status(200).json({
+        ok: false,
+        error: `Google Gemini API Error: ${lastGoogleError}`,
+        choices: [{
+          message: {
+            role: 'assistant',
+            content: `⚠️ Koneksi ke Google Gemini gagal: **${lastGoogleError}**.\n\nSilakan periksa apakah **Gemini API Key** yang Anda masukkan di panel konfigurasi sudah benar dan aktif.`
+          }
+        }],
+        meta: {
+          provider: 'Google AI Studio',
+          providerId: 'google',
+          model: targetModel,
+          isLive: false,
+          status: 'error',
+          error: lastGoogleError
+        }
+      });
     }
 
     // 3. Smart Domain RF Fallback Engine (Guaranteed 200 response, never crashes)
