@@ -1,16 +1,48 @@
+async function getBody(req: any): Promise<any> {
+  if (req.body) {
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch { return {}; }
+    }
+    if (typeof req.body === 'object') return req.body;
+  }
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', (chunk: any) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(data)); } catch { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 export default async function handler(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const body = await getBody(req);
   const apiKey = (
-    (req.body && req.body.apiKey) ||
-    req.query.apiKey ||
+    body?.apiKey ||
+    req.query?.apiKey ||
     req.headers?.['x-api-key'] ||
     process.env.GEMINI_API_KEY ||
     ''
   ).toString().trim();
 
+  const defaultModels = [
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', description: 'Model cepat & cerdas untuk analisis RF' },
+    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Model penalaran mendalam untuk RCA' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: 'Model cepat serbaguna' }
+  ];
+
   if (!apiKey) {
-    return res.status(400).json({
+    return res.status(200).json({
       ok: false,
-      error: 'API key required. Masukkan Gemini API Key di menu LLM Configuration atau simpan di environment.'
+      models: defaultModels,
+      modelNames: defaultModels.map(m => m.id),
+      message: 'Belum ada API Key; menampilkan daftar model rekomendasi default.'
     });
   }
 
@@ -19,10 +51,11 @@ export default async function handler(req: any, res: any) {
     const data: any = await response.json();
 
     if (data.error) {
-      return res.status(response.status || 400).json({
+      return res.status(200).json({
         ok: false,
         error: data.error.message || 'Gagal memverifikasi API Key ke Google AI Studio',
-        detail: data.error
+        models: defaultModels,
+        modelNames: defaultModels.map(m => m.id)
       });
     }
 
@@ -48,8 +81,6 @@ export default async function handler(req: any, res: any) {
         if (id.includes('3.8-flash')) return 3;
         if (id === 'gemini-2.5-pro') return 4;
         if (id.includes('2.5-pro')) return 5;
-        if (id.includes('3.1-pro')) return 6;
-        if (id.includes('flash-latest')) return 7;
         if (id.includes('flash')) return 10;
         if (id.includes('pro')) return 20;
         return 50;
@@ -60,14 +91,15 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({
       ok: true,
       total: filtered.length,
-      models: filtered,
-      modelNames: filtered.map(m => m.id),
-      raw: data.models
+      models: filtered.length > 0 ? filtered : defaultModels,
+      modelNames: filtered.length > 0 ? filtered.map(m => m.id) : defaultModels.map(m => m.id),
     });
-  } catch (e: any) {
-    return res.status(500).json({
+  } catch (err: any) {
+    return res.status(200).json({
       ok: false,
-      error: 'Failed to connect to Google Generative Language API: ' + (e?.message || String(e))
+      error: 'Koneksi ke Google Generative Language API gagal: ' + (err?.message || err),
+      models: defaultModels,
+      modelNames: defaultModels.map(m => m.id)
     });
   }
 }

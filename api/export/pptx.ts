@@ -1,5 +1,22 @@
 import pptxgen from 'pptxgenjs';
 
+async function getBody(req: any): Promise<any> {
+  if (req.body) {
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch { return {}; }
+    }
+    if (typeof req.body === 'object') return req.body;
+  }
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', (chunk: any) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(data)); } catch { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -8,8 +25,10 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const { fileName, kpiData, worstSpots } = req.body || {};
-    const ppt = new pptxgen();
+    const body = await getBody(req);
+    const { fileName } = body || {};
+    const PptClass: any = (pptxgen as any).default || pptxgen;
+    const ppt = new PptClass();
     ppt.layout = 'LAYOUT_WIDE';
 
     const titleStr = fileName ? `Optimization Report: ${fileName}` : 'Cluster C1 — Executive Summary';

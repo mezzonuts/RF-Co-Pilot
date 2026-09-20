@@ -1,3 +1,20 @@
+async function getBody(req: any): Promise<any> {
+  if (req.body) {
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch { return {}; }
+    }
+    if (typeof req.body === 'object') return req.body;
+  }
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', (chunk: any) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(data)); } catch { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 export default async function handler(req: any, res: any) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,23 +25,10 @@ export default async function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed. Use POST.' });
-  }
-
   const startTime = Date.now();
 
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch {
-        body = {};
-      }
-    }
-    body = body || {};
-
+    const body = await getBody(req);
     const {
       messages = [],
       provider = 'google',
@@ -35,11 +39,10 @@ export default async function handler(req: any, res: any) {
       max_tokens = 2048,
     } = body;
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ ok: false, error: 'messages array required' });
-    }
+    const lastUserMsg = Array.isArray(messages)
+      ? ([...messages].reverse().find((m: any) => m.role === 'user')?.content || '')
+      : '';
 
-    const lastUserMsg = [...messages].reverse().find((m: any) => m.role === 'user')?.content || '';
     let providerLower = String(provider || 'google').toLowerCase();
     const cleanBaseUrl = String(baseUrl || '').trim();
 
@@ -63,8 +66,7 @@ export default async function handler(req: any, res: any) {
       targetModel = 'gemini-2.5-flash';
     }
 
-    // Format system instruction and contents
-    const systemMsg = messages.find((m: any) => m.role === 'system')?.content || '';
+    const systemMsg = Array.isArray(messages) ? (messages.find((m: any) => m.role === 'system')?.content || '') : '';
     const defaultSys = 'You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei). Selalu jawab dalam Bahasa Indonesia yang profesional, ramah, dan teknis.';
     const systemInstructionText = (systemMsg ? `${defaultSys}\n\n${systemMsg}` : defaultSys);
 
@@ -83,16 +85,18 @@ export default async function handler(req: any, res: any) {
           const cleanModelName = candModel.replace(/^models\//, '');
           const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModelName}:generateContent?key=${effectiveApiKey}`;
 
-          const formattedContents = messages
-            .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-            .slice(-10)
-            .map((m: any) => ({
-              role: m.role === 'assistant' ? 'model' : 'user',
-              parts: [{ text: String(m.content || '') }]
-            }));
+          const formattedContents = Array.isArray(messages)
+            ? messages
+                .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+                .slice(-10)
+                .map((m: any) => ({
+                  role: m.role === 'assistant' ? 'model' : 'user',
+                  parts: [{ text: String(m.content || '') }]
+                }))
+            : [];
 
           if (formattedContents.length === 0) {
-            formattedContents.push({ role: 'user', parts: [{ text: String(lastUserMsg) }] });
+            formattedContents.push({ role: 'user', parts: [{ text: String(lastUserMsg || 'Halo') }] });
           }
 
           const geminiPayload: any = {
@@ -130,12 +134,10 @@ export default async function handler(req: any, res: any) {
                 status: 'connected',
               }
             });
-          } else if (data?.error) {
-            console.warn(`[api/chat] Gemini ${cleanModelName} failed:`, data.error.message);
           }
         }
       } catch (err: any) {
-        console.warn('[api/chat] Gemini API error:', err?.message || err);
+        console.warn('[api/chat] Gemini API call exception:', err?.message || err);
       }
     }
 
@@ -154,7 +156,7 @@ export default async function handler(req: any, res: any) {
           max_tokens: Number(max_tokens) || 2048,
           messages: [
             { role: 'system', content: systemInstructionText },
-            ...messages.filter((m: any) => m.role === 'user' || m.role === 'assistant').slice(-10)
+            ...(Array.isArray(messages) ? messages.filter((m: any) => m.role === 'user' || m.role === 'assistant').slice(-10) : [])
           ]
         };
 
@@ -188,10 +190,10 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 3. Smart Domain RF Fallback Engine (Guaranteed 200 response, never 500)
+    // 3. Smart Domain RF Fallback Engine (Guaranteed 200 response, never crashes)
     const latencyMs = Date.now() - startTime;
-    const isGreeting = /^(halo|hai|hello|hi|hey|test|ping|say hello)\b/i.test(lastUserMsg.trim());
-    const isModelQuery = /model|provider|status/i.test(lastUserMsg);
+    const isGreeting = /^(halo|hai|hello|hi|hey|test|ping|say hello)\b/i.test((lastUserMsg || '').trim());
+    const isModelQuery = /model|provider|status/i.test(lastUserMsg || '');
 
     let fallbackReply = '';
     if (isGreeting || isModelQuery) {
@@ -211,7 +213,7 @@ Silakan upload file log Drive Test atau ketik pertanyaan teknis untuk mulai.`;
     } else {
       fallbackReply = `TelecomAgent RF Co-Pilot siap membantu analisis RF:
 
-Pertanyaan Anda: "${lastUserMsg.slice(0, 80)}"
+Pertanyaan Anda: "${(lastUserMsg || 'Analisis RF').slice(0, 80)}"
 
 Rekomendasi Diagnosa RF:
 1. RSRP (Coverage): Target ideal > -95 dBm. Jika < -105 dBm tergolong poor coverage hole.
@@ -232,13 +234,12 @@ Untuk analisis mendalam real-time dengan model live, pastikan Gemini API Key tel
         isLive: false,
         latencyMs,
         status: 'fallback',
-        reason: effectiveApiKey ? 'Model fallback aktif (periksa koneksi API)' : 'Kunci API belum diatur; menggunakan mesin domain bawaan.',
+        reason: effectiveApiKey ? 'Model fallback aktif' : 'Kunci API belum diatur; menggunakan mesin domain bawaan.',
       }
     });
 
   } catch (err: any) {
-    console.error('[api/chat] Handler error:', err);
-    // Even in catch block, return a valid JSON 200 fallback to prevent frontend 500 crashes
+    console.error('[api/chat] Top level handler catch:', err);
     return res.status(200).json({
       ok: true,
       choices: [{
