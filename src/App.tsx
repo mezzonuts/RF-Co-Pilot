@@ -201,7 +201,20 @@ export default function App() {
         apiKey: apiKey || localStorage.getItem('GEMINI_API_KEY') || '',
       })
     })
-      .then(r => r.json())
+      .then(async (r) => {
+        if (!r.ok) {
+          const text = await r.text().catch(() => '');
+          let errDetail = `HTTP ${r.status}`;
+          try {
+            const parsed = JSON.parse(text);
+            errDetail = parsed.error || parsed.message || errDetail;
+          } catch {
+            if (text) errDetail = text.slice(0, 120);
+          }
+          throw new Error(errDetail);
+        }
+        return r.json();
+      })
       .then(j => {
         const ms = Math.round(performance.now() - t0);
         const meta = j?.meta;
@@ -226,7 +239,7 @@ export default function App() {
         }
       })
       .catch(e => {
-        setTestResult({ msg: `✗ Connection failed: ${e.message}`, ok: false });
+        setTestResult({ msg: `✗ Koneksi gagal: ${e.message || String(e)}`, ok: false });
       })
       .finally(() => setTesting(false));
   }

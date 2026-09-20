@@ -1,7 +1,18 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat" },
     { "source": "/api/models", "destination": "/api/models" },
+    { "source": "/api/skills", "destination": "/api/skills" },
+    { "source": "/api/health", "destination": "/api/health" },
+    { "source": "/api/memory", "destination": "/api/memory" },
+    { "source": "/api/parse", "destination": "/api/parse" },
+    { "source": "/api/export/excel", "destination": "/api/export/excel" },
+    { "source": "/api/export/pptx", "destination": "/api/export/pptx" },
+    { "source": "/api/vault/tree", "destination": "/api/vault/tree" },
+    { "source": "/api/vault/graph", "destination": "/api/vault/graph" },
+    { "source": "/api/vault/file", "destination": "/api/vault/file" },
+    { "source": "/api/vault/search", "destination": "/api/vault/search" },
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/dist/index.html" }
   ]
