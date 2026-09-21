@@ -1,3 +1,126 @@
+function analyzeGoogleError(errData: any, statusText?: string): {
+  code: string | number;
+  status: string;
+  category: 'KEY_INVALID' | 'KEY_EXPIRED' | 'QUOTA_EXCEEDED' | 'PERMISSION_DENIED' | 'LOCATION_UNSUPPORTED' | 'MODEL_NOT_FOUND' | 'OTHER';
+  title: string;
+  detail: string;
+  suggestion: string;
+} {
+  const err = errData?.error || errData || {};
+  let rawMsg = String(err?.message || errData?.message || statusText || 'Unknown error');
+  if (rawMsg.includes('{"error"') || rawMsg.startsWith('{')) {
+    try {
+      const idx = rawMsg.indexOf('{');
+      const parsed = JSON.parse(rawMsg.slice(idx));
+      if (parsed?.error?.message) {
+        rawMsg = parsed.error.message;
+      } else if (parsed?.message) {
+        rawMsg = parsed.message;
+      }
+    } catch {}
+  }
+  const rawStatus = String(err?.status || '');
+  const rawCode = err?.code || 500;
+  const reason = err?.details?.[0]?.reason || '';
+
+  const msgLower = rawMsg.toLowerCase();
+  const reasonLower = String(reason).toLowerCase();
+  const statusLower = rawStatus.toLowerCase();
+
+  if (
+    reasonLower.includes('api_key_invalid') ||
+    msgLower.includes('api key not valid') ||
+    msgLower.includes('api_key_invalid') ||
+    msgLower.includes('invalid api key')
+  ) {
+    return {
+      code: rawCode || 400,
+      status: 'API_KEY_INVALID',
+      category: 'KEY_INVALID',
+      title: '🔑 API Key Google AI Studio Tidak Valid',
+      detail: rawMsg,
+      suggestion: 'Kunci API yang dimasukkan salah atau ada karakter yang terpotong. Pastikan Anda menyalin seluruh string API Key dari Google AI Studio (biasanya diawali "AIzaSy...").'
+    };
+  }
+
+  if (msgLower.includes('expired') || reasonLower.includes('expired')) {
+    return {
+      code: rawCode || 401,
+      status: 'API_KEY_EXPIRED',
+      category: 'KEY_EXPIRED',
+      title: '⏳ API Key Google AI Studio Telah Kadaluarsa',
+      detail: rawMsg,
+      suggestion: 'Masa aktif API Key ini telah berakhir. Silakan buat API Key baru di https://aistudio.google.com/app/apikey dan simpan di menu LLM Configuration.'
+    };
+  }
+
+  if (
+    rawCode === 429 ||
+    statusLower.includes('resource_exhausted') ||
+    reasonLower.includes('quota') ||
+    reasonLower.includes('rate_limit') ||
+    msgLower.includes('quota') ||
+    msgLower.includes('exhausted') ||
+    msgLower.includes('rate limit')
+  ) {
+    return {
+      code: 429,
+      status: 'RESOURCE_EXHAUSTED',
+      category: 'QUOTA_EXCEEDED',
+      title: '⚠️ Batas Kuota / Rate Limit Tercapai',
+      detail: 'Kuota model saat ini telah habis atau mencapai batas per menit (RPM).',
+      suggestion: 'Sistem mencoba beralih ke model free alternatif (Flash/Lite), atau tunggu 1–2 menit.'
+    };
+  }
+
+  if (
+    rawCode === 403 ||
+    statusLower.includes('permission_denied') ||
+    msgLower.includes('permission') ||
+    msgLower.includes('generativelanguage.googleapis.com is not enabled')
+  ) {
+    return {
+      code: 403,
+      status: 'PERMISSION_DENIED',
+      category: 'PERMISSION_DENIED',
+      title: '🚫 Izin Ditolak (Permission Denied)',
+      detail: rawMsg,
+      suggestion: 'API Key ini tidak memiliki izin akses ke Generative Language API atau project Google Cloud belum mengaktifkan layanan ini.'
+    };
+  }
+
+  if (msgLower.includes('location') || msgLower.includes('region') || msgLower.includes('country')) {
+    return {
+      code: 403,
+      status: 'USER_LOCATION_NOT_SUPPORTED',
+      category: 'LOCATION_UNSUPPORTED',
+      title: '🌍 Wilayah / Region Belum Didukung',
+      detail: rawMsg,
+      suggestion: 'Layanan Google Gemini API belum tersedia untuk lokasi/region IP server ini.'
+    };
+  }
+
+  if (rawCode === 404 || msgLower.includes('not found') || statusLower.includes('not_found')) {
+    return {
+      code: 404,
+      status: 'MODEL_NOT_FOUND',
+      category: 'MODEL_NOT_FOUND',
+      title: '🔍 Model Tidak Ditemukan',
+      detail: rawMsg,
+      suggestion: 'Nama model yang dipilih tidak tersedia untuk API Key Anda. Gunakan fitur "Auto-Detect Models" di panel LLM Configuration untuk melihat model yang aktif.'
+    };
+  }
+
+  return {
+    code: rawCode,
+    status: rawStatus || 'GOOGLE_API_ERROR',
+    category: 'OTHER',
+    title: '⚠️ Galat Google Generative AI',
+    detail: rawMsg,
+    suggestion: 'Terjadi kendala saat menghubungi Google Generative Language API. Periksa koneksi internet atau coba lagi nanti.'
+  };
+}
+
 async function getBody(req: any): Promise<any> {
   if (req.body) {
     if (typeof req.body === 'string') {
@@ -32,7 +155,7 @@ export default async function handler(req: any, res: any) {
     const {
       messages = [],
       provider = 'google',
-      model = 'gemini-2.5-flash',
+      model = 'gemini-3.8-flash',
       apiKey,
       baseUrl,
       temperature = 0.3,
@@ -61,25 +184,32 @@ export default async function handler(req: any, res: any) {
       ''
     ).toString().trim();
 
-    let targetModel = (model || (isGoogle ? 'gemini-2.5-flash' : 'gpt-4o-mini')).replace(/^models\//, '');
-    if (isGoogle && (!targetModel || targetModel === 'my-combo')) {
-      targetModel = 'gemini-2.5-flash';
+    let targetModel = (model || (isGoogle ? 'gemini-3.8-flash' : 'gpt-4o-mini')).replace(/^models\//, '');
+    if (isGoogle) {
+      if (!targetModel || targetModel === 'my-combo' || targetModel === 'gemini-2.5-flash' || targetModel === 'gemini-1.5-flash' || targetModel === 'gemini-2.0-flash') {
+        targetModel = 'gemini-3.8-flash';
+      } else if (targetModel === 'gemini-2.5-flash-lite') {
+        targetModel = 'gemini-3.1-flash-lite';
+      } else if (targetModel === 'gemini-2.5-pro' || targetModel === 'gemini-1.5-pro') {
+        targetModel = 'gemini-3.1-pro-preview';
+      }
     }
 
     const systemMsg = Array.isArray(messages) ? (messages.find((m: any) => m.role === 'system')?.content || '') : '';
     const defaultSys = 'You are TelecomAgent — senior RF engineer expert in 4G LTE & 5G NR (3GPP Rel-15/16/17, Ericsson, Huawei). Selalu jawab dalam Bahasa Indonesia yang profesional, ramah, dan teknis.';
     const systemInstructionText = (systemMsg ? `${defaultSys}\n\n${systemMsg}` : defaultSys);
 
-    let lastGoogleError = '';
+    let googleErrorInfo: ReturnType<typeof analyzeGoogleError> | null = null;
 
-    // 1. If Google Gemini
+    // 1. If Google Gemini with effective API Key
     if (isGoogle && effectiveApiKey) {
       const candidateModels = [
         targetModel,
-        'gemini-2.5-flash',
-        'gemini-2.5-pro',
-        'gemini-1.5-flash',
-        'gemini-2.0-flash'
+        'gemini-3.8-flash',
+        'gemini-3.6-flash',
+        'gemini-3.1-flash-lite',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-pro-preview'
       ];
       const uniqueCandidates = Array.from(new Set(candidateModels.filter(Boolean)));
 
@@ -124,25 +254,32 @@ export default async function handler(req: any, res: any) {
           if (resp.ok && data?.candidates?.[0]?.content?.parts?.[0]?.text) {
             const replyText = data.candidates[0].content.parts[0].text;
             const latencyMs = Date.now() - startTime;
+            const wasSwitched = cleanModelName !== targetModel.replace(/^models\//, '');
             return res.status(200).json({
               ok: true,
               choices: [{ message: { role: 'assistant', content: replyText } }],
               meta: {
-                provider: 'Google AI Studio',
+                provider: wasSwitched ? `Google AI Studio (Auto-switch: ${cleanModelName})` : 'Google AI Studio',
                 providerId: 'google',
                 model: cleanModelName,
                 modelVersion: cleanModelName,
                 isLive: true,
+                autoSwitched: wasSwitched,
                 latencyMs,
                 status: 'connected',
               }
             });
-          } else if (data?.error?.message) {
-            lastGoogleError = data.error.message;
-            console.warn(`[api/chat] Gemini model ${cleanModelName} returned error:`, data.error.message);
+          } else if (data?.error) {
+            googleErrorInfo = analyzeGoogleError(data.error, resp.statusText);
+            console.warn(`[api/chat] Gemini error on ${cleanModelName}:`, data.error);
+            // If the key is invalid or permission denied, trying other models won't help:
+            if (googleErrorInfo.category === 'KEY_INVALID' || googleErrorInfo.category === 'KEY_EXPIRED' || googleErrorInfo.category === 'PERMISSION_DENIED') {
+              break;
+            }
+            // If quota reached, loop will automatically try the next candidate model
           }
         } catch (fetchErr: any) {
-          lastGoogleError = fetchErr?.message || String(fetchErr);
+          googleErrorInfo = analyzeGoogleError({ message: fetchErr?.message || String(fetchErr) });
           console.warn(`[api/chat] Gemini fetch exception for ${cleanModelName}:`, fetchErr);
         }
       }
@@ -197,15 +334,26 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // If API Key was explicitly provided by user for Google, but failed with Google error:
-    if (isGoogle && effectiveApiKey && lastGoogleError) {
+    // 3. If Google Gemini API Key was supplied by user, but returned a specific error (Invalid Key, Quota Exceeded, etc.)
+    if (isGoogle && effectiveApiKey && googleErrorInfo) {
+      const latencyMs = Date.now() - startTime;
+      const formattedExplanation = `### ${googleErrorInfo.title}
+
+**Pesan dari Google AI Studio:**
+> \`${googleErrorInfo.detail}\`
+
+**Solusi & Rekomendasi:**
+- ${googleErrorInfo.suggestion}
+- Buka panel **LLM Configuration** di pojok kanan atas untuk memeriksa kembali API Key Anda.`;
+
       return res.status(200).json({
         ok: false,
-        error: `Google Gemini API Error: ${lastGoogleError}`,
+        error: `${googleErrorInfo.title}: ${googleErrorInfo.detail}`,
+        errorInfo: googleErrorInfo,
         choices: [{
           message: {
             role: 'assistant',
-            content: `⚠️ Koneksi ke Google Gemini gagal: **${lastGoogleError}**.\n\nSilakan periksa apakah **Gemini API Key** yang Anda masukkan di panel konfigurasi sudah benar dan aktif.`
+            content: formattedExplanation
           }
         }],
         meta: {
@@ -214,12 +362,15 @@ export default async function handler(req: any, res: any) {
           model: targetModel,
           isLive: false,
           status: 'error',
-          error: lastGoogleError
+          errorCategory: googleErrorInfo.category,
+          errorCode: googleErrorInfo.code,
+          error: googleErrorInfo.detail,
+          latencyMs
         }
       });
     }
 
-    // 3. Smart Domain RF Fallback Engine (Guaranteed 200 response, never crashes)
+    // 4. Smart Domain RF Fallback Engine (Guaranteed 200 response, never crashes)
     const latencyMs = Date.now() - startTime;
     const isGreeting = /^(halo|hai|hello|hi|hey|test|ping|say hello)\b/i.test((lastUserMsg || '').trim());
     const isModelQuery = /model|provider|status/i.test(lastUserMsg || '');

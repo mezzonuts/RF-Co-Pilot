@@ -64,6 +64,7 @@ export interface ChatMsgMeta {
   model?: string;
   modelVersion?: string;
   isLive?: boolean;
+  autoSwitched?: boolean;
   latencyMs?: number;
   status?: string;
   reason?: string;
@@ -74,10 +75,12 @@ export type ChatMsg = { role: 'user' | 'assistant'; content: string; meta?: Chat
 export default function AgentWorkspace({
   onManageSkills,
   onOpenLlmSettings,
+  onErrorNotify,
   llmConfig
 }: {
   onManageSkills?: () => void;
   onOpenLlmSettings?: () => void;
+  onErrorNotify?: (err: { title: string; message: string; suggestion?: string; category?: string }) => void;
   llmConfig?: LLMConfig;
 }) {
   const [activeTab, setActiveTab] = useState<'chat' | 'execution'>('chat');
@@ -422,9 +425,25 @@ ${previewStr}`:''}
         })
       });
       const j = await r.json().catch(()=> ({}));
-      if(!r.ok){
+      if(!r.ok && !j?.choices){
         throw new Error(j?.error || j?.message || `HTTP ${r.status}`);
       }
+
+      if (j?.errorInfo || j?.meta?.status === 'error') {
+        const info = j.errorInfo || {
+          title: 'Google Gemini API Error',
+          detail: j.meta?.error || j.error || 'Terjadi kesalahan saat menghubungi API',
+          suggestion: 'Periksa API Key dan kuota Anda di LLM Configuration.',
+          category: j.meta?.errorCategory || 'ERROR'
+        };
+        onErrorNotify?.({
+          title: info.title,
+          message: info.detail,
+          suggestion: info.suggestion,
+          category: info.category
+        });
+      }
+
       const reply: string = j?.choices?.[0]?.message?.content ?? j?.choices?.[0]?.text ?? '';
       if(!reply.trim()) throw new Error('Respons kosong dari AI Engine');
       const responseMeta: ChatMsgMeta | undefined = j?.meta;
@@ -449,7 +468,17 @@ ${previewStr}`:''}
     }catch(e:any){
       const msg = e?.message ?? String(e);
       setChatError(msg);
-      setMessages(prev=> [...prev, { role:'assistant', content: `Maaf, request ke model ${llmConfig?.model || 'Gemini'} gagal: ${msg}. Periksa konfigurasi LLM Anda.` }]);
+      onErrorNotify?.({
+        title: 'Gagal Menghubungi Model AI',
+        message: msg,
+        suggestion: 'Periksa API Key atau endpoint di panel LLM Configuration.',
+        category: 'FETCH_ERROR'
+      });
+      setMessages(prev=> [...prev, {
+        role:'assistant',
+        content: `⚠️ Request ke model ${llmConfig?.model || 'Gemini'} gagal:\n> ${msg}\n\nPeriksa konfigurasi API Key atau jaringan Anda di menu LLM Configuration.`,
+        meta: { provider: 'Google AI Studio', model: llmConfig?.model, status: 'error', reason: msg }
+      }]);
     }finally{
       setIsSending(false);
     }
@@ -591,16 +620,58 @@ ${previewStr}`:''}
                 <div key={i} className="flex justify-end"><div className="user-message" style={{whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div></div>
               ) : (
                 <div key={i} className="agent-msg-row">
-                  <div className="agent-avatar"><i className="ri-cpu-line"></i></div>
+                  <div className="agent-avatar" style={{background: m.meta?.status === 'error' ? '#450a0a' : '#18181b', borderColor: m.meta?.status === 'error' ? '#ef4444' : '#27272a'}}>
+                    <i className={m.meta?.status === 'error' ? 'ri-error-warning-line' : 'ri-cpu-line'} style={{color: m.meta?.status === 'error' ? '#ef4444' : '#7c3aed'}}></i>
+                  </div>
                   <div className="flex-1">
-                    <div className="results-box" style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontSize:13,lineHeight:1.6}}>{m.content}</div>
-                    {m.meta && (
-                      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6,fontSize:11,color:'#a1a1aa',fontFamily:'JetBrains Mono, monospace'}}>
+                    <div
+                      className="results-box"
+                      style={{
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                        borderColor: m.meta?.status === 'error' ? '#7f1d1d' : undefined,
+                        background: m.meta?.status === 'error' ? '#180a0a' : undefined
+                      }}
+                    >
+                      {m.content}
+                      {m.meta?.status === 'error' && (
+                        <div style={{marginTop: 10, paddingTop: 10, borderTop: '1px solid #3b1111', display: 'flex', gap: 8, alignItems: 'center'}}>
+                          <button
+                            onClick={onOpenLlmSettings}
+                            style={{
+                              background: '#7c3aed',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: 6,
+                              padding: '5px 12px',
+                              fontSize: 12,
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6
+                            }}
+                          >
+                            <i className="ri-settings-3-line"></i> Buka LLM Configuration
+                          </button>
+                          <span style={{fontSize: 11, color: '#f87171'}}>Koreksi API Key atau pilih model alternatif.</span>
+                        </div>
+                      )}
+                    </div>
+                    {m.meta && m.meta.status !== 'error' && (
+                      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6,fontSize:11,color:'#a1a1aa',fontFamily:'JetBrains Mono, monospace',flexWrap:'wrap'}}>
                         <span style={{width:6,height:6,borderRadius:999,background:m.meta.isLive?'#10b981':'#f59e0b',display:'inline-block'}} />
                         <span style={{color:m.meta.isLive?'#34d399':'#fbbf24',fontWeight:500}}>{m.meta.provider}</span>
                         <span>•</span>
                         <span style={{color:'#e4e4e7'}}>{m.meta.model}</span>
                         {m.meta.latencyMs ? <span>• {(m.meta.latencyMs/1000).toFixed(1)}s</span> : null}
+                        {m.meta.autoSwitched && (
+                          <span style={{fontSize:10,background:'#1e1b4b',color:'#c7d2fe',border:'1px solid #4338ca',padding:'1px 6px',borderRadius:4}} title="Model dialihkan otomatis karena kuota model utama habis">
+                            ⚡ Auto-Free Model
+                          </span>
+                        )}
                         <span style={{marginLeft:'auto',fontSize:10,background:m.meta.isLive?'#064e3b':'#451a03',color:m.meta.isLive?'#a7f3d0':'#fde68a',padding:'1px 6px',borderRadius:4}}>
                           {m.meta.isLive ? 'Live Gemini' : 'RF Fallback'}
                         </span>

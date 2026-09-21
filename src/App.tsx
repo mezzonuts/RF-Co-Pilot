@@ -12,7 +12,7 @@ type Tab = 'agent' | 'vault' | 'tools' | 'skills'
 type Provider = 'google'|'ollama'|'openrouter'|'openai'|'anthropic'|'hf'|'custom'|'9router'
 
 const MODELS: Record<Provider,string[]> = {
-  google: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview', 'gemini-3.8-flash', 'gemini-flash-latest'],
+  google: ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.1-flash-lite', 'gemini-3.1-pro-preview', 'gemini-flash-latest'],
   ollama: ['qwen2.5:32b','qwen2.5:72b','llama3.3:70b','deepseek-r1:32b','mistral-nemo:12b'],
   openrouter: ['qwen/qwen-2.5-32b','anthropic/claude-3.5-sonnet','openai/gpt-4o'],
   openai: ['gpt-4o','gpt-4o-mini','o1-preview'],
@@ -29,9 +29,9 @@ export default function App() {
   const [newSkillOpen, setNewSkillOpen] = useState(false)
   const [activeTool, setActiveTool] = useState<any | null>(null)
 
-  // LLM settings state — default to Google AI Studio (Gemini 2.5/3.x)
+  // LLM settings state — default to Google AI Studio (Gemini 3.x)
   const [provider, setProvider] = useState<Provider>('google')
-  const [model, setModel] = useState('gemini-2.5-flash')
+  const [model, setModel] = useState('gemini-3.8-flash')
   const [baseUrl, setBaseUrl] = useState('https://generativelanguage.googleapis.com')
   const [apiKey, setApiKey] = useState('')
   const [showKey, setShowKey] = useState(false)
@@ -39,7 +39,22 @@ export default function App() {
   const [maxTokens, setMaxTokens] = useState(4096)
   const [ctxWindow, setCtxWindow] = useState('1M')
   const [systemPrompt, setSystemPrompt] = useState('You are TelecomAgent — expert RF engineer for 4G/5G. Help optimize networks using precise technical knowledge. Always cite 3GPP/vendor sources when relevant. Generate Excel/PPT outputs via tools.')
-  const [testResult, setTestResult] = useState<{msg:string, ok:boolean}|null>(null)
+  const [testResult, setTestResult] = useState<{
+    msg: string;
+    ok: boolean;
+    title?: string;
+    detail?: string;
+    suggestion?: string;
+    category?: string;
+  } | null>(null)
+  const [appAlert, setAppAlert] = useState<{
+    type: 'error' | 'warning' | 'info' | 'success';
+    title: string;
+    message: string;
+    suggestion?: string;
+    code?: string | number;
+    category?: string;
+  } | null>(null)
   const [testing, setTesting] = useState(false)
   const [dynamicModels, setDynamicModels] = useState<string[]>([])
   const [modelsLoading, setModelsLoading] = useState(false)
@@ -67,8 +82,21 @@ export default function App() {
         if (!j.modelNames.includes(model)) {
           setModel(j.modelNames[0])
         }
-      } else if (j.error) {
-        setModelsError(j.error)
+      }
+      if (j.errorInfo || j.error) {
+        const title = j.errorInfo?.title || 'Google Gemini Error';
+        const detail = j.errorInfo?.detail || j.error;
+        const suggestion = j.errorInfo?.suggestion;
+        setModelsError(`${title}: ${detail}`);
+        if (k && k.trim()) {
+          setAppAlert({
+            type: 'error',
+            title,
+            message: detail,
+            suggestion,
+            category: j.errorInfo?.category
+          });
+        }
       }
     } catch (e: any) {
       setModelsError(e?.message || 'Gagal mendeteksi model')
@@ -205,41 +233,84 @@ export default function App() {
         if (!r.ok) {
           const text = await r.text().catch(() => '');
           let errDetail = `HTTP ${r.status}`;
+          let parsed: any = null;
           try {
-            const parsed = JSON.parse(text);
+            parsed = JSON.parse(text);
             errDetail = parsed.error || parsed.message || errDetail;
           } catch {
             if (text) errDetail = text.slice(0, 120);
           }
-          throw new Error(errDetail);
+          const errObj = new Error(errDetail) as any;
+          errObj.errorInfo = parsed?.errorInfo;
+          throw errObj;
         }
         return r.json();
       })
       .then(j => {
         const ms = Math.round(performance.now() - t0);
         const meta = j?.meta;
-        if (meta?.status === 'error' || j?.error) {
+        if (j?.errorInfo || meta?.status === 'error' || j?.error) {
+          const info = j?.errorInfo || {
+            title: 'Koneksi Gemini Gagal',
+            detail: meta?.error || j?.error || 'Terjadi kesalahan pada kunci API atau kuota.',
+            suggestion: 'Periksa API Key Anda di LLM Configuration.',
+            category: meta?.errorCategory || 'ERROR'
+          };
           setTestResult({
-            msg: `✗ Error: ${meta?.error || j?.error || 'Koneksi gagal'}`,
-            ok: false
+            msg: `✗ ${info.title}: ${info.detail}`,
+            ok: false,
+            title: info.title,
+            detail: info.detail,
+            suggestion: info.suggestion,
+            category: info.category
+          });
+          setAppAlert({
+            type: 'error',
+            title: info.title,
+            message: info.detail,
+            suggestion: info.suggestion,
+            category: info.category
           });
           return;
         }
+        setAppAlert(null);
         if (meta?.isLive) {
           setTestResult({
             msg: `✓ Connected — ${meta.provider || 'Google AI Studio'} (${meta.model || model}) • responded in ${meta.latencyMs || ms}ms [Live API]`,
-            ok: true
+            ok: true,
+            title: 'Koneksi Gemini Berhasil',
+            detail: `Model ${meta.model || model} aktif dan merespons dalam ${meta.latencyMs || ms}ms.`
           });
           fetchModels(apiKey); // Auto-fetch live models on success
         } else {
           setTestResult({
             msg: `✓ Active — ${meta?.provider || 'TelecomAgent RF Engine'} (${meta?.model || model}) • ${ms}ms [Domain Standby]`,
-            ok: true
+            ok: true,
+            title: 'Engine Lokal Aktif',
+            detail: `${meta?.provider || 'TelecomAgent'} siap memproses query RF.`
           });
         }
       })
       .catch(e => {
-        setTestResult({ msg: `✗ Koneksi gagal: ${e.message || String(e)}`, ok: false });
+        const msg = e.message || String(e);
+        const info = e.errorInfo || {
+          title: 'Koneksi LLM Gagal',
+          detail: msg,
+          suggestion: 'Pastikan API Key Google AI Studio valid dan kuota belum habis.'
+        };
+        setTestResult({
+          msg: `✗ ${info.title}: ${info.detail}`,
+          ok: false,
+          title: info.title,
+          detail: info.detail,
+          suggestion: info.suggestion
+        });
+        setAppAlert({
+          type: 'error',
+          title: info.title,
+          message: info.detail,
+          suggestion: info.suggestion
+        });
       })
       .finally(() => setTesting(false));
   }
@@ -346,6 +417,64 @@ export default function App() {
         </div>
       </div>
 
+      {/* TOP NOTIFICATION BANNER — Shows specific Google AI Studio errors (API Key invalid, Quota exceeded) */}
+      {appAlert && (
+        <div
+          id="top-alert-banner"
+          style={{
+            background: appAlert.type === 'error' ? '#180a0a' : '#18181b',
+            borderBottom: '1px solid #7f1d1d',
+            padding: '8px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            zIndex: 30,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
+          }}
+        >
+          <div style={{width:22,height:22,borderRadius:6,background:'#7f1d1d',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <i className="ri-error-warning-fill" style={{color:'#fca5a5',fontSize:13}}></i>
+          </div>
+          <div style={{flex:1,minWidth:0,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+            <span style={{fontWeight:600,fontSize:12,color:'#fecaca'}}>{appAlert.title}:</span>
+            <span style={{fontSize:12,color:'#fca5a5',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:480}}>
+              {appAlert.message}
+            </span>
+            {appAlert.suggestion && (
+              <span style={{fontSize:11,color:'#fde68a',background:'#451a03',border:'1px solid #78350f',padding:'1px 6px',borderRadius:4,fontWeight:500}}>
+                💡 {appAlert.suggestion}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={()=>setLlmOpen(true)}
+            style={{
+              background:'#7c3aed',
+              border:'none',
+              color:'#fff',
+              padding:'4px 10px',
+              borderRadius:6,
+              fontSize:11,
+              fontWeight:600,
+              cursor:'pointer',
+              whiteSpace:'nowrap',
+              display:'flex',
+              alignItems:'center',
+              gap:5
+            }}
+          >
+            <i className="ri-settings-3-line"></i> Konfigurasi LLM
+          </button>
+          <button
+            onClick={()=>setAppAlert(null)}
+            style={{background:'transparent',border:'none',color:'#a1a1aa',cursor:'pointer',padding:2}}
+            title="Tutup Notifikasi"
+          >
+            <i className="ri-close-line" style={{fontSize:16}}></i>
+          </button>
+        </div>
+      )}
+
       {/* MAIN */}
       <div style={{display:'flex',flex:1,overflow:'hidden'}}>
         {tab==='agent' && (
@@ -353,6 +482,13 @@ export default function App() {
             llmConfig={{ provider, model, baseUrl, apiKey, temp, maxTokens, systemPrompt }}
             onManageSkills={()=>setTab('skills')}
             onOpenLlmSettings={()=>setLlmOpen(true)}
+            onErrorNotify={err => setAppAlert({
+              type: 'error',
+              title: err.title,
+              message: err.message,
+              suggestion: err.suggestion,
+              category: err.category
+            })}
           />
         )}
         {tab==='vault' && <KnowledgeVault />}
@@ -540,8 +676,44 @@ export default function App() {
                 <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,cursor:'pointer'}}><input type="checkbox" defaultChecked style={{accentColor:'#7c3aed'}} /> Graph-aware traversal</label>
                 <label style={{display:'flex',alignItems:'center',gap:8,fontSize:13,cursor:'pointer'}}><input type="checkbox" defaultChecked style={{accentColor:'#7c3aed'}} /> Skill auto-load on chat</label>
               </div>
-              <button onClick={doTestLLM} disabled={testing} style={{width:'100%',background:'#18181b',border:'1px solid #27272a',padding:'10px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7'}}><i className="ri-plug-line"></i> {testing?'Testing...':'Test Connection'}</button>
-              {testResult && <p style={{fontSize:12,textAlign:'center',color: testResult.ok?'#34d399':'#f87171'}}>{testResult.msg}</p>}
+              <button onClick={doTestLLM} disabled={testing} style={{width:'100%',background:'#18181b',border:'1px solid #27272a',padding:'10px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                <i className={testing ? "ri-loader-4-line animate-spin" : "ri-plug-line"}></i>
+                {testing ? 'Menguji Koneksi...' : 'Test Connection'}
+              </button>
+
+              {testResult && (
+                <div
+                  style={{
+                    borderRadius: 10,
+                    padding: 12,
+                    border: testResult.ok ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(239,68,68,0.4)',
+                    background: testResult.ok ? 'rgba(6,78,59,0.25)' : 'rgba(69,10,10,0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6
+                  }}
+                >
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <i className={testResult.ok ? "ri-checkbox-circle-fill" : "ri-error-warning-fill"} style={{color: testResult.ok ? '#34d399' : '#f87171', fontSize: 16}}></i>
+                    <span style={{fontSize: 13, fontWeight: 600, color: testResult.ok ? '#a7f3d0' : '#fecaca'}}>
+                      {testResult.title || (testResult.ok ? 'Koneksi Berhasil' : 'Koneksi Gagal')}
+                    </span>
+                    {testResult.category && (
+                      <span style={{marginLeft:'auto',fontSize:10,background:'rgba(0,0,0,0.3)',color:'#fca5a5',padding:'1px 6px',borderRadius:4,fontFamily:'JetBrains Mono, monospace'}}>
+                        {testResult.category}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{fontSize: 12, color: testResult.ok ? '#6ee7b7' : '#fca5a5', margin: 0, lineHeight: 1.5}}>
+                    {testResult.detail || testResult.msg}
+                  </p>
+                  {testResult.suggestion && (
+                    <div style={{fontSize: 11, color: '#fde68a', background: 'rgba(0,0,0,0.3)', padding: '6px 10px', borderRadius: 6, marginTop: 4}}>
+                      💡 <strong>Saran:</strong> {testResult.suggestion}
+                    </div>
+                  )}
+                </div>
+              )}
               <div style={{display:'flex',gap:8,paddingTop:8,borderTop:'1px solid #27272a'}}>
                 <button onClick={()=>setLlmOpen(false)} style={{flex:1,background:'#18181b',border:'1px solid #27272a',padding:'10px',borderRadius:8,fontSize:13,cursor:'pointer',color:'#e4e4e7'}}>Cancel</button>
                 <button onClick={()=>setLlmOpen(false)} style={{flex:1,background:'#7c3aed',border:'none',padding:'10px',borderRadius:8,fontSize:13,fontWeight:500,cursor:'pointer',color:'#fff'}}>Save & Apply</button>

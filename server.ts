@@ -32,6 +32,102 @@ app.get('/favicon.ico', (_req: Request, res: Response) => {
 });
 
 
+// Helper: parse Google Generative Language API error into clean user diagnostics
+function analyzeGoogleError(errData: any): {
+  code: string | number;
+  status: string;
+  category: 'KEY_INVALID' | 'KEY_EXPIRED' | 'QUOTA_EXCEEDED' | 'PERMISSION_DENIED' | 'LOCATION_UNSUPPORTED' | 'OTHER';
+  title: string;
+  detail: string;
+  suggestion: string;
+} {
+  const err = errData?.error || errData || {};
+  let rawMsg = String(err?.message || errData?.message || 'Unknown error');
+  if (rawMsg.includes('{"error"') || rawMsg.startsWith('{')) {
+    try {
+      const idx = rawMsg.indexOf('{');
+      const parsed = JSON.parse(rawMsg.slice(idx));
+      if (parsed?.error?.message) {
+        rawMsg = parsed.error.message;
+      } else if (parsed?.message) {
+        rawMsg = parsed.message;
+      }
+    } catch {}
+  }
+  const rawStatus = String(err?.status || '');
+  const rawCode = err?.code || 500;
+  const reason = err?.details?.[0]?.reason || '';
+
+  const msgLower = rawMsg.toLowerCase();
+  const reasonLower = String(reason).toLowerCase();
+  const statusLower = rawStatus.toLowerCase();
+
+  if (
+    reasonLower.includes('api_key_invalid') ||
+    msgLower.includes('api key not valid') ||
+    msgLower.includes('api_key_invalid') ||
+    msgLower.includes('invalid api key')
+  ) {
+    return {
+      code: rawCode || 400,
+      status: 'API_KEY_INVALID',
+      category: 'KEY_INVALID',
+      title: 'API Key Tidak Valid',
+      detail: rawMsg,
+      suggestion: 'Kunci API yang dimasukkan salah atau tidak terdaftar. Periksa kembali string API Key dari Google AI Studio.'
+    };
+  }
+
+  if (msgLower.includes('expired') || reasonLower.includes('expired')) {
+    return {
+      code: rawCode || 401,
+      status: 'API_KEY_EXPIRED',
+      category: 'KEY_EXPIRED',
+      title: 'API Key Telah Kadaluarsa',
+      detail: rawMsg,
+      suggestion: 'Masa aktif API Key telah berakhir. Silakan buat API Key baru di Google AI Studio.'
+    };
+  }
+
+  if (
+    rawCode === 429 ||
+    statusLower.includes('resource_exhausted') ||
+    reasonLower.includes('quota') ||
+    msgLower.includes('quota') ||
+    msgLower.includes('exhausted') ||
+    msgLower.includes('rate limit')
+  ) {
+    return {
+      code: 429,
+      status: 'RESOURCE_EXHAUSTED',
+      category: 'QUOTA_EXCEEDED',
+      title: 'Batas Kuota / Rate Limit Tercapai',
+      detail: 'Kuota permintaan model saat ini telah habis atau mencapai rate-limit.',
+      suggestion: 'Sistem mencoba beralih ke model alternatif, atau tunggu sejenak.'
+    };
+  }
+
+  if (rawCode === 403 || statusLower.includes('permission_denied') || msgLower.includes('permission')) {
+    return {
+      code: 403,
+      status: 'PERMISSION_DENIED',
+      category: 'PERMISSION_DENIED',
+      title: 'Izin Ditolak (Permission Denied)',
+      detail: rawMsg,
+      suggestion: 'API Key ini tidak memiliki izin akses ke Generative Language API.'
+    };
+  }
+
+  return {
+    code: rawCode,
+    status: rawStatus || 'ERROR',
+    category: 'OTHER',
+    title: 'Galat Google AI Studio',
+    detail: rawMsg,
+    suggestion: 'Gagal menghubungi Google AI Studio. Silakan periksa koneksi dan API Key Anda.'
+  };
+}
+
 // ── API: Fetch Available Models ──
 app.all('/api/models', async (req, res) => {
   const apiKey = (
@@ -42,10 +138,19 @@ app.all('/api/models', async (req, res) => {
     ''
   ).toString().trim();
 
+  const defaultModels = [
+    { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', description: 'Model cepat & cerdas generasi terbaru untuk analisis RF (Rekomendasi)' },
+    { id: 'gemini-3.6-flash', name: 'Gemini 3.6 Flash', description: 'Model Flash generasi 3 untuk respons kilat' },
+    { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite', description: 'Model efisien ultra-ringan' },
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview', description: 'Model penalaran mendalam untuk RCA & 3GPP' }
+  ];
+
   if (!apiKey) {
-    return res.status(400).json({
+    return res.json({
       ok: false,
-      error: 'API key required. Masukkan Gemini API Key di menu LLM Configuration atau simpan di environment.'
+      models: defaultModels,
+      modelNames: defaultModels.map(m => m.id),
+      message: 'Belum ada API Key; menampilkan daftar model default.'
     });
   }
 
@@ -54,10 +159,13 @@ app.all('/api/models', async (req, res) => {
     const data: any = await response.json();
 
     if (data.error) {
-      return res.status(response.status || 400).json({
+      const errInfo = analyzeGoogleError(data.error);
+      return res.json({
         ok: false,
-        error: data.error.message || 'Gagal memverifikasi API Key ke Google AI Studio',
-        detail: data.error
+        error: `${errInfo.title}: ${errInfo.detail}`,
+        errorInfo: errInfo,
+        models: defaultModels,
+        modelNames: defaultModels.map(m => m.id)
       });
     }
 
@@ -80,13 +188,13 @@ app.all('/api/models', async (req, res) => {
     // Priority sorting: modern Flash & Pro models first
     filtered.sort((a, b) => {
       const getScore = (id: string) => {
-        if (id === 'gemini-2.5-flash') return 1;
-        if (id.includes('2.5-flash')) return 2;
+        if (id === 'gemini-3.8-flash') return 1;
+        if (id === 'gemini-3.6-flash') return 2;
         if (id.includes('3.8-flash')) return 3;
-        if (id === 'gemini-2.5-pro') return 4;
-        if (id.includes('2.5-pro')) return 5;
-        if (id.includes('3.1-pro')) return 6;
-        if (id.includes('flash-latest')) return 7;
+        if (id.includes('3.6-flash')) return 4;
+        if (id === 'gemini-3.1-flash-lite') return 5;
+        if (id.includes('flash-lite')) return 6;
+        if (id === 'gemini-3.1-pro-preview') return 7;
         if (id.includes('flash')) return 10;
         if (id.includes('pro')) return 20;
         return 50;
@@ -99,8 +207,8 @@ app.all('/api/models', async (req, res) => {
     return res.json({
       ok: true,
       total: filtered.length,
-      models: filtered,
-      modelNames,
+      models: filtered.length > 0 ? filtered : defaultModels,
+      modelNames: filtered.length > 0 ? modelNames : defaultModels.map(m => m.id),
       raw: data.models
     });
   } catch (e: any) {
@@ -1685,7 +1793,7 @@ function computeSpeedtestBenchmark(): string | null {
     const {
       messages = [],
       provider = 'google',
-      model = 'gemini-1.5-flash',
+      model = 'gemini-3.8-flash',
       apiKey,
       temperature = 0.3,
       max_tokens = 2048,
@@ -1713,13 +1821,19 @@ function computeSpeedtestBenchmark(): string | null {
     const providerEnvKey = providerLower.toUpperCase().replace('-', '_') + '_API_KEY';
     const envKeyForProvider = process.env[providerEnvKey] || (providerLower === '9router' ? (process.env['9ROUTER_API_KEY'] || process.env['NINE_ROUTER_API_KEY'] || '') : '');
     const effectiveApiKey = (apiKey || envKeyForProvider || process.env.GEMINI_API_KEY || '').toString().trim();
-    // normalize model name — default to modern gemini-2.5-flash for google
-    let targetModel = model || (isGoogle ? 'gemini-2.5-flash' : 'my-combo');
-    if (isGoogle && (!targetModel || targetModel === 'my-combo')) {
-      targetModel = 'gemini-2.5-flash';
+    // normalize model name — default to modern gemini-3.8-flash for google
+    let targetModel = model || (isGoogle ? 'gemini-3.8-flash' : 'my-combo');
+    if (isGoogle) {
+      if (!targetModel || targetModel === 'my-combo' || targetModel === 'gemini-2.5-flash' || targetModel === 'gemini-1.5-flash' || targetModel === 'gemini-2.0-flash') {
+        targetModel = 'gemini-3.8-flash';
+      } else if (targetModel === 'gemini-2.5-flash-lite') {
+        targetModel = 'gemini-3.1-flash-lite';
+      } else if (targetModel === 'gemini-2.5-pro' || targetModel === 'gemini-1.5-pro') {
+        targetModel = 'gemini-3.1-pro-preview';
+      }
     }
-    // PRIORITY: if 9Router is reachable, override provider+model
-    if (providerLower !== '9router' && baseUrl !== 'http://localhost:20128/v1') {
+    // PRIORITY: if 9Router is selected or provider is auto/empty, auto-detect 9Router
+    if (providerLower === '9router' || (!provider && baseUrl !== 'http://localhost:20128/v1')) {
       try {
         const _chk = await fetch('http://localhost:20128/v1/models', { signal: AbortSignal.timeout(1500) });
         if (_chk.ok) {
@@ -1830,15 +1944,18 @@ function computeSpeedtestBenchmark(): string | null {
       const useGemini = isGoogle && effectiveApiKey && effectiveApiKey.length > 5;
       let lastGeminiError: string | null = null;
       if (useGemini) {
-        // Gemini native SDK (systemInstruction + chat)
+        // Gemini native SDK: urutkan model dari target user, disusul model Gemini 3 series
         const candidateModels = [
           targetModel,
-          "gemini-2.5-flash",
-          "gemini-2.5-pro",
-          "gemini-3.1-pro-preview",
           "gemini-3.8-flash",
+          "gemini-3.6-flash",
+          "gemini-3.1-flash-lite",
+          "gemini-3.5-flash-lite",
+          "gemini-3.1-pro-preview"
         ];
         const testedModels = Array.from(new Set(candidateModels.filter(Boolean)));
+        let lastQuotaErrorInfo: any = null;
+
         for (const currentModel of testedModels) {
           try {
             const ai = new GoogleGenAI({ apiKey: effectiveApiKey });
@@ -1853,18 +1970,34 @@ function computeSpeedtestBenchmark(): string | null {
             });
             const replyRaw = resp.text || "";
             if (replyRaw.trim()) {
+              const wasSwitched = currentModel !== targetModel;
               return {
                 reply: sanitizePlainText(replyRaw),
                 currentModel,
-                provider: "Google AI Studio",
+                provider: wasSwitched ? `Google AI Studio (Auto-switch: ${currentModel})` : "Google AI Studio",
                 providerId: "google",
-                isLive: true
+                isLive: true,
+                autoSwitched: wasSwitched
               };
             }
           } catch (mErr: any) {
             lastGeminiError = mErr?.message || String(mErr);
             console.warn(`[chat] Gemini ${currentModel} error:`, lastGeminiError);
+            const errInfo = analyzeGoogleError({ message: lastGeminiError });
+            // Jika kunci salah / kadaluarsa / izin ditolak, ganti model tidak akan membantu
+            if (errInfo.category === 'KEY_INVALID' || errInfo.category === 'KEY_EXPIRED' || errInfo.category === 'PERMISSION_DENIED') {
+              return { isError: true, errorInfo: errInfo, currentModel };
+            }
+            // Jika kuota habis (429 / RESOURCE_EXHAUSTED), simpan error dan lanjut coba model free berikutnya
+            if (errInfo.category === 'QUOTA_EXCEEDED') {
+              lastQuotaErrorInfo = errInfo;
+              console.log(`[chat] Kuota ${currentModel} habis, mencoba otomatis model alternatif...`);
+              continue;
+            }
           }
+        }
+        if (lastQuotaErrorInfo) {
+          return { isError: true, errorInfo: lastQuotaErrorInfo, currentModel: targetModel };
         }
       }
       // OpenRouter / 9Router / OpenAI-compatible endpoint
@@ -1873,7 +2006,7 @@ function computeSpeedtestBenchmark(): string | null {
       const headers: Record<string,string> = { "Content-Type": "application/json", ...(_k.length > 5 ? { Authorization: `Bearer ${_k}` } : {}) };
       if (providerLower === '9router') console.log(`[chat] 9router _k len=${_k.length} hex=${Buffer.from(_k).toString('hex').slice(0,40)} hasAuth=${!!(headers as any).Authorization} base=${base}`);
       // For 9router: working model is ollama/gpt-oss:120b (my-combo currently empty) — keep user model first, then working fallback
-      const orModels = (providerLower === "google") ? [targetModel, "gemini-2.5-flash"] : Array.from(new Set([targetModel].filter(Boolean)));
+      const orModels = (providerLower === "google") ? [targetModel, "gemini-3.8-flash", "gemini-3.6-flash"] : Array.from(new Set([targetModel].filter(Boolean)));
       for (const currentModel of Array.from(new Set(orModels.filter(Boolean)))) {
         try {
           const resp = await fetch(`${base.replace(/\/+$/, "")}/chat/completions`, {
@@ -1896,7 +2029,36 @@ function computeSpeedtestBenchmark(): string | null {
       }
       return null; // semua gagal → fallback engine
     })();
-    const liveResult = await doFetchLLM;
+    const liveResult: any = await doFetchLLM;
+
+    // ── Check if Google Gemini returned an error (API Key invalid, Quota Exceeded, etc.) ──
+    if (liveResult && liveResult.isError && liveResult.errorInfo) {
+      const errInfo = liveResult.errorInfo;
+      const latencyMs = Date.now() - startTime;
+      return res.json({
+        ok: false,
+        error: `${errInfo.title}: ${errInfo.detail}`,
+        errorInfo: errInfo,
+        choices: [{
+          message: {
+            role: "assistant",
+            content: `### ${errInfo.title}\n\n**Pesan dari Google AI Studio:**\n> \`${errInfo.detail}\`\n\n**Solusi & Rekomendasi:**\n- ${errInfo.suggestion}\n- Buka panel **LLM Configuration** di pojok kanan atas untuk memeriksa kembali API Key Anda.`
+          }
+        }],
+        meta: {
+          provider: "Google AI Studio",
+          providerId: "google",
+          model: liveResult.currentModel || targetModel,
+          isLive: false,
+          status: "error",
+          errorCategory: errInfo.category,
+          errorCode: errInfo.code,
+          error: errInfo.detail,
+          latencyMs
+        }
+      });
+    }
+
     // ── Drive‑Test deterministic fallback when live fails (ensure pandas + isLive true) ──
     {
       const _isOpEarly = /mcc|mnc|plmn|earfcn|arfcn|band\s*(1|3|8|28|40|n28|n40|n1|n3)|carrier_freq|eNodeB_ID|gNodeB|cellreserved|mocn|bandwidth\s*=|spectrum|sib1|tac\s*=|cgi\b|510-\d{2}|\bB\s*(1|3|8|40)\b/i.test(lastUserMsg);
@@ -1990,6 +2152,7 @@ function computeSpeedtestBenchmark(): string | null {
         meta: { provider: liveResult.provider, providerId: liveResult.providerId, model: liveResult.currentModel, modelVersion: liveResult.currentModel, isLive: true, latencyMs, status: "connected", reason: skillsMetaForResponse.length ? `Live model + skill-aware: ${skillsMetaForResponse.map(s=>s.id).join(", ")}` : `Inferensi via ${liveResult.provider} model ${liveResult.currentModel}.` },
       });
     }
+
 // ── Smart Fallback: memory-aware, intent scorer, vault-first, humanizer (BYOK live-first intact) ──
     const history = messages.filter((m:any)=> m.role==="user"||m.role==="assistant").slice(-8);
     const _lowerTrim = lastUserMsg.toLowerCase().trim();
